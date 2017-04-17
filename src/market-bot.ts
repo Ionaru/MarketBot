@@ -11,7 +11,7 @@ import { MarketData, ParsedMessage, PriceData, SDEObject } from './typings';
 
 class MarketBot {
 
-    creator = 'Ionaru Otsada';
+    creator = {name: 'Ionaru', id: '96746840958959616'};
     playing = {game: {name: 'with ISK (/i for info)'}};
 
     client: Discord.Client;
@@ -70,7 +70,7 @@ class MarketBot {
         this.client.on('message', (message: Discord.Message) => {
             this.processMessage(message).then().catch(async (error) => {
                 console.error(error);
-                await message.channel.sendMessage('ERROR! Something went wrong, please consult Ionaru Otsada');
+                message.channel.sendMessage(`ERROR! Something went wrong, please consult <@${this.creator.id}>\n`).then();
             });
         });
         console.log('I am online!');
@@ -270,7 +270,7 @@ class MarketBot {
 
         } else if (discordMessage.content.match(new RegExp(`^${this.infoCommand}`, 'i'))) {
             discordMessage.channel.sendMessage('Greetings, I am MarketBot!\n' +
-                'I was created by Ionaru Otsada to fetch data from the EVE Online market, ' +
+                `I was created by <@${this.creator.id}> to fetch data from the EVE Online market, ` +
                 'all my data currently comes from https://eve-central.com, the EVE Swagger Interface ' +
                 'and the Static Data Export provided by CCP.\n\n' +
                 'You can access my functions by using these commands:\n\n' +
@@ -280,7 +280,8 @@ class MarketBot {
                 `- \`${this.ordersCommand} <item name> [${this.regionCommand} <region name>] [${this.limitCommand} <limit>]\` ` +
                 '- When issued with this command, I will search a regional market for the best sell orders available.' +
                 '\n**Warning! This does not include Citadels**\n\n' +
-                `- \`${this.infoCommand}\` - Print this information.`).then();
+                `- \`${this.infoCommand}\` - Print this information.\n\n` +
+                'My code is publicly available on https://github.com/Ionaru/MarketBot').then();
         }
     }
 
