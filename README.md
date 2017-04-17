@@ -19,3 +19,7 @@ Just follow these steps to get started:
 3. Create a `token.txt` and place it in the `config` folder.
 4. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
 5. Make your changes and create a pull request.
+
+##To-Do
+1. Search for best buy orders
+2. Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate

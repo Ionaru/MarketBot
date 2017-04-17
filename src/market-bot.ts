@@ -31,7 +31,7 @@ class MarketBot {
         this.universeApi = new UniverseApi();
 
         console.log('Bot has awoken, loading typeIDs.yaml');
-        let yaml = jsyaml.load(fs.readFileSync(path.join(__dirname, '../data/typeIDs.yaml')).toString());
+        const yaml = jsyaml.load(fs.readFileSync(path.join(__dirname, '../data/typeIDs.yaml')).toString());
         console.log('File loaded, starting parse cycle');
         for (const key in yaml) {
             if (yaml.hasOwnProperty(key)) {
@@ -49,7 +49,7 @@ class MarketBot {
             maxPatternLength: 128,
             tokenize: true,
             minMatchCharLength: 1,
-            keys: ["name.en"]
+            keys: ['name.en']
         };
 
         this.fuse = new Fuse(this.items, fuseOptions);
@@ -60,7 +60,9 @@ class MarketBot {
 
         this.client = new Discord.Client();
         this.client.login(this.token);
-        this.client.once('ready', () => {this.announceReady();});
+        this.client.once('ready', () => {
+            this.announceReady();
+        });
     }
 
     private announceReady() {
@@ -86,7 +88,8 @@ class MarketBot {
 
             const message = this.parseMessage(discordMessage);
 
-            let replyPlaceholder = <Discord.Message> await discordMessage.channel.sendMessage(`Checking price, one moment, ${discordMessage.author.username}...`);
+            const replyPlaceholder = <Discord.Message> await discordMessage.channel.sendMessage(
+                `Checking price, one moment, ${discordMessage.author.username}...`);
 
             let reply = '';
 
@@ -114,7 +117,7 @@ class MarketBot {
                     }
                 }
 
-                let regionName = regionList[regionId];
+                const regionName = regionList[regionId];
 
                 const itemId = itemData.itemID;
 
@@ -176,7 +179,8 @@ class MarketBot {
 
             const message = this.parseMessage(discordMessage);
 
-            let replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(`Searching for the cheapest orders, one moment, ${discordMessage.author.username}...`);
+            const replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(
+                `Searching for the cheapest orders, one moment, ${discordMessage.author.username}...`);
 
             let reply = '';
 
@@ -190,7 +194,8 @@ class MarketBot {
                 itemData = this.guessUserItemInput(message.item);
                 if (itemData) {
                     reply += `'${message.item}' didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
-                    reply += `*Guessing words is really difficult for bots like me, please try to spell the words as accurate as possible.*\n\n`
+                    reply += '*Guessing words is really difficult for bots like me, ' +
+                        'please try to spell the words as accurate as possible.*\n\n';
                 }
             }
 
@@ -206,7 +211,7 @@ class MarketBot {
                     }
                 }
 
-                let regionName = regionList[regionId];
+                const regionName = regionList[regionId];
 
                 const itemId = itemData.itemID;
 
@@ -228,7 +233,7 @@ class MarketBot {
 
                     locationIds = [...new Set(locationIds)];
 
-                    let nameData = await this.universeApi.postUniverseNames(locationIds);
+                    const nameData = await this.universeApi.postUniverseNames(locationIds);
                     const locationNames = nameData.body;
 
                     reply += `The cheapest \`${itemData.name.en}\` orders in **${regionName}**:\n\n`;
@@ -236,11 +241,12 @@ class MarketBot {
                     const limit = message.limit || 5;
                     let iter = 0;
                     for (const order of sellOrdersSorted) {
-                        let price = order.price;
-                        let locationName = locationNames.filter(_ => _.id === order.location_id)[0].name;
-                        let volume = order.volume_remain;
+                        const orderPrice = this.formatISK(order.price);
+                        const locationName = locationNames.filter(_ => _.id === order.location_id)[0].name;
+                        const volume = order.volume_remain;
+                        const itemWord = this.pluralize('item', 'items', volume);
 
-                        reply += `\`${this.formatISK(price)} ISK\` at \`${locationName}\`, \`${volume}\` ${this.pluralize('item', 'items', volume)} left.\n`;
+                        reply += `\`${orderPrice} ISK\` at \`${locationName}\`, \`${volume}\` ${itemWord} left.\n`;
 
                         iter++;
                         if (iter >= limit) {
@@ -261,7 +267,8 @@ class MarketBot {
         } else if (discordMessage.content.match(new RegExp(`^${this.infoCommand}`, 'i'))) {
             discordMessage.channel.sendMessage('Greetings, I am MarketBot!\n' +
                 'I was created by Ionaru Otsada to fetch data from the EVE Online market, ' +
-                'all my data currently comes from https://eve-central.com, the EVE Swagger Interface and the Static Data Export provided by CCP.\n\n' +
+                'all my data currently comes from https://eve-central.com, the EVE Swagger Interface ' +
+                'and the Static Data Export provided by CCP.\n\n' +
                 'You can access my functions by using these commands:\n\n' +
                 `- \`${this.priceCommand} <item-name> [${this.regionCommand} <region-name>]\` ` +
                 '- Use this to let me fetch data from the EVE Online market for a given item, ' +
@@ -274,7 +281,7 @@ class MarketBot {
     }
 
     private pluralize(singular: string, plural: string, amount: number): string {
-        if(amount === 1){
+        if (amount === 1) {
             return singular;
         }
         return plural;
@@ -351,7 +358,7 @@ class MarketBot {
 
         console.log(url);
         const refreshResponse = await fetch(url).catch(console.error);
-        if(refreshResponse) {
+        if (refreshResponse) {
             return await refreshResponse.json().catch(console.error);
         }
     }
@@ -387,6 +394,7 @@ class MarketBot {
             }
             return 0;
         }
+
         return array.sort(compare);
     }
 
@@ -400,45 +408,46 @@ class MarketBot {
             }
             return 0;
         }
+
         return array.sort(compare);
     }
 
     private parseMessage(message: Discord.Message): ParsedMessage {
-        let parsedMessage: ParsedMessage = {
+        const parsedMessage: ParsedMessage = {
             item: null,
             region: null,
             limit: null,
         };
 
         // Remove double spaces because that confuses the input guessing system
-        let messageText = message.content.replace(/ +(?= )/g, '');
+        const messageText = message.content.replace(/ +(?= )/g, '');
 
         // Split the message into seperate words and remove the first word (the command tag)
-        let messageWords = messageText.split(' ');
+        const messageWords = messageText.split(' ');
         messageWords.shift();
 
         // Search for the item text
         let itemText = messageWords.join(' ');
-        if(itemText.indexOf(this.commandPrefix) !== -1) {
+        if (itemText.indexOf(this.commandPrefix) !== -1) {
             itemText = itemText.substring(0, itemText.indexOf(this.commandPrefix)).trim();
         }
         parsedMessage.item = itemText;
 
         // Search for the region text
-        let regionCommandIndex = messageText.indexOf(this.regionCommand);
-        if(regionCommandIndex !== -1) {
+        const regionCommandIndex = messageText.indexOf(this.regionCommand);
+        if (regionCommandIndex !== -1) {
             let sep1 = messageText.substring(regionCommandIndex + this.regionCommand.length).trim();
-            if(sep1.indexOf(this.commandPrefix) !== -1) {
+            if (sep1.indexOf(this.commandPrefix) !== -1) {
                 sep1 = sep1.substring(0, sep1.indexOf(this.commandPrefix)).trim();
             }
             parsedMessage.region = sep1;
         }
 
         // Search for the limit text
-        let limitCommandIndex = messageText.indexOf(this.limitCommand);
-        if(limitCommandIndex !== -1) {
+        const limitCommandIndex = messageText.indexOf(this.limitCommand);
+        if (limitCommandIndex !== -1) {
             let sep1 = messageText.substring(limitCommandIndex + this.limitCommand.length).trim();
-            if(sep1.indexOf(this.commandPrefix) !== -1) {
+            if (sep1.indexOf(this.commandPrefix) !== -1) {
                 sep1 = sep1.substring(0, sep1.indexOf(this.commandPrefix)).trim();
             }
             parsedMessage.limit = Number(sep1);
@@ -451,12 +460,6 @@ class MarketBot {
 const marketBot = new MarketBot();
 
 process.stdin.resume();
-process.on('SIGINT', async () => {await marketBot.deactivate();});
-
-/*
- Notes:
- - Better fuzzy item search e.g. subprocessor standard == Cybernetic Subprocessor - Standard
- - Faster fuzzy item search, it's sloooooooooow
- - Limit order count on /c
- - Show buy orders
- */
+process.on('SIGINT', async () => {
+    await marketBot.deactivate();
+});
