@@ -101,7 +101,10 @@ class MarketBot {
             if (!itemData) {
                 itemData = this.guessUserItemInput(message.item);
                 if (itemData) {
-                    reply += `'${message.item}' didn't directly match any item I know of, my best guess is ${itemData.name.en}\n`;
+                    reply += `'${message.item}' didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
+                    // reply += '*Guessing words is really difficult for bots like me, ' +
+                    //     'please try to spell the words as accurate as possible.*\n';
+                    reply += '\n';
                 }
             }
 
@@ -112,7 +115,7 @@ class MarketBot {
                 if (message.region) {
                     regionId = this.guessUserRegionInput(message.region);
                     if (!regionId) {
-                        reply += `I don't know of the '${message.region}' region, defaulting to The Forge\n`;
+                        reply += `I don't know of the '${message.region}' region, defaulting to **The Forge**\n`;
                         regionId = 10000002;
                     }
                 }
@@ -143,7 +146,7 @@ class MarketBot {
                     }
 
                     if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {
-                        reply += `Price information for '${itemData.name.en}' in **${regionName}**:\n\n`;
+                        reply += `Price information for \`${itemData.name.en}\` in **${regionName}**:\n\n`;
 
                         if (sellPrice !== 'unknown') {
                             reply += `🡺 Lowest selling price is \`${lowestSellPrice}\`\n`;
@@ -194,8 +197,9 @@ class MarketBot {
                 itemData = this.guessUserItemInput(message.item);
                 if (itemData) {
                     reply += `'${message.item}' didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
-                    reply += '*Guessing words is really difficult for bots like me, ' +
-                        'please try to spell the words as accurate as possible.*\n\n';
+                    // reply += '*Guessing words is really difficult for bots like me, ' +
+                    //     'please try to spell the words as accurate as possible.*\n\n';
+                    reply += '\n';
                 }
             }
 
@@ -270,10 +274,10 @@ class MarketBot {
                 'all my data currently comes from https://eve-central.com, the EVE Swagger Interface ' +
                 'and the Static Data Export provided by CCP.\n\n' +
                 'You can access my functions by using these commands:\n\n' +
-                `- \`${this.priceCommand} <item-name> [${this.regionCommand} <region-name>]\` ` +
+                `- \`${this.priceCommand} <item name> [${this.regionCommand} <region name>]\` ` +
                 '- Use this to let me fetch data from the EVE Online market for a given item, ' +
                 'by default I use the market in The Forge region (where Jita is).\n\n' +
-                `- \`${this.ordersCommand} <item-name> [${this.regionCommand} <region-name>] [${this.limitCommand} <limit>]\` ` +
+                `- \`${this.ordersCommand} <item name> [${this.regionCommand} <region name>] [${this.limitCommand} <limit>]\` ` +
                 '- When issued with this command, I will search a regional market for the best sell orders available.' +
                 '\n**Warning! This does not include Citadels**\n\n' +
                 `- \`${this.infoCommand}\` - Print this information.`).then();
