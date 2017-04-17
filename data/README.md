@@ -1,0 +1,1 @@
+In this folder, the `typeIDs.yaml` file from CCP's Static Data Export should be placed.

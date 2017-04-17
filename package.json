@@ -1,0 +1,29 @@
+{
+  "name": "MarketBot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "discord.js": "^11.0.0",
+    "fuse.js": "^2.6.2",
+    "isomorphic-fetch": "^2.2.1",
+    "js-yaml": "^3.8.3",
+    "node-fetch": "^1.6.3",
+    "request": "^2.81.0",
+    "ts-node": "^3.0.2",
+    "typescript": "^2.2.2",
+    "xml2js": "^0.4.17"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bluebird": "^3.5.2",
+    "@types/js-yaml": "^3.5.29",
+    "@types/node": "^7.0.12",
+    "@types/node-fetch": "^1.6.7",
+    "@types/request": "^0.0.42",
+    "@types/xml2js": "^0.0.33"
+  }
+}

@@ -1,0 +1,16 @@
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Node/Npm files
+npm-debug.log*
+/node_modules/
+
+# Sensitive application files
+/config/token.txt
+/data/typeIDs.yaml
+/logs/
+
+# System files
+*.db

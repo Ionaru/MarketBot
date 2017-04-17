@@ -1,0 +1,1 @@
+In this folder, create a file with the name `token.txt`, and add the Discord bot token inside it.
