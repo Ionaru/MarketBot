@@ -7,7 +7,7 @@ import * as jsyaml from 'js-yaml';
 import { UniverseApi } from '../swagger/api';
 import Fuse = require('fuse.js');
 import { FuseOptions } from 'fuse.js';
-import { marketData, ParsedMessage, PriceData, sdeObject } from './typings';
+import { MarketData, ParsedMessage, PriceData, SDEObject } from './typings';
 
 class MarketBot {
 
@@ -16,7 +16,7 @@ class MarketBot {
 
     client: Discord.Client;
     token: string;
-    items: Array<sdeObject> = [];
+    items: Array<SDEObject> = [];
     fuse: Fuse;
     universeApi: UniverseApi;
 
@@ -35,7 +35,7 @@ class MarketBot {
         console.log('File loaded, starting parse cycle');
         for (const key in yaml) {
             if (yaml.hasOwnProperty(key)) {
-                const value: sdeObject = yaml[key];
+                const value: SDEObject = yaml[key];
                 value.itemID = Number(key);
                 this.items.push(value);
             }
@@ -221,7 +221,7 @@ class MarketBot {
 
                 if (sellOrders.length) {
 
-                    const sellOrdersSorted: Array<marketData> = this.sortArrayByObjectProperty(sellOrders, 'price');
+                    const sellOrdersSorted: Array<MarketData> = this.sortArrayByObjectProperty(sellOrders, 'price');
 
                     const cheapestOrder = sellOrdersSorted[0];
                     const price = cheapestOrder.price;
@@ -287,13 +287,13 @@ class MarketBot {
         return plural;
     }
 
-    private guessUserItemInput(itemString: string): sdeObject {
+    private guessUserItemInput(itemString: string): SDEObject {
         // let itemString = itemWords.join(' ');
 
         let itemData;
 
         let regex: RegExp;
-        let possibilities: Array<sdeObject> = [];
+        let possibilities: Array<SDEObject> = [];
         // for (const _ of itemWords) {
         // Item did not 100% match anything in the item list
         // itemString = itemWords.join(' ');
@@ -302,7 +302,7 @@ class MarketBot {
         regex = new RegExp(`^${itemString}`, 'i');
         possibilities.push(...this.items.filter(_ => {
             if (_.name.en) {
-                return _.name.en.match(regex)
+                return _.name.en.match(regex);
             }
         }));
 
@@ -311,7 +311,7 @@ class MarketBot {
             regex = new RegExp(`${itemString}$`, 'i');
             possibilities.push(...this.items.filter(_ => {
                 if (_.name.en) {
-                    return _.name.en.match(regex)
+                    return _.name.en.match(regex);
                 }
             }));
 
@@ -319,7 +319,7 @@ class MarketBot {
                 // Check in middle of words
                 possibilities.push(...this.items.filter(_ => {
                     if (_.name.en) {
-                        return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1
+                        return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
                     }
                 }));
             }
@@ -332,7 +332,7 @@ class MarketBot {
             itemData = possibilities[0];
             // break;
         } else {
-            itemData = <sdeObject> this.fuse.search(itemString)[0];
+            itemData = <SDEObject> this.fuse.search(itemString)[0];
         }
 
         return itemData;
@@ -363,7 +363,7 @@ class MarketBot {
         }
     }
 
-    private async fetchMarketData(itemId, regionId): Promise<Array<marketData>> {
+    private async fetchMarketData(itemId, regionId): Promise<Array<MarketData>> {
         const host = 'https://esi.tech.ccp.is/';
         const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
         const url = host + path;

@@ -1,5 +1,5 @@
-export interface sdeObject {
-    basePrice: number,
+export interface SDEObject {
+    basePrice: number;
     description: {
         de: string;
         en: string;
@@ -25,7 +25,7 @@ export interface sdeObject {
     itemID: number;
 }
 
-export interface marketData {
+export interface MarketData {
     order_id: number;
     type_id: number;
     location_id: number;

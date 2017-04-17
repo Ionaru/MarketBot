@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node ./index.js"
+    "start": "node ./index.js",
+    "lint": "tslint --type-check -c tslint.json \"src/**/*.ts\""
   },
   "dependencies": {
     "bluebird": "^3.5.0",
