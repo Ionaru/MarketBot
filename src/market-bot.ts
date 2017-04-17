@@ -68,9 +68,11 @@ class MarketBot {
     private announceReady() {
         this.client.user.setPresence(this.playing).then();
         this.client.on('message', (message: Discord.Message) => {
-            this.processMessage(message).then().catch(async (error) => {
+            this.processMessage(message).then().catch((error) => {
                 console.error(error);
-                message.channel.sendMessage(`ERROR! Something went wrong, please consult <@${this.creator.id}>\n`).then();
+                message.channel.sendMessage(
+                    `ERROR! Something went wrong, please consult <@${this.creator.id}>\n`
+                ).then();
             });
         });
         console.log('I am online!');
@@ -183,7 +185,8 @@ class MarketBot {
             const message = this.parseMessage(discordMessage);
 
             const replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(
-                `Searching for the cheapest orders, one moment, ${discordMessage.author.username}...`);
+                `Searching for the cheapest orders, one moment, ${discordMessage.author.username}...`
+            );
 
             let reply = '';
 
@@ -219,7 +222,7 @@ class MarketBot {
 
                 const itemId = itemData.itemID;
 
-                const marketData = await this.fetchMarketData(itemId, regionId).then();
+                const marketData = await this.fetchMarketData(itemId, regionId);
 
                 const sellOrders = marketData.filter(_ => _.is_buy_order === false);
 
@@ -250,7 +253,17 @@ class MarketBot {
                         const volume = order.volume_remain;
                         const itemWord = this.pluralize('item', 'items', volume);
 
-                        reply += `\`${orderPrice} ISK\` at \`${locationName}\`, \`${volume}\` ${itemWord} left.\n`;
+                        const replyAddition = `\`${orderPrice} ISK\` at \`${locationName}\`, \`${volume}\` ${itemWord} left.\n`;
+
+                        // Discord messages can not be longer than 2000 characters, if this command is issued with a
+                        // large limit, it can exceed that.
+                        if (replyAddition.length + reply.length < 2000) {
+                            // Adding this line will not make the message exceed the character limit, carry on.
+                            reply += replyAddition;
+                        } else {
+                            // We've reached the character limit, break from the loop.
+                            break;
+                        }
 
                         iter++;
                         if (iter >= limit) {
@@ -374,7 +387,7 @@ class MarketBot {
         const url = host + path;
 
         console.log(url);
-        const refreshResponse = await fetch(url);
+        const refreshResponse = await fetch(url).catch(error => {throw new Error(error)});
         return await refreshResponse.json();
     }
 
