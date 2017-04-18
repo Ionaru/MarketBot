@@ -49,7 +49,7 @@ export async function priceFunction(discordMessage: Discord.Message) {
 
     const json = await fetchItemPrice(itemId, regionId);
 
-    if (json) {
+    if (json.length) {
 
       const sellData: PriceData = json[0]['sell'];
       const buyData: PriceData = json[0]['buy'];
@@ -89,15 +89,14 @@ export async function priceFunction(discordMessage: Discord.Message) {
         await replyPlaceholder.edit(reply);
 
       } else {
-        replyPlaceholder.edit(
-          `I couldn't find any price information for '${itemData.name.en}' in **${regionName}**, sorry.`
-        );
+        reply += `I couldn't find any price information for '${itemData.name.en}' in **${regionName}**, sorry.`;
       }
     } else {
-      replyPlaceholder.edit(
-        `My apologies, I was unable to fetch the required data from the web, please try again later.`
-      );
+      reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
     }
+
+    await replyPlaceholder.edit(reply);
+
   } else {
     await discordMessage.channel.sendMessage(`I don't know what you mean with '${message.item}' 😟`);
   }

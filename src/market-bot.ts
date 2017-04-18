@@ -76,7 +76,7 @@ async function deactivate() {
 
 async function processMessage(discordMessage: Discord.Message) {
   if (discordMessage.content.match(new RegExp(`^${priceCommand}`, 'i'))) {
-    await priceFunction(discordMessage)
+    await priceFunction(discordMessage);
   } else if (discordMessage.content.match(new RegExp(`^${ordersCommand}`, 'i'))) {
     await ordersFunction(discordMessage);
   } else if (discordMessage.content.match(new RegExp(`^${infoCommand}`, 'i'))) {
@@ -88,7 +88,7 @@ export function handleError(message, error) {
   const time = Date.now();
   console.error(`Caught error @ ${time}\n`, error);
   message.channel.sendMessage(
-    `ERROR! Something went wrong, please consult <@${creator.id}>\n\n` +
+    `**ERROR** Something went wrong, please consult <@${creator.id}>\n\n` +
     `Error message: \`${error.message} @ ${time}\``
   ).then();
 }

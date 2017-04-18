@@ -6,11 +6,11 @@ export async function fetchItemPrice(itemId, regionId) {
   const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
 
   console.log(url);
-  const refreshResponse = await
-    fetch(url).catch(console.error);
+  const refreshResponse = await fetch(url);
   if (refreshResponse) {
-    return await
-      refreshResponse.json().catch(console.error);
+    return await refreshResponse.json().catch(() => {
+      return {};
+    });
   }
 }
 
@@ -21,5 +21,9 @@ export async function fetchMarketData(itemId, regionId): Promise<Array<MarketDat
 
   console.log(url);
   const refreshResponse = await fetch(url);
-  return await refreshResponse.json();
+  if (refreshResponse) {
+    return await refreshResponse.json().catch(() => {
+      return [];
+    });
+  }
 }
