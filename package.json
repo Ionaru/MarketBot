@@ -19,7 +19,6 @@
     "typescript": "^2.2.2",
     "xml2js": "^0.4.17"
   },
-  "license": "MIT",
   "devDependencies": {
     "@types/bluebird": "^3.5.2",
     "@types/chai": "^3.5.0",
@@ -34,5 +33,6 @@
     "mocha": "^3.2.0",
     "sinon": "^2.1.0",
     "tslint": "^4.5.1"
-  }
+  },
+  "license": "MIT"
 }
