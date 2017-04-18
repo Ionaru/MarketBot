@@ -23,3 +23,5 @@ Just follow these steps to get started:
 ## To-Do
 1. Search for best buy orders
 2. Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate
+3. Anonymous logging and search statistics
+4. Shortcuts for commonly used searches (e.g. PLEX)
