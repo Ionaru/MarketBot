@@ -15,6 +15,8 @@ The bot will respond to the following commands:
 Please open an [issue](https://github.com/Ionaru/MarketBot/issues/new) if you have any feature ideas for this bot
 or are missing any functionality.
 
+Alternatively you can contact me on EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
+
 ## Developer information
 Want to contribute? Awesome!
 Just follow these steps to get started:
