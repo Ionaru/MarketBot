@@ -11,6 +11,10 @@ The bot will respond to the following commands:
 * `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market orders for an item.
 * `/i` - Print a message with usage information
 
+## Feature requests
+Please open an [issue](https://github.com/Ionaru/MarketBot/issues/new) if you have any feature ideas for this bot
+or are missing any functionality.
+
 ## Developer information
 Want to contribute? Awesome!
 Just follow these steps to get started:
