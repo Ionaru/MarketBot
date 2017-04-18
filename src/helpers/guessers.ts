@@ -41,7 +41,6 @@ export function guessUserItemInput(itemString: string): SDEObject {
     // Sort by word length, shortest is usually the correct one
     possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
     itemData = possibilities[0];
-    // break;
   } else {
     itemData = <SDEObject> fuse.search(itemString)[0];
   }
