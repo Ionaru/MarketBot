@@ -1,5 +1,5 @@
 import * as Discord from 'discord.js';
-import { ParsedMessage } from '../typings';
+import { ParsedMessage, SDEObject } from '../typings';
 import { commandPrefix, limitCommand, regionCommand } from '../market-bot';
 
 export function parseMessage(message: Discord.Message): ParsedMessage {
@@ -44,4 +44,18 @@ export function parseMessage(message: Discord.Message): ParsedMessage {
   }
 
   return parsedMessage;
+}
+
+export function parseTypeIDs(typeIDs: Object): Array<SDEObject> {
+  const itemsArray = [];
+
+  for (const key in typeIDs) {
+    if (typeIDs.hasOwnProperty(key)) {
+      const value: SDEObject = typeIDs[key];
+      value.itemID = Number(key);
+      itemsArray.push(value);
+    }
+  }
+
+  return itemsArray;
 }

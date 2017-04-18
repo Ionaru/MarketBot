@@ -1,10 +1,11 @@
 import * as Discord from 'discord.js';
-import * as jsyaml from 'js-yaml';
 import { UniverseApi } from '../swagger/api';
 import { SDEObject } from './typings';
 import { infoFunction } from './commands/info';
 import { ordersFunction } from './commands/orders';
 import { priceFunction } from './commands/price';
+import { readToken, readTypeIDs } from './helpers/readers';
+import { parseTypeIDs } from './helpers/parsers';
 import fs = require('fs');
 import path = require('path');
 import Fuse = require('fuse.js');
@@ -13,11 +14,14 @@ export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export const playing = {game: {name: 'with ISK (/i for info)'}};
 
 export const universeApi = new UniverseApi();
-export const items: Array<SDEObject> = [];
+export let items: Array<SDEObject>;
 
 export let client: Discord.Client;
 export let fuse: Fuse;
 export let token: string;
+
+const tokenPath = path.join(__dirname, '../config/token.txt');
+const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
 
 export const commandPrefix = '/';
 export const priceCommand = commandPrefix + 'p';
@@ -28,15 +32,9 @@ export const infoCommand = commandPrefix + 'i';
 
 function activate() {
   console.log('Bot has awoken, loading typeIDs.yaml');
-  const yaml = jsyaml.load(fs.readFileSync(path.join(__dirname, '../data/typeIDs.yaml')).toString());
+  const typeIDs = readTypeIDs(typeIDsPath);
   console.log('File loaded, starting parse cycle');
-  for (const key in yaml) {
-    if (yaml.hasOwnProperty(key)) {
-      const value: SDEObject = yaml[key];
-      value.itemID = Number(key);
-      items.push(value);
-    }
-  }
+  items = parseTypeIDs(typeIDs);
 
   fuse = new Fuse(items, {
     shouldSort: true,
@@ -51,7 +49,7 @@ function activate() {
 
   console.log(`Parsing complete, ${items.length} items loaded into memory`);
 
-  token = fs.readFileSync(path.join(__dirname, '../config/token.txt')).toString();
+  token = readToken(tokenPath);
 
   client = new Discord.Client();
   client.login(token);
