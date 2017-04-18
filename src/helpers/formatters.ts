@@ -1,4 +1,4 @@
-export function formatISK(amount: number | string, decimals = 2, decimalMark = '.', delimiter = ','): string {
+export function formatNumber(amount: number | string, decimals = 2, decimalMark = '.', delimiter = ','): string {
   let i: any, j: any, n: any, s: any;
   n = Number(amount);
   s = n < 0 ? '-' : '';

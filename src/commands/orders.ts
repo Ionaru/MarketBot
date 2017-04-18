@@ -6,7 +6,7 @@ import { parseMessage } from '../helpers/parsers';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
-import { formatISK, pluralize } from '../helpers/formatters';
+import { formatNumber, pluralize } from '../helpers/formatters';
 
 export async function ordersFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
@@ -75,10 +75,10 @@ export async function ordersFunction(discordMessage: Discord.Message) {
       const limit = message.limit || 5;
       let iter = 0;
       for (const order of sellOrdersSorted) {
-        const orderPrice = formatISK(order.price);
+        const orderPrice = formatNumber(order.price);
         const locationName = locationNames.filter(_ => _.id === order.location_id)[0].name;
-        const volume = order.volume_remain;
-        const itemWord = pluralize('item', 'items', volume);
+        const volume = formatNumber(order.volume_remain, 0);
+        const itemWord = pluralize('item', 'items', order.volume_remain);
 
         const replyAddition = `\`${orderPrice} ISK\` at \`${locationName}\`, \`${volume}\` ${itemWord} left.\n`;
 

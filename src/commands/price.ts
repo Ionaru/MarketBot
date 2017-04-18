@@ -5,7 +5,7 @@ import { PriceData } from '../typings';
 import { parseMessage } from '../helpers/parsers';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchItemPrice } from '../helpers/api';
-import { formatISK } from '../helpers/formatters';
+import { formatNumber } from '../helpers/formatters';
 
 export async function priceFunction(discordMessage: Discord.Message) {
 
@@ -57,15 +57,15 @@ export async function priceFunction(discordMessage: Discord.Message) {
       let sellPrice = 'unknown';
       let lowestSellPrice = 'unknown';
       if (sellData.fivePercent && sellData.fivePercent !== 0) {
-        sellPrice = formatISK(sellData.fivePercent) + ' ISK';
-        lowestSellPrice = formatISK(sellData.min) + ' ISK';
+        sellPrice = formatNumber(sellData.fivePercent) + ' ISK';
+        lowestSellPrice = formatNumber(sellData.min) + ' ISK';
       }
 
       let buyPrice = 'unknown';
       let highestBuyPrice = 'unknown';
       if (buyData.fivePercent && buyData.fivePercent !== 0) {
-        buyPrice = formatISK(buyData.fivePercent) + ' ISK';
-        highestBuyPrice = formatISK(buyData.max) + ' ISK';
+        buyPrice = formatNumber(buyData.fivePercent) + ' ISK';
+        highestBuyPrice = formatNumber(buyData.max) + ' ISK';
       }
 
       if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {

@@ -1,4 +1,4 @@
-import { formatISK, pluralize } from './formatters';
+import { formatNumber, pluralize } from './formatters';
 import { expect } from 'chai';
 
 describe('Formatters', () => {
@@ -39,54 +39,54 @@ describe('Formatters', () => {
     });
   });
 
-  describe('formatISK', () => {
+  describe('formatNumber', () => {
     let amount: number | string;
 
     it('should output xx,xxx.xx by default', () => {
       amount = 50000;
-      const result = formatISK(50000);
+      const result = formatNumber(50000);
       expect(result).to.be.a('string');
       expect(result).to.equal('50,000.00');
     });
 
     it('should accept different amount of decimals', () => {
       amount = 50000;
-      const result = formatISK(50000, 6);
+      const result = formatNumber(50000, 6);
       expect(result).to.be.a('string');
       expect(result).to.equal('50,000.000000');
     });
 
     it('should accept zero decimals', () => {
       amount = 50000;
-      const result = formatISK(50000, 0);
+      const result = formatNumber(50000, 0);
       expect(result).to.be.a('string');
       expect(result).to.equal('50,000');
     });
 
     it('should correctly round amounts up', () => {
       amount = 50000;
-      const result = formatISK(49999.50, 0);
+      const result = formatNumber(49999.50, 0);
       expect(result).to.be.a('string');
       expect(result).to.equal('50,000');
     });
 
     it('should correctly round amounts down', () => {
       amount = 50000;
-      const result = formatISK(49999.49, 0);
+      const result = formatNumber(49999.49, 0);
       expect(result).to.be.a('string');
       expect(result).to.equal('49,999');
     });
 
     it('should accept different delimiters', () => {
       amount = 50000;
-      const result = formatISK(50000, 2, '.', 'X');
+      const result = formatNumber(50000, 2, '.', 'X');
       expect(result).to.be.a('string');
       expect(result).to.equal('50X000.00');
     });
 
     it('should accept different decimal marks', () => {
       amount = 50000;
-      const result = formatISK(50000, 2, 'X', '.');
+      const result = formatNumber(50000, 2, 'X', '.');
       expect(result).to.be.a('string');
       expect(result).to.equal('50.000X00');
     });
