@@ -4,15 +4,11 @@ import { sortArrayByObjectPropertyLength } from './arrays';
 import { regionList } from '../regions';
 
 export function guessUserItemInput(itemString: string): SDEObject {
-  // let itemString = itemWords.join(' ');
 
   let itemData;
 
   let regex: RegExp;
   let possibilities: Array<SDEObject> = [];
-  // for (const _ of itemWords) {
-  // Item did not 100% match anything in the item list
-  // itemString = itemWords.join(' ');
 
   // Check in start of the words
   regex = new RegExp(`^${itemString}`, 'i');
