@@ -32,10 +32,10 @@ describe('Formatters', () => {
     });
 
     it('should return the plural if item amount is negative', () => {
-        amount = -1;
-        const result = pluralize(singular, plural, amount);
-        expect(result).to.be.a('string');
-        expect(result).to.equal(plural);
+      amount = -1;
+      const result = pluralize(singular, plural, amount);
+      expect(result).to.be.a('string');
+      expect(result).to.equal(plural);
     });
   });
 
