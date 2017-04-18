@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./index.js",
-    "lint": "tslint --type-check -c tslint.json \"src/**/*.ts\""
+    "lint": "tslint --type-check -c tslint.json \"src/**/*.ts\"",
+    "test": "mocha --compilers ts:ts-node/register ./src/**/*.spec.ts"
   },
   "dependencies": {
     "bluebird": "^3.5.0",
@@ -21,11 +22,17 @@
   "license": "MIT",
   "devDependencies": {
     "@types/bluebird": "^3.5.2",
+    "@types/chai": "^3.5.0",
     "@types/js-yaml": "^3.5.29",
+    "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.12",
     "@types/node-fetch": "^1.6.7",
     "@types/request": "^0.0.42",
+    "@types/sinon": "^2.1.2",
     "@types/xml2js": "^0.0.33",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "sinon": "^2.1.0",
     "tslint": "^4.5.1"
   }
 }
