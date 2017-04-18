@@ -6,7 +6,6 @@ import { ordersFunction } from './commands/orders';
 import { priceFunction } from './commands/price';
 import { readToken, readTypeIDs } from './helpers/readers';
 import { parseTypeIDs } from './helpers/parsers';
-import fs = require('fs');
 import path = require('path');
 import Fuse = require('fuse.js');
 
