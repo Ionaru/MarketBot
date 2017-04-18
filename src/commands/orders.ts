@@ -102,9 +102,9 @@ export async function ordersFunction(discordMessage: Discord.Message) {
       reply += `I couldn't find any orders for '${itemData.name.en}' in **${regionName}**`;
     }
 
-    replyPlaceHolder.edit(reply).then();
+    await replyPlaceHolder.edit(reply);
 
   } else {
-    discordMessage.channel.sendMessage(`I don't know what you mean with '${message.item}' 😟`).then();
+    await discordMessage.channel.sendMessage(`I don't know what you mean with '${message.item}' 😟`);
   }
 }

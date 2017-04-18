@@ -86,7 +86,7 @@ export async function priceFunction(discordMessage: Discord.Message) {
           reply += '🡺 Buying price data is unavailable\n';
         }
 
-        replyPlaceholder.edit(reply).then();
+        await replyPlaceholder.edit(reply);
 
       } else {
         replyPlaceholder.edit(

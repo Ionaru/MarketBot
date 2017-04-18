@@ -60,11 +60,8 @@ function activate() {
 function announceReady() {
   client.user.setPresence(playing).then();
   client.on('message', (message: Discord.Message) => {
-    processMessage(message).then().catch((error) => {
-      console.error(error);
-      message.channel.sendMessage(
-        `ERROR! Something went wrong, please consult <@${creator.id}>\n`
-      ).then();
+    processMessage(message).then().catch((error: Error) => {
+      handleError(message, error);
     });
   });
   console.log('I am online!');
@@ -79,16 +76,29 @@ async function deactivate() {
 
 async function processMessage(discordMessage: Discord.Message) {
   if (discordMessage.content.match(new RegExp(`^${priceCommand}`, 'i'))) {
-    priceFunction(discordMessage).then();
+    await priceFunction(discordMessage)
   } else if (discordMessage.content.match(new RegExp(`^${ordersCommand}`, 'i'))) {
-    ordersFunction(discordMessage).then();
+    await ordersFunction(discordMessage);
   } else if (discordMessage.content.match(new RegExp(`^${infoCommand}`, 'i'))) {
-    infoFunction(discordMessage);
+    await infoFunction(discordMessage);
   }
+}
+
+export function handleError(message, error) {
+  const time = Date.now();
+  console.error(`Caught error @ ${time}\n`, error);
+  message.channel.sendMessage(
+    `ERROR! Something went wrong, please consult <@${creator.id}>\n\n` +
+    `Error message: \`${error.message} @ ${time}\``
+  ).then();
 }
 
 activate();
 process.stdin.resume();
+process.on('unhandledRejection', function (reason: string, p: Promise<any>): void {
+  console.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
+});
+process.on('uncaughtException', deactivate);
 process.on('SIGINT', () => {
   deactivate().then();
 });
