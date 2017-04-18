@@ -37,10 +37,9 @@ export function guessUserItemInput(itemString: string): SDEObject {
     }
   }
 
-  // Sort by word length
-  possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
-
   if (possibilities.length) {
+    // Sort by word length, shortest is usually the correct one
+    possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
     itemData = possibilities[0];
     // break;
   } else {
