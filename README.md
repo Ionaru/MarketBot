@@ -8,14 +8,14 @@ It uses a combination of the [EVE-Central API](https://eve-central.com/home/deve
 ## Usage
 The bot will respond to the following commands:
 * `/p <item-name> [/r <region-name>]` - Fetch the lowest and average prices for an item, both buy and sell orders.
-* `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market orders for an item.
+* `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market sell orders for an item.
 * `/i` - Print a message with usage information
 
 ## Feature requests
 Please open an [issue](https://github.com/Ionaru/MarketBot/issues/new) if you have any feature ideas for this bot
 or are missing any functionality.
 
-Alternatively you can contact me on EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
+Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
 
 ## Developer information
 Want to contribute? Awesome!
