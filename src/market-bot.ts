@@ -6,6 +6,7 @@ import { ordersFunction } from './commands/orders';
 import { priceFunction } from './commands/price';
 import { readToken, readTypeIDs } from './helpers/readers';
 import { parseTypeIDs } from './helpers/parsers';
+import { startLogger } from './helpers/logger';
 import path = require('path');
 import Fuse = require('fuse.js');
 
@@ -29,7 +30,7 @@ export const limitCommand = commandPrefix + 'l';
 export const ordersCommand = commandPrefix + 'c';
 export const infoCommand = commandPrefix + 'i';
 
-function activate() {
+async function activate() {
   console.log('Bot has awoken, loading typeIDs.yaml');
   const typeIDs = readTypeIDs(typeIDsPath);
   console.log('File loaded, starting parse cycle');
@@ -49,6 +50,8 @@ function activate() {
   console.log(`Parsing complete, ${items.length} items loaded into memory`);
 
   token = readToken(tokenPath);
+
+  await startLogger();
 
   client = new Discord.Client();
   client.login(token);
@@ -93,12 +96,15 @@ export function handleError(message, error) {
   ).then();
 }
 
-activate();
+activate().then();
 process.stdin.resume();
 process.on('unhandledRejection', function (reason: string, p: Promise<any>): void {
   console.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
 });
-process.on('uncaughtException', deactivate);
+process.on('uncaughtException', function (error) {
+  console.error(error);
+  deactivate().then();
+});
 process.on('SIGINT', () => {
   deactivate().then();
 });

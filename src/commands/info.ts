@@ -1,5 +1,6 @@
 import * as Discord from 'discord.js';
 import { creator, infoCommand, limitCommand, ordersCommand, priceCommand, regionCommand } from '../market-bot';
+import { logCommand } from '../helpers/logger';
 
 export async function infoFunction(discordMessage: Discord.Message) {
   await discordMessage.channel.sendMessage('Greetings, I am MarketBot!\n' +
@@ -15,4 +16,5 @@ export async function infoFunction(discordMessage: Discord.Message) {
     '\n**Warning! This does not include Citadels**\n\n' +
     `- \`${infoCommand}\` - Print this information.\n\n` +
     'My code is publicly available on https://github.com/Ionaru/MarketBot');
+  logCommand('info', discordMessage);
 }

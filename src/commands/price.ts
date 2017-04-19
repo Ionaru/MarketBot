@@ -6,6 +6,7 @@ import { parseMessage } from '../helpers/parsers';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchItemPrice } from '../helpers/api';
 import { formatNumber } from '../helpers/formatters';
+import { logCommand } from '../helpers/logger';
 
 export async function priceFunction(discordMessage: Discord.Message) {
 
@@ -31,6 +32,8 @@ export async function priceFunction(discordMessage: Discord.Message) {
     }
   }
 
+  let regionName;
+
   if (itemData) {
 
     let regionId = 10000002;
@@ -43,7 +46,7 @@ export async function priceFunction(discordMessage: Discord.Message) {
       }
     }
 
-    const regionName = regionList[regionId];
+    regionName = regionList[regionId];
 
     const itemId = itemData.itemID;
 
@@ -95,9 +98,9 @@ export async function priceFunction(discordMessage: Discord.Message) {
       reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
     }
 
-    await replyPlaceholder.edit(reply);
-
   } else {
-    await discordMessage.channel.sendMessage(`I don't know what you mean with '${message.item}' 😟`);
+    reply = `I don't know what you mean with '${message.item}' 😟`;
   }
+  await replyPlaceholder.edit(reply);
+  logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }

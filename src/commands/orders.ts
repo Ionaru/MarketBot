@@ -7,6 +7,7 @@ import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { formatNumber, pluralize } from '../helpers/formatters';
+import { logCommand } from '../helpers/logger';
 
 export async function ordersFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
@@ -33,6 +34,8 @@ export async function ordersFunction(discordMessage: Discord.Message) {
     }
   }
 
+  let regionName;
+
   if (itemData) {
 
     let regionId = 10000002;
@@ -45,7 +48,7 @@ export async function ordersFunction(discordMessage: Discord.Message) {
       }
     }
 
-    const regionName = regionList[regionId];
+    regionName = regionList[regionId];
 
     const itemId = itemData.itemID;
 
@@ -102,9 +105,9 @@ export async function ordersFunction(discordMessage: Discord.Message) {
       reply += `I couldn't find any orders for '${itemData.name.en}' in **${regionName}**`;
     }
 
-    await replyPlaceHolder.edit(reply);
-
   } else {
-    await discordMessage.channel.sendMessage(`I don't know what you mean with '${message.item}' 😟`);
+    reply = `I don't know what you mean with '${message.item}' 😟`;
   }
+  await replyPlaceHolder.edit(reply);
+  logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }
