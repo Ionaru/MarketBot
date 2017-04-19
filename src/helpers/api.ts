@@ -1,13 +1,14 @@
 import { MarketData } from '../typings';
 import fetch from 'node-fetch';
+import { logger } from './program-logger';
 
 export async function fetchItemPrice(itemId, regionId) {
   const host = 'https://api.eve-central.com/api/marketstat/json';
   const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
 
-  console.log(url);
-  const refreshResponse = await fetch(url).catch((errorResponse) => {
-    console.error('Request failed:', errorResponse);
+  logger.debug(url);
+  const refreshResponse = await fetch(url).catch(async (errorResponse) => {
+    logger.error('Request failed:', url, errorResponse);
     return null;
   });
   if (refreshResponse) {
@@ -22,12 +23,12 @@ export async function fetchMarketData(itemId, regionId): Promise<Array<MarketDat
   const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
   const url = host + path;
 
-  console.log(url);
+  logger.debug(url);
   const refreshResponse = await fetch(url).catch((errorResponse) => {
-    console.error('Request failed:', errorResponse);
+    logger.error('Request failed:', url, errorResponse);
     return null;
   });
-  if (refreshResponse.length) {
+  if (refreshResponse) {
     return await refreshResponse.json().catch(() => {
       return [];
     });

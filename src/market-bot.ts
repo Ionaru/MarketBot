@@ -6,9 +6,11 @@ import { ordersFunction } from './commands/orders';
 import { priceFunction } from './commands/price';
 import { readToken, readTypeIDs } from './helpers/readers';
 import { parseTypeIDs } from './helpers/parsers';
-import { startLogger } from './helpers/logger';
+import { startLogger } from './helpers/command-logger';
 import path = require('path');
 import Fuse = require('fuse.js');
+import { Logger, logger } from './helpers/program-logger';
+import programLogger = require('./helpers/program-logger');
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export const playing = {game: {name: 'with ISK (/i for info)'}};
@@ -31,9 +33,11 @@ export const ordersCommand = commandPrefix + 'c';
 export const infoCommand = commandPrefix + 'i';
 
 async function activate() {
-  console.log('Bot has awoken, loading typeIDs.yaml');
+  programLogger.logger = new Logger();
+
+  logger.info('Bot has awoken, loading typeIDs.yaml');
   const typeIDs = readTypeIDs(typeIDsPath);
-  console.log('File loaded, starting parse cycle');
+  logger.info('File loaded, starting parse cycle');
   items = parseTypeIDs(typeIDs);
 
   fuse = new Fuse(items, {
@@ -47,7 +51,7 @@ async function activate() {
     keys: ['name.en']
   });
 
-  console.log(`Parsing complete, ${items.length} items loaded into memory`);
+  logger.info(`Parsing complete, ${items.length} items loaded into memory`);
 
   token = readToken(tokenPath);
 
@@ -67,13 +71,13 @@ function announceReady() {
       handleError(message, error);
     });
   });
-  console.log('I am online!');
+  logger.info('I am online!');
 }
 
 async function deactivate() {
-  console.log('Quitting!');
+  logger.info('Quitting!');
   await client.destroy();
-  console.log('Done!');
+  logger.info('Done!');
   process.exit(0);
 }
 
@@ -89,7 +93,7 @@ async function processMessage(discordMessage: Discord.Message) {
 
 export function handleError(message, error) {
   const time = Date.now();
-  console.error(`Caught error @ ${time}\n`, error);
+  logger.error(`Caught error @ ${time}\n`, error);
   message.channel.sendMessage(
     `**ERROR** Something went wrong, please consult <@${creator.id}>\n\n` +
     `Error message: \`${error.message} @ ${time}\``
@@ -99,10 +103,10 @@ export function handleError(message, error) {
 activate().then();
 process.stdin.resume();
 process.on('unhandledRejection', function (reason: string, p: Promise<any>): void {
-  console.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
+  logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
 });
 process.on('uncaughtException', function (error) {
-  console.error(error);
+  logger.error(error);
   deactivate().then();
 });
 process.on('SIGINT', () => {

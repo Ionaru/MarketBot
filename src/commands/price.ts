@@ -6,7 +6,7 @@ import { parseMessage } from '../helpers/parsers';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchItemPrice } from '../helpers/api';
 import { formatNumber } from '../helpers/formatters';
-import { logCommand } from '../helpers/logger';
+import { logCommand } from '../helpers/command-logger';
 
 export async function priceFunction(discordMessage: Discord.Message) {
 
@@ -16,90 +16,95 @@ export async function priceFunction(discordMessage: Discord.Message) {
     `Checking price, one moment, ${discordMessage.author.username}...`);
 
   let reply = '';
-
-  let itemData = items.filter(_ => {
-    if (_.name.en) {
-      return _.name.en.toUpperCase() === message.item.toUpperCase();
-    }
-  })[0];
-  if (!itemData) {
-    itemData = guessUserItemInput(message.item);
-    if (itemData) {
-      reply += `'${message.item}' didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
-      // reply += '*Guessing words is really difficult for bots like me, ' +
-      //     'please try to spell the words as accurate as possible.*\n';
-      reply += '\n';
-    }
-  }
-
+  let itemData;
   let regionName;
 
-  if (itemData) {
+  if (message.item && message.item.length) {
 
-    let regionId = 10000002;
-
-    if (message.region) {
-      regionId = guessUserRegionInput(message.region);
-      if (!regionId) {
-        reply += `I don't know of the '${message.region}' region, defaulting to **The Forge**\n`;
-        regionId = 10000002;
+    itemData = items.filter(_ => {
+      if (_.name.en) {
+        return _.name.en.toUpperCase() === message.item.toUpperCase();
+      }
+    })[0];
+    if (!itemData) {
+      itemData = guessUserItemInput(message.item);
+      if (itemData) {
+        reply += `'${message.item}' didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
+        // reply += '*Guessing words is really difficult for bots like me, ' +
+        //     'please try to spell the words as accurate as possible.*\n';
       }
     }
 
-    regionName = regionList[regionId];
+    if (itemData) {
 
-    const itemId = itemData.itemID;
+      let regionId = 10000002;
 
-    const json = await fetchItemPrice(itemId, regionId);
-
-    if (json && json.length) {
-
-      const sellData: PriceData = json[0]['sell'];
-      const buyData: PriceData = json[0]['buy'];
-
-      let sellPrice = 'unknown';
-      let lowestSellPrice = 'unknown';
-      if (sellData.fivePercent && sellData.fivePercent !== 0) {
-        sellPrice = formatNumber(sellData.fivePercent) + ' ISK';
-        lowestSellPrice = formatNumber(sellData.min) + ' ISK';
+      if (message.region) {
+        regionId = guessUserRegionInput(message.region);
+        if (!regionId) {
+          reply += `I don't know of the '${message.region}' region, defaulting to **The Forge**\n`;
+          regionId = 10000002;
+        }
       }
 
-      let buyPrice = 'unknown';
-      let highestBuyPrice = 'unknown';
-      if (buyData.fivePercent && buyData.fivePercent !== 0) {
-        buyPrice = formatNumber(buyData.fivePercent) + ' ISK';
-        highestBuyPrice = formatNumber(buyData.max) + ' ISK';
-      }
+      regionName = regionList[regionId];
 
-      if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {
-        reply += `Price information for \`${itemData.name.en}\` in **${regionName}**:\n\n`;
+      const itemId = itemData.itemID;
 
-        if (sellPrice !== 'unknown') {
-          reply += `🡺 Lowest selling price is \`${lowestSellPrice}\`\n`;
-          reply += `🡺 Average selling price is \`${sellPrice}\`\n`;
-        } else {
-          reply += '🡺 Selling price data is unavailable\n';
+      const json = await fetchItemPrice(itemId, regionId);
+
+      if (json && json.length) {
+
+        const sellData: PriceData = json[0]['sell'];
+        const buyData: PriceData = json[0]['buy'];
+
+        let sellPrice = 'unknown';
+        let lowestSellPrice = 'unknown';
+        if (sellData.fivePercent && sellData.fivePercent !== 0) {
+          sellPrice = formatNumber(sellData.fivePercent) + ' ISK';
+          lowestSellPrice = formatNumber(sellData.min) + ' ISK';
         }
 
-        reply += '\n';
-        if (buyPrice !== 'unknown') {
-          reply += `🡺 Highest buying price is \`${highestBuyPrice}\`\n`;
-          reply += `🡺 Average buying price is \`${buyPrice}\`\n`;
-        } else {
-          reply += '🡺 Buying price data is unavailable\n';
+        let buyPrice = 'unknown';
+        let highestBuyPrice = 'unknown';
+        if (buyData.fivePercent && buyData.fivePercent !== 0) {
+          buyPrice = formatNumber(buyData.fivePercent) + ' ISK';
+          highestBuyPrice = formatNumber(buyData.max) + ' ISK';
         }
 
-        await replyPlaceholder.edit(reply);
+        if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {
+          reply += '\n';
+          reply += `Price information for \`${itemData.name.en}\` in **${regionName}**:\n\n`;
 
+          if (sellPrice !== 'unknown') {
+            reply += `🡺 Lowest selling price is \`${lowestSellPrice}\`\n`;
+            reply += `🡺 Average selling price is \`${sellPrice}\`\n`;
+          } else {
+            reply += '🡺 Selling price data is unavailable\n';
+          }
+
+          reply += '\n';
+          if (buyPrice !== 'unknown') {
+            reply += `🡺 Highest buying price is \`${highestBuyPrice}\`\n`;
+            reply += `🡺 Average buying price is \`${buyPrice}\`\n`;
+          } else {
+            reply += '🡺 Buying price data is unavailable\n';
+          }
+
+          await replyPlaceholder.edit(reply);
+
+        } else {
+          reply += `I couldn't find any price information for '${itemData.name.en}' in **${regionName}**, sorry.`;
+        }
       } else {
-        reply += `I couldn't find any price information for '${itemData.name.en}' in **${regionName}**, sorry.`;
+        reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
       }
-    } else {
-      reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
-    }
 
+    } else {
+      reply = `I don't know what you mean with '${message.item}' 😟`;
+    }
   } else {
-    reply = `I don't know what you mean with '${message.item}' 😟`;
+    reply = 'You need to give me an item to search for.';
   }
   await replyPlaceholder.edit(reply);
   logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));

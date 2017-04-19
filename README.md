@@ -6,6 +6,8 @@ The purpose of this bot is to get fast information on the EVE Online market for 
 It uses a combination of the [EVE-Central API](https://eve-central.com/home/develop.html), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
 
 ## Usage
+[Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot)
+
 The bot will respond to the following commands:
 * `/p <item-name> [/r <region-name>]` - Fetch the lowest and average prices for an item, both buy and sell orders.
 * `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market sell orders for an item.

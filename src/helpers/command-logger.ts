@@ -4,6 +4,7 @@ import { parseMessage } from './parsers';
 import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
 import Model = SequelizeStatic.Model;
+import { logger } from './program-logger';
 
 export let logEntry;
 
@@ -35,9 +36,9 @@ export async function startLogger() {
   sequelizeDatabase
     .authenticate()
     .then(function () {
-      console.log('Connection to database has been established successfully.');
+      logger.info('Connection to database has been established successfully');
     }, function (err) {
-      console.error('Unable to connect to the database:', err);
+      logger.error('Unable to connect to the database:', err);
     });
 
   logEntry = await sequelizeDatabase.define('LogEntry', {

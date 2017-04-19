@@ -1,6 +1,6 @@
 import * as Discord from 'discord.js';
 import { creator, infoCommand, limitCommand, ordersCommand, priceCommand, regionCommand } from '../market-bot';
-import { logCommand } from '../helpers/logger';
+import { logCommand } from '../helpers/command-logger';
 
 export async function infoFunction(discordMessage: Discord.Message) {
   await discordMessage.channel.sendMessage('Greetings, I am MarketBot!\n' +
