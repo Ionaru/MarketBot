@@ -9,11 +9,11 @@ import { formatNumber } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
 
 export async function priceFunction(discordMessage: Discord.Message) {
-
   const message = parseMessage(discordMessage);
 
   const replyPlaceholder = <Discord.Message> await discordMessage.channel.sendMessage(
-    `Checking price, one moment, ${discordMessage.author.username}...`);
+    `Checking price, one moment, ${discordMessage.author.username}...`
+  );
 
   let reply = '';
   let itemData;
