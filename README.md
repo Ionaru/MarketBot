@@ -13,6 +13,15 @@ The bot will respond to the following commands:
 * `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market sell orders for an item.
 * `/i` - Print a message with usage information
 
+## Logging
+This bot keeps records of issued commands, this data is used to monitor performance, usage and accuracy of the bot.
+
+What information does it save?
+* The username and id of the user who issued a command to the bot.
+* The channel in which the command was issued.
+* The item-parameter of the command and the item the bot did the search for.
+* The region-parameter of the command and the region the bot did the search for.
+
 ## Feature requests
 Please open an [issue](https://github.com/Ionaru/MarketBot/issues/new) if you have any feature ideas for this bot
 or are missing any functionality.
