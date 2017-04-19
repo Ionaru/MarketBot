@@ -52,7 +52,7 @@ export async function priceFunction(discordMessage: Discord.Message) {
 
     const json = await fetchItemPrice(itemId, regionId);
 
-    if (json.length) {
+    if (json && json.length) {
 
       const sellData: PriceData = json[0]['sell'];
       const buyData: PriceData = json[0]['buy'];

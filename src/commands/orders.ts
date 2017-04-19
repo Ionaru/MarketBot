@@ -56,7 +56,7 @@ export async function ordersFunction(discordMessage: Discord.Message) {
 
     const sellOrders = marketData.filter(_ => _.is_buy_order === false);
 
-    if (sellOrders.length) {
+    if (sellOrders && sellOrders.length) {
 
       const sellOrdersSorted: Array<MarketData> = sortArrayByObjectProperty(sellOrders, 'price');
 
