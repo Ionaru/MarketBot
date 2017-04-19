@@ -7,9 +7,9 @@ import { priceFunction } from './commands/price';
 import { readToken, readTypeIDs } from './helpers/readers';
 import { parseTypeIDs } from './helpers/parsers';
 import { startLogger } from './helpers/command-logger';
+import { Logger, logger } from './helpers/program-logger';
 import path = require('path');
 import Fuse = require('fuse.js');
-import { Logger, logger } from './helpers/program-logger';
 import programLogger = require('./helpers/program-logger');
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
