@@ -47,6 +47,8 @@ export async function priceFunction(discordMessage: Discord.Message) {
         }
       }
 
+      reply += '\n';
+
       regionName = regionList[regionId];
 
       const itemId = itemData.itemID;
@@ -73,7 +75,6 @@ export async function priceFunction(discordMessage: Discord.Message) {
         }
 
         if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {
-          reply += '\n';
           reply += `Price information for \`${itemData.name.en}\` in **${regionName}**:\n\n`;
 
           if (sellPrice !== 'unknown') {
@@ -91,15 +92,12 @@ export async function priceFunction(discordMessage: Discord.Message) {
             reply += '🡺 Buying price data is unavailable\n';
           }
 
-          await replyPlaceholder.edit(reply);
-
         } else {
           reply += `I couldn't find any price information for '${itemData.name.en}' in **${regionName}**, sorry.`;
         }
       } else {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
       }
-
     } else {
       reply = `I don't know what you mean with '${message.item}' 😟`;
     }

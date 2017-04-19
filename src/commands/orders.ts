@@ -49,6 +49,8 @@ export async function ordersFunction(discordMessage: Discord.Message) {
         }
       }
 
+      reply += '\n';
+
       regionName = regionList[regionId];
 
       const itemId = itemData.itemID;
@@ -75,7 +77,7 @@ export async function ordersFunction(discordMessage: Discord.Message) {
 
           const nameData = await universeApi.postUniverseNames(locationIds);
           const locationNames = nameData.body;
-          reply += '\n';
+
           reply += `The cheapest \`${itemData.name.en}\` orders in **${regionName}**:\n\n`;
 
           const limit = message.limit || 5;
@@ -110,7 +112,6 @@ export async function ordersFunction(discordMessage: Discord.Message) {
       } else {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
       }
-
     } else {
       reply = `I don't know what you mean with '${message.item}' 😟`;
     }
