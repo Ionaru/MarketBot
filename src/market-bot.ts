@@ -29,7 +29,7 @@ const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
 export const commandPrefix = '/';
 
 export const priceCommands = [
-  'p', 'price',
+  'p', 'price', 'value',
 ];
 export const ordersCommands = [
   'c', 'cheap', 'orders',
@@ -38,7 +38,7 @@ export const infoCommands = [
   'i', 'info', 'about',
 ];
 export const regionCommands = [
-  'r', 'region',
+  'r', 'region', 'area',
 ];
 export const limitCommands = [
   'l', 'limit', 'max',
