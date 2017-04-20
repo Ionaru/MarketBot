@@ -29,7 +29,7 @@ export async function priceFunction(discordMessage: Discord.Message) {
     if (!itemData) {
       itemData = guessUserItemInput(message.item);
       if (itemData) {
-        reply += `'${message.item}' didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
+        reply += `"${message.item}" didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
         // reply += '*Guessing words is really difficult for bots like me, ' +
         //     'please try to spell the words as accurate as possible.*\n';
       }
@@ -42,7 +42,7 @@ export async function priceFunction(discordMessage: Discord.Message) {
       if (message.region) {
         regionId = guessUserRegionInput(message.region);
         if (!regionId) {
-          reply += `I don't know of the '${message.region}' region, defaulting to **The Forge**\n`;
+          reply += `I don't know of the "${message.region}" region, defaulting to **The Forge**\n`;
           regionId = 10000002;
         }
       }
@@ -93,13 +93,13 @@ export async function priceFunction(discordMessage: Discord.Message) {
           }
 
         } else {
-          reply += `I couldn't find any price information for '${itemData.name.en}' in **${regionName}**, sorry.`;
+          reply += `I couldn't find any price information for \`${itemData.name.en}\` in **${regionName}**, sorry.`;
         }
       } else {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
       }
     } else {
-      reply = `I don't know what you mean with '${message.item}' 😟`;
+      reply = `I don't know what you mean with "${message.item}" 😟`;
     }
   } else {
     reply = 'You need to give me an item to search for.';
