@@ -8,6 +8,7 @@ import { readToken, readTypeIDs } from './helpers/readers';
 import { parseTypeIDs } from './helpers/parsers';
 import { startLogger } from './helpers/command-logger';
 import { Logger, logger } from './helpers/program-logger';
+import { createCommandRegex } from './helpers/regex';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
@@ -26,11 +27,28 @@ const tokenPath = path.join(__dirname, '../config/token.txt');
 const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
 
 export const commandPrefix = '/';
-export const priceCommand = commandPrefix + 'p';
-export const regionCommand = commandPrefix + 'r';
-export const limitCommand = commandPrefix + 'l';
-export const ordersCommand = commandPrefix + 'c';
-export const infoCommand = commandPrefix + 'i';
+
+export const priceCommands = [
+  'p', 'price',
+];
+export const ordersCommands = [
+  'c', 'cheap', 'orders',
+];
+export const infoCommands = [
+  'i', 'info', 'about',
+];
+export const regionCommands = [
+  'r', 'region',
+];
+export const limitCommands = [
+  'l', 'limit', 'max',
+];
+
+export const priceCommandRegex = createCommandRegex(priceCommands, true);
+export const ordersCommandRegex = createCommandRegex(ordersCommands, true);
+export const infoCommandRegex = createCommandRegex(infoCommands, true);
+export const regionCommandRegex = createCommandRegex(regionCommands);
+export const limitCommandRegex = createCommandRegex(limitCommands);
 
 async function activate() {
   programLogger.logger = new Logger();
@@ -82,11 +100,11 @@ async function deactivate() {
 }
 
 async function processMessage(discordMessage: Discord.Message) {
-  if (discordMessage.content.match(new RegExp(`^${priceCommand}`, 'i'))) {
+  if (discordMessage.content.match(priceCommandRegex)) {
     await priceFunction(discordMessage);
-  } else if (discordMessage.content.match(new RegExp(`^${ordersCommand}`, 'i'))) {
+  } else if (discordMessage.content.match(ordersCommandRegex)) {
     await ordersFunction(discordMessage);
-  } else if (discordMessage.content.match(new RegExp(`^${infoCommand}`, 'i'))) {
+  } else if (discordMessage.content.match(infoCommandRegex)) {
     await infoFunction(discordMessage);
   }
 }

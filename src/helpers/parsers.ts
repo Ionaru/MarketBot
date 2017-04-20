@@ -1,6 +1,6 @@
 import * as Discord from 'discord.js';
 import { ParsedMessage, SDEObject } from '../typings';
-import { commandPrefix, limitCommand, regionCommand } from '../market-bot';
+import { commandPrefix, limitCommandRegex, regionCommandRegex } from '../market-bot';
 
 export function parseMessage(message: Discord.Message): ParsedMessage {
   const parsedMessage: ParsedMessage = {
@@ -24,9 +24,9 @@ export function parseMessage(message: Discord.Message): ParsedMessage {
   parsedMessage.item = itemText;
 
   // Search for the region text
-  const regionCommandIndex = messageText.indexOf(regionCommand);
-  if (regionCommandIndex !== -1) {
-    let sep1 = messageText.substring(regionCommandIndex + regionCommand.length).trim();
+  const regionMatch = messageText.match(regionCommandRegex);
+  if (regionMatch) {
+    let sep1 = messageText.substring(regionMatch.index + regionMatch[0].length).trim();
     if (sep1.indexOf(commandPrefix) !== -1) {
       sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
     }
@@ -34,9 +34,9 @@ export function parseMessage(message: Discord.Message): ParsedMessage {
   }
 
   // Search for the limit text
-  const limitCommandIndex = messageText.indexOf(limitCommand);
-  if (limitCommandIndex !== -1) {
-    let sep1 = messageText.substring(limitCommandIndex + limitCommand.length).trim();
+  const limitMatch = messageText.match(limitCommandRegex);
+  if (limitMatch) {
+    let sep1 = messageText.substring(limitMatch.index + limitMatch[0].length).trim();
     if (sep1.indexOf(commandPrefix) !== -1) {
       sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
     }
