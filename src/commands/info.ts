@@ -10,6 +10,12 @@ export async function infoFunction(discordMessage: Discord.Message) {
   const ordersCommand = commandPrefix + ordersCommands[0];
   const infoCommand = commandPrefix + infoCommands[0];
 
+  const priceCommandList = priceCommands.map((element) => commandPrefix + element).join(' ');
+  const ordersCommandList = ordersCommands.map((element) => commandPrefix + element).join(' ');
+  const infoCommandList = infoCommands.map((element) => commandPrefix + element).join(' ');
+  const regionCommandList = regionCommands.map((element) => commandPrefix + element).join(' ');
+  const limitCommandList = limitCommands.map((element) => commandPrefix + element).join(' ');
+
   await discordMessage.channel.sendMessage('Greetings, I am MarketBot!\n' +
     `I was created by <@${creator.id}> to fetch data from the EVE Online market, ` +
     'all my data currently comes from EVE-Central, the EVE Swagger Interface ' +
@@ -24,11 +30,11 @@ export async function infoFunction(discordMessage: Discord.Message) {
     '**This does not include Citadels**\n\n' +
     `- \`${infoCommand}\` - Print this information.\n\n` +
     `I also respond to a number of aliases for the above commands:\n\n` +
-    `- \`${priceCommands.map((element) => {return commandPrefix + element; }).join(' ')}\`\n\n` +
-    `- \`${ordersCommands.map((element) => {return commandPrefix + element; }).join(' ')}\`\n\n` +
-    `- \`${infoCommands.map((element) => {return commandPrefix + element; }).join(' ')}\`\n\n` +
-    `- \`${regionCommands.map((element) => {return commandPrefix + element; }).join(' ')}\`\n\n` +
-    `- \`${limitCommands.map((element) => {return commandPrefix + element; }).join(' ')}\`\n\n` +
+    `- \`${priceCommandList}\`\n\n` +
+    `- \`${ordersCommandList}\`\n\n` +
+    `- \`${infoCommandList}\`\n\n` +
+    `- \`${regionCommandList}\`\n\n` +
+    `- \`${limitCommandList}\`\n\n` +
     'My code is publicly available on `https://github.com/Ionaru/MarketBot`');
   logCommand('info', discordMessage);
 }
