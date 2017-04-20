@@ -8,10 +8,17 @@ It uses a combination of the [EVE-Central API](https://eve-central.com/home/deve
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot)
 
-The bot will respond to the following commands:
+#### Commands this bot will respond to
 * `/p <item-name> [/r <region-name>]` - Fetch the lowest and average prices for an item, both buy and sell orders.
 * `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market sell orders for an item.
 * `/i` - Print a message with usage information
+
+#### Aliases for the above commands
+* `/p` `/price` `/value`
+* `/c` `/cheap` `/orders`
+* `/i` `/info` `/about`
+* `/r` `/region` `/area`
+* `/l` `/limit` `/max`
 
 ## Screenshots
 The bot in action
