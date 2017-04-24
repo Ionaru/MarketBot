@@ -109,13 +109,16 @@ async function processMessage(discordMessage: Discord.Message) {
   }
 }
 
-export function handleError(message, error) {
+export function handleError(message: Discord.Message, caughtError: Error) {
   const time = Date.now();
-  logger.error(`Caught error @ ${time}\n`, error);
+  logger.error(`Caught error @ ${time}\n`, caughtError);
   message.channel.sendMessage(
     `**ERROR** Something went wrong, please consult <@${creator.id}>\n\n` +
-    `Error message: \`${error.message} @ ${time}\``
-  ).then();
+    `Error message: \`${caughtError.message} @ ${time}\``
+  ).then().catch((error: Response) => {
+    logger.error(`Unable to send error message to channel '${message.channel}'!`);
+    logger.error(error);
+  });
 }
 
 activate().then();
