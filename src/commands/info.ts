@@ -1,6 +1,18 @@
 import * as Discord from 'discord.js';
-import { commandPrefix, creator, infoCommands, limitCommands, ordersCommands, priceCommands, regionCommands } from '../market-bot';
+import * as countdown from 'countdown';
+import {
+  client,
+  commandPrefix,
+  creator,
+  infoCommands,
+  limitCommands,
+  ordersCommands,
+  priceCommands,
+  regionCommands,
+  startTime
+} from '../market-bot';
 import { logCommand } from '../helpers/command-logger';
+import { pluralize } from '../helpers/formatters';
 
 export async function infoFunction(discordMessage: Discord.Message) {
 
@@ -16,10 +28,16 @@ export async function infoFunction(discordMessage: Discord.Message) {
   const regionCommandList = regionCommands.map((element) => commandPrefix + element).join(' ');
   const limitCommandList = limitCommands.map((element) => commandPrefix + element).join(' ');
 
-  await discordMessage.channel.sendMessage('Greetings, I am MarketBot!\n' +
+  const serverCount = client.guilds.array().length;
+  const serverWord = pluralize('server', 'servers', serverCount);
+
+  const onlineTime = countdown(startTime, Date.now());
+
+  await discordMessage.channel.sendMessage('**Greetings, I am MarketBot!**\n' +
     `I was created by <@${creator.id}> to fetch data from the EVE Online market, ` +
     'all my data currently comes from EVE-Central, the EVE Swagger Interface ' +
     'and the Static Data Export provided by CCP.\n\n' +
+    '**Commands**\n' +
     'You can access my functions by using these commands:\n\n' +
     `- \`${priceCommand} <item name> [${regionCommand} <region name>]\` ` +
     '- Use this to let me fetch data from the EVE Online market for a given item, ' +
@@ -27,14 +45,20 @@ export async function infoFunction(discordMessage: Discord.Message) {
     `- \`${ordersCommand} <item name> [${regionCommand} <region name>] ` +
     `[${limitCommand} <limit>]\` ` +
     '- When issued with this command, I will search a regional market for the best sell orders available. ' +
-    '**This does not include Citadels**\n\n' +
+    '*This does not include Citadels*.\n\n' +
     `- \`${infoCommand}\` - Print this information.\n\n` +
+    `**Aliases**\n` +
     `I also respond to a number of aliases for the above commands:\n\n` +
     `- \`${priceCommandList}\`\n\n` +
     `- \`${ordersCommandList}\`\n\n` +
     `- \`${infoCommandList}\`\n\n` +
     `- \`${regionCommandList}\`\n\n` +
     `- \`${limitCommandList}\`\n\n` +
-    'My code is publicly available on `https://github.com/Ionaru/MarketBot`');
+    `**Status**\n` +
+    `I am currently active on ${serverCount} ${serverWord}.\n` +
+    `I've been online for ${onlineTime}.\n` +
+    '\n' +
+    `**Under the hood**\n` +
+    'My code is publicly available on <https://github.com/Ionaru/MarketBot>.');
   logCommand('info', discordMessage);
 }

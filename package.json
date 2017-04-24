@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.0",
+    "countdown": "^2.6.0",
     "discord.js": "^11.0.0",
     "fuse.js": "^2.6.2",
     "isomorphic-fetch": "^2.2.1",
