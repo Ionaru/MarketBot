@@ -4,6 +4,21 @@ import { sortArrayByObjectPropertyLength } from './arrays';
 import { regionList } from '../regions';
 import * as escapeStringRegexp from 'escape-string-regexp';
 
+export const shortcuts = {
+  'bcs': 'Ballistic Control System',
+  'dc': 'Damage Control',
+  'dda': 'Drone Damage Amplifier',
+  'dni': 'Dominix Navy Issue',
+  'fnc': 'Federation Navy Comet',
+  'hfi': 'Hurricane Fleet Issue',
+  'mni': 'Megathron Navy Issue',
+  'mlu': 'Mining Laser Upgrade',
+  'mtu': 'Mobile Tractor Unit',
+  'plex': '30 Day Pilot\'s License Extension (PLEX)',
+  'rni': 'Raven Navy Issue',
+  'vni': 'Vexor Navy Issue',
+};
+
 export function guessUserItemInput(itemString: string): SDEObject {
 
   itemString = escapeStringRegexp(itemString);
@@ -12,6 +27,19 @@ export function guessUserItemInput(itemString: string): SDEObject {
 
   let regex: RegExp;
   let possibilities: Array<SDEObject> = [];
+
+  const itemWords = itemString.split(' ');
+
+  // Check if word is defined as a shortcut
+  regex = new RegExp(`^${itemWords[0]}`, 'i');
+  const shortcut = Object.keys(shortcuts).filter(_ => {
+    return _.match(regex);
+  })[0];
+
+  if (shortcut) {
+    itemWords[0] = shortcuts[shortcut];
+    itemString = itemWords.join(' ');
+  }
 
   // Check in start of the words
   regex = new RegExp(`^${itemString}`, 'i');
