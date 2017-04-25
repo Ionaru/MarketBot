@@ -2,8 +2,11 @@ import { SDEObject } from '../typings';
 import { fuse, items } from '../market-bot';
 import { sortArrayByObjectPropertyLength } from './arrays';
 import { regionList } from '../regions';
+import * as escapeStringRegexp from 'escape-string-regexp';
 
 export function guessUserItemInput(itemString: string): SDEObject {
+
+  itemString = escapeStringRegexp(itemString);
 
   let itemData;
 
