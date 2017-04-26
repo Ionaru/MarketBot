@@ -119,5 +119,5 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceHolder.edit(reply);
-  logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('sell-orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }

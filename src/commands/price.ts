@@ -105,5 +105,5 @@ export async function priceFunction(discordMessage: Discord.Message) {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceholder.edit(reply);
-  logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('price', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }
