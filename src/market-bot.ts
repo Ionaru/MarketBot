@@ -85,6 +85,15 @@ async function activate() {
 
   citadels = await fetchCitadelData();
 
+  // Schedule a refresh of the citadel list every 6 hours
+  setInterval(async () => {
+    const newCitadels = await fetchCitadelData();
+    if (citadels.toString() !== newCitadels.toString()) {
+      citadels = newCitadels;
+      logger.info('Citadel data updated');
+    }
+  }, 6 * 60 * 60 * 1000); // 6 hours
+
   logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
 
   token = readToken(tokenPath);
