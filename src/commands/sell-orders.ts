@@ -9,7 +9,7 @@ import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
 
-export async function ordersFunction(discordMessage: Discord.Message) {
+export async function sellOrdersFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
 
   const replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(

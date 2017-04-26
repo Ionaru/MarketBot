@@ -1,4 +1,4 @@
-import { MarketData } from '../typings';
+import { CitadelData, MarketData } from '../typings';
 import fetch from 'node-fetch';
 import { logger } from './program-logger';
 
@@ -30,6 +30,22 @@ export async function fetchMarketData(itemId, regionId): Promise<Array<MarketDat
   });
   if (refreshResponse) {
     return await refreshResponse.json().catch(() => {
+      return [];
+    });
+  }
+}
+
+export async function fetchCitadelData(): Promise<CitadelData> {
+  const host = 'https://stop.hammerti.me.uk/';
+  const path = `api/citadel/all`;
+  const url = host + path;
+
+  const citadelResponse = await fetch(url).catch((errorResponse) => {
+    logger.error('Request failed:', url, errorResponse);
+    return null;
+  });
+  if (citadelResponse) {
+    return await citadelResponse.json().catch(() => {
       return [];
     });
   }

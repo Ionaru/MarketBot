@@ -67,3 +67,24 @@ export interface ParsedMessage {
   limit: number;
   // system: string;
 }
+
+export interface CitadelData {
+  [id: number]: {
+    typeId: number;
+    name: string;
+    regionId: number;
+    location: {
+      y: number;
+      x: number;
+      z: number;
+    };
+    typeName: string;
+    systemId: number;
+    lastSeen: string;
+    systemName: string;
+    //noinspection ReservedWordAsName
+    public: boolean;
+    firstSeen: string;
+    regionName: string;
+  };
+}

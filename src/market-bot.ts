@@ -1,14 +1,16 @@
 import * as Discord from 'discord.js';
 import { UniverseApi } from '../swagger/api';
-import { SDEObject } from './typings';
+import { CitadelData, SDEObject } from './typings';
 import { infoFunction } from './commands/info';
-import { ordersFunction } from './commands/orders';
+import { sellOrdersFunction } from './commands/sell-orders';
 import { priceFunction } from './commands/price';
 import { readToken, readTypeIDs } from './helpers/readers';
 import { parseTypeIDs } from './helpers/parsers';
 import { startLogger } from './helpers/command-logger';
 import { Logger, logger } from './helpers/program-logger';
 import { createCommandRegex } from './helpers/regex';
+import { buyOrdersFunction } from './commands/buy-orders';
+import { fetchCitadelData } from './helpers/api';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
@@ -23,29 +25,35 @@ export let client: Discord.Client;
 export let fuse: Fuse;
 export let token: string;
 
+export let citadels: CitadelData;
+
 const tokenPath = path.join(__dirname, '../config/token.txt');
 const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
 
 export const commandPrefix = '/';
 
 export const priceCommands = [
-  'p', 'price', 'value',
+  'price', 'p', 'value',
 ];
-export const ordersCommands = [
-  'c', 'cheap', 'orders',
+export const sellOrdersCommands = [
+  'sell', 's', 'cheap', 'c'
+];
+export const buyOrdersCommands = [
+  'buy', 'b'
 ];
 export const infoCommands = [
-  'i', 'info', 'about',
+  'info', 'i', 'about', 'help'
 ];
 export const regionCommands = [
-  'r', 'region', 'area',
+  'region', 'r'
 ];
 export const limitCommands = [
-  'l', 'limit', 'max',
+  'limit', 'l', 'max',
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
-export const ordersCommandRegex = createCommandRegex(ordersCommands, true);
+export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
+export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
 export const infoCommandRegex = createCommandRegex(infoCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
@@ -73,6 +81,12 @@ async function activate() {
 
   logger.info(`Parsing complete, ${items.length} items loaded into memory`);
 
+  logger.info(`Fetching known citadels from stop.hammerti.me API`);
+
+  citadels = await fetchCitadelData();
+
+  logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
+
   token = readToken(tokenPath);
 
   await startLogger();
@@ -97,7 +111,9 @@ function announceReady() {
 
 async function deactivate() {
   logger.info('Quitting!');
-  await client.destroy();
+  if (client) {
+    await client.destroy();
+  }
   logger.info('Done!');
   process.exit(0);
 }
@@ -105,8 +121,10 @@ async function deactivate() {
 async function processMessage(discordMessage: Discord.Message) {
   if (discordMessage.content.match(priceCommandRegex)) {
     await priceFunction(discordMessage);
-  } else if (discordMessage.content.match(ordersCommandRegex)) {
-    await ordersFunction(discordMessage);
+  } else if (discordMessage.content.match(sellOrdersCommandRegex)) {
+    await sellOrdersFunction(discordMessage);
+  } else if (discordMessage.content.match(buyOrdersCommandRegex)) {
+    await buyOrdersFunction(discordMessage);
   } else if (discordMessage.content.match(infoCommandRegex)) {
     await infoFunction(discordMessage);
   }
@@ -117,7 +135,7 @@ export function handleError(message: Discord.Message, caughtError: Error) {
   logger.error(`Caught error @ ${time}\n`, caughtError);
   logger.error(`Original message:`, message.content);
   message.channel.sendMessage(
-    `**ERROR** Something went wrong, please consult <@${creator.id}>\n\n` +
+    `**ERROR** Something went wrong, please consult <@${creator.id}> (<https://discord.gg/k9tAX94>)\n\n` +
     `Error message: \`${caughtError.message} @ ${time}\``
   ).then().catch((error: Response) => {
     logger.error(`Unable to send error message to channel '${message.channel}'!`);
