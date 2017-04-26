@@ -1,15 +1,16 @@
 import * as Discord from 'discord.js';
 import * as countdown from 'countdown';
 import {
+  buyOrdersCommands,
   client,
   commandPrefix,
   creator,
+  dataCommands,
   infoCommands,
   limitCommands,
   priceCommands,
   regionCommands,
   sellOrdersCommands,
-  buyOrdersCommands,
   startTime
 } from '../market-bot';
 import { logCommand } from '../helpers/command-logger';
@@ -22,11 +23,13 @@ export async function infoFunction(discordMessage: Discord.Message) {
   const limitCommand = commandPrefix + limitCommands[0];
   const sellOrdersCommand = commandPrefix + sellOrdersCommands[0];
   const buyOrdersCommand = commandPrefix + buyOrdersCommands[0];
+  const dataCommand = commandPrefix + dataCommands[0];
   const infoCommand = commandPrefix + infoCommands[0];
 
   const priceCommandList = priceCommands.map((element) => commandPrefix + element).join(' ');
   const sellOrdersCommandList = sellOrdersCommands.map((element) => commandPrefix + element).join(' ');
   const buyOrdersCommandList = buyOrdersCommands.map((element) => commandPrefix + element).join(' ');
+  const dataCommandList = dataCommands.map((element) => commandPrefix + element).join(' ');
   const infoCommandList = infoCommands.map((element) => commandPrefix + element).join(' ');
   const regionCommandList = regionCommands.map((element) => commandPrefix + element).join(' ');
   const limitCommandList = limitCommands.map((element) => commandPrefix + element).join(' ');
@@ -50,12 +53,15 @@ export async function infoFunction(discordMessage: Discord.Message) {
     `*This does not include orders in Citadels*.\n\n` +
     `- \`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
     `- When issued with this command, I will search a regional market for the best buy orders available.\n\n` +
-    `- \`${infoCommand}\` - Print this information.\n\n` +
+    `- \`${dataCommand} ${limitCommand} <limit>\` - Show a list of most searched items.\n\n` +
+    `- \`${infoCommand}\` - Show this information.\n\n` +
+    `- *\`${regionCommand}\` and \`${limitCommand}\` are always optional*\n\n` +
     `**Aliases**\n` +
     `I also respond to a number of aliases for the above commands:\n\n` +
     `- \`${priceCommandList}\`\n\n` +
     `- \`${sellOrdersCommandList}\`\n\n` +
     `- \`${buyOrdersCommandList}\`\n\n` +
+    `- \`${dataCommandList}\`\n\n` +
     `- \`${infoCommandList}\`\n\n` +
     `- \`${regionCommandList}\`\n\n` +
     `- \`${limitCommandList}\`\n\n` +
