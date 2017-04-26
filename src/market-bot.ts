@@ -14,6 +14,7 @@ import { fetchCitadelData } from './helpers/api';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
+import { dataFunction } from './commands/data';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export const playing = {game: {name: 'with ISK (/i for info)'}};
@@ -35,6 +36,9 @@ export const commandPrefix = '/';
 export const priceCommands = [
   'price', 'p', 'value',
 ];
+export const dataCommands = [
+  'data', 'd'
+];
 export const sellOrdersCommands = [
   'sell', 's', 'cheap', 'c'
 ];
@@ -52,6 +56,7 @@ export const limitCommands = [
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
+export const dataCommandRegex = createCommandRegex(dataCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
 export const infoCommandRegex = createCommandRegex(infoCommands, true);
@@ -130,6 +135,8 @@ async function deactivate() {
 async function processMessage(discordMessage: Discord.Message) {
   if (discordMessage.content.match(priceCommandRegex)) {
     await priceFunction(discordMessage);
+  } else if (discordMessage.content.match(dataCommandRegex)) {
+    await dataFunction(discordMessage);
   } else if (discordMessage.content.match(sellOrdersCommandRegex)) {
     await sellOrdersFunction(discordMessage);
   } else if (discordMessage.content.match(buyOrdersCommandRegex)) {
