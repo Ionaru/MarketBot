@@ -11,10 +11,10 @@ import { Logger, logger } from './helpers/program-logger';
 import { createCommandRegex } from './helpers/regex';
 import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
+import { dataFunction } from './commands/data';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
-import { dataFunction } from './commands/data';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export const playing = {game: {name: 'with ISK (/i for info)'}};
@@ -125,15 +125,25 @@ function announceReady() {
   client.on('error', (error: Error) => {
     logger.error(error);
   });
+  client.on('disconnect', (event: CloseEvent) => {
+    logger.warn('Connection closed');
+    logger.warn(event);
+    logger.warn('Performing soft reboot');
+    deactivate(false).then(() => {
+      activate().then();
+    });
+  });
 }
 
-async function deactivate() {
+async function deactivate(exitProcess: boolean) {
   logger.info('Quitting!');
   if (client) {
     await client.destroy();
   }
   logger.info('Done!');
-  process.exit(0);
+  if (exitProcess) {
+    process.exit(0);
+  }
 }
 
 async function processMessage(discordMessage: Discord.Message) {
@@ -170,8 +180,8 @@ process.on('unhandledRejection', function (reason: string, p: Promise<any>): voi
 });
 process.on('uncaughtException', function (error) {
   logger.error(error);
-  deactivate().then();
+  deactivate(true).then();
 });
 process.on('SIGINT', () => {
-  deactivate().then();
+  deactivate(true).then();
 });
