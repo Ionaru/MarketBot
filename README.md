@@ -29,11 +29,11 @@ It uses a combination of the [EVE-Central API](https://eve-central.com/home/deve
 ## Screenshots
 The bot in action
 
-![Image of price command](https://cloud.githubusercontent.com/assets/3472373/25203767/b7760c62-255a-11e7-9cea-37b8a482b6f8.png)
+![Image of price command](https://cloud.githubusercontent.com/assets/3472373/25491154/668c3504-2b6f-11e7-8419-2ff21500e9b8.png)
 
-![Image of sell command](https://cloud.githubusercontent.com/assets/3472373/25203930/886d9a10-255b-11e7-833f-217aa1f9f3c6.png)
+![Image of sell command](https://cloud.githubusercontent.com/assets/3472373/25491068/2213ccc0-2b6f-11e7-8562-46dbf7587596.png)
 
-![Image of price command with wrong spelling](https://cloud.githubusercontent.com/assets/3472373/25204009/e3a0d74e-255b-11e7-87bd-8f91b1b213bb.png)
+![Image of price command with wrong spelling](https://cloud.githubusercontent.com/assets/3472373/25491110/4227c17e-2b6f-11e7-8609-46ee6e5ad291.png)
 
 ## Logging
 This bot keeps records of issued commands, this data is used to monitor performance, usage and accuracy of the bot.
@@ -61,7 +61,7 @@ Just follow these steps to get started:
 2. Run `npm install` or `yarn` in a command prompt to install dependencies.
 3. Create a `token.txt` and place it in the `config` folder.
 4. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
-5. Make your changes and create a pull request.
+5. Make your changes, test them and create a pull request.
 
 ## To-Do
 1. Search for best buy orders
