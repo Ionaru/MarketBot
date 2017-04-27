@@ -3,28 +3,36 @@
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
 
-It uses a combination of the [EVE-Central API](https://eve-central.com/home/develop.html), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
+It uses a combination of the [EVE-Central API](https://eve-central.com/home/develop.html), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
 
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot)
 
 #### Commands this bot will respond to
-* `/p <item-name> [/r <region-name>]` - Fetch the lowest and average prices for an item, both buy and sell orders.
-* `/c <item-name> [/r <region-name>] [/l <limit>]` - Fetch the cheapest market sell orders for an item.
-* `/i` - Print a message with usage information
+* `/price <item-name> /region <region-name>` - Fetch the lowest and average prices for an item, both buy and sell orders.
+* `/sell <item-name> /region <region-name> /limit <limit-number>` - Fetch the cheapest market sell orders for an item.
+* `/buy <item-name> /region <region-name> /limit <limit-number>` - Fetch the highest market buy orders for an item.
+* `/data /limit <limit-number>` - Show a list of the top searched items.
+* `/info` - Print a message with usage information
+
+*`/region` and `/limit` are always optional.*
 
 #### Aliases for the above commands
-* `/p` `/price` `/value`
-* `/c` `/cheap` `/orders`
-* `/i` `/info` `/about`
-* `/r` `/region` `/area`
-* `/l` `/limit` `/max`
+* `/price` `/p` `/value`
+* `/sell` `/s`
+* `/buy` `/b`
+* `/data` `/d`
+* `/info` `/i` `/about` `/help`
+* `/region` `/r`
+* `/limit` `/l`
 
 ## Screenshots
 The bot in action
 
 ![Image of price command](https://cloud.githubusercontent.com/assets/3472373/25203767/b7760c62-255a-11e7-9cea-37b8a482b6f8.png)
-![Image of orders command](https://cloud.githubusercontent.com/assets/3472373/25203930/886d9a10-255b-11e7-833f-217aa1f9f3c6.png)
+
+![Image of sell command](https://cloud.githubusercontent.com/assets/3472373/25203930/886d9a10-255b-11e7-833f-217aa1f9f3c6.png)
+
 ![Image of price command with wrong spelling](https://cloud.githubusercontent.com/assets/3472373/25204009/e3a0d74e-255b-11e7-87bd-8f91b1b213bb.png)
 
 ## Logging

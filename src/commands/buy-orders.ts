@@ -13,7 +13,7 @@ export async function buyOrdersFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
 
   const replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(
-    `Searching for the best buy orders, one moment, ${discordMessage.author.username}...`
+    `Searching for the highest buy orders, one moment, ${discordMessage.author.username}...`
   );
 
   let reply = '';
@@ -80,7 +80,7 @@ export async function buyOrdersFunction(discordMessage: Discord.Message) {
           const nameData = await universeApi.postUniverseNames(locationIds);
           const locationNames = nameData.body;
 
-          reply += `The best \`${itemData.name.en}\` buy orders in **${regionName}**:\n\n`;
+          reply += `The highest \`${itemData.name.en}\` buy orders in **${regionName}**:\n\n`;
 
           const limit = message.limit || 3;
           let iter = 0;

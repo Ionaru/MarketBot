@@ -13,7 +13,7 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
 
   const replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(
-    `Searching for the cheapest orders, one moment, ${discordMessage.author.username}...`
+    `Searching for the cheapest sell orders, one moment, ${discordMessage.author.username}...`
   );
 
   let reply = '';
@@ -78,7 +78,7 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
           const nameData = await universeApi.postUniverseNames(locationIds);
           const locationNames = nameData.body;
 
-          reply += `The cheapest \`${itemData.name.en}\` orders in **${regionName}**:\n\n`;
+          reply += `The cheapest \`${itemData.name.en}\` sell orders in **${regionName}**:\n\n`;
 
           const limit = message.limit || 5;
           let iter = 0;
@@ -107,7 +107,7 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
           }
 
         } else {
-          reply += `I couldn't find any orders for \`${itemData.name.en}\` in **${regionName}**.`;
+          reply += `I couldn't find any sell orders for \`${itemData.name.en}\` in **${regionName}**.`;
         }
       } else {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;

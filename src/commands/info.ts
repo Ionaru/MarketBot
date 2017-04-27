@@ -49,10 +49,10 @@ export async function infoFunction(discordMessage: Discord.Message) {
     `- Use this to let me fetch data from the EVE Online market for a given item, ` +
     `by default I use the market in The Forge region (where Jita is).\n\n` +
     `- \`${sellOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
-    `- When issued with this command, I will search a regional market for the best sell orders available. ` +
+    `- When issued with this command, I will search a regional market for the cheapest sell orders available. ` +
     `*This does not include orders in Citadels*.\n\n` +
     `- \`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
-    `- When issued with this command, I will search a regional market for the best buy orders available.\n\n` +
+    `- When issued with this command, I will search a regional market for the highest buy orders available.\n\n` +
     `- \`${dataCommand} ${limitCommand} <limit>\` - Show a list of most searched items.\n\n` +
     `- \`${infoCommand}\` - Show this information.\n\n` +
     `- *\`${regionCommand}\` and \`${limitCommand}\` are always optional*\n\n` +
