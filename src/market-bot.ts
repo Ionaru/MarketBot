@@ -63,8 +63,6 @@ export const infoCommandRegex = createCommandRegex(infoCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
-export let startTime: Date;
-
 async function activate() {
   programLogger.logger = new Logger();
 
@@ -119,7 +117,6 @@ function announceReady() {
       handleError(message, error);
     });
   });
-  startTime = new Date();
   logger.info(`I am ${client.user.username}, now online!`);
 }
 

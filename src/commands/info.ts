@@ -10,8 +10,7 @@ import {
   limitCommands,
   priceCommands,
   regionCommands,
-  sellOrdersCommands,
-  startTime
+  sellOrdersCommands
 } from '../market-bot';
 import { logCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
@@ -37,7 +36,7 @@ export async function infoFunction(discordMessage: Discord.Message) {
   const serverCount = client.guilds.array().length;
   const serverWord = pluralize('server', 'servers', serverCount);
 
-  const onlineTime = countdown(startTime, Date.now());
+  const onlineTime = countdown(client.readyAt);
 
   await discordMessage.channel.sendMessage(`**Greetings, I am MarketBot!**\n` +
     `I was created by <@${creator.id}> to fetch data from the EVE Online market, ` +
