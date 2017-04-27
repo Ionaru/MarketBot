@@ -118,6 +118,13 @@ function announceReady() {
     });
   });
   logger.info(`I am ${client.user.username}, now online!`);
+
+  client.on('warn', (warning: string) => {
+    logger.warn(warning);
+  });
+  client.on('error', (error: Error) => {
+    logger.error(error);
+  });
 }
 
 async function deactivate() {
