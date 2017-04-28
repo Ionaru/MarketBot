@@ -89,7 +89,7 @@ async function activate() {
   citadels = await fetchCitadelData();
 
   // Schedule a refresh of the citadel list every 6 hours
-  setInterval(async () => {
+  client.setInterval(async () => {
     const newCitadels = await fetchCitadelData();
     if (citadels.toString() !== newCitadels.toString()) {
       citadels = newCitadels;
@@ -104,7 +104,7 @@ async function activate() {
   await startLogger();
 
   client = new Discord.Client();
-  client.login(token);
+  await client.login(token);
   client.once('ready', () => {
     announceReady();
   });
@@ -125,9 +125,10 @@ function announceReady() {
   client.on('error', (error: Error) => {
     logger.error(error);
   });
-  client.on('disconnect', (event: CloseEvent) => {
+  client.once('disconnect', (event: CloseEvent) => {
     logger.warn('Connection closed');
-    logger.warn(event);
+    logger.warn('Code:', event.code);
+    logger.warn('Reason:', event.reason);
     logger.warn('Performing soft reboot');
     deactivate(false).then(() => {
       activate().then();
@@ -139,6 +140,8 @@ async function deactivate(exitProcess: boolean) {
   logger.info('Quitting!');
   if (client) {
     await client.destroy();
+    client = null;
+    logger.info('Client destroyed');
   }
   logger.info('Done!');
   if (exitProcess) {
