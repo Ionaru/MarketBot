@@ -88,6 +88,14 @@ async function activate() {
 
   citadels = await fetchCitadelData();
 
+  logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
+
+  token = readToken(tokenPath);
+
+  await startLogger();
+
+  client = new Discord.Client();
+
   // Schedule a refresh of the citadel list every 6 hours
   client.setInterval(async () => {
     const newCitadels = await fetchCitadelData();
@@ -97,13 +105,6 @@ async function activate() {
     }
   }, 6 * 60 * 60 * 1000); // 6 hours
 
-  logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
-
-  token = readToken(tokenPath);
-
-  await startLogger();
-
-  client = new Discord.Client();
   await client.login(token);
   client.once('ready', () => {
     announceReady();
