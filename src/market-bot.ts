@@ -105,7 +105,7 @@ async function activate() {
     }
   }, 6 * 60 * 60 * 1000); // 6 hours
 
-  await client.login(token);
+  client.login(token);
   client.once('ready', () => {
     announceReady();
   });
