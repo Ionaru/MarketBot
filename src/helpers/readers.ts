@@ -6,5 +6,5 @@ export function readTypeIDs(path): Object {
 }
 
 export function readToken(path): string {
-  return fs.readFileSync(path).toString();
+  return fs.readFileSync(path).toString().trim();
 }
