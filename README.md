@@ -54,14 +54,26 @@ or are missing any functionality.
 
 Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
 
-## Developer information
-Want to contribute? Awesome!
-Just follow these steps to get started:
-1. Clone this repository into a directory of your choice.
-2. Run `npm install` or `yarn` in a command prompt to install dependencies.
-3. Create a `token.txt` and place it in the `config` folder.
-4. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
-5. Make your changes, test them and create a pull request.
+## Self-hosting
+It is possible to self-host this bot, it requires NodeJS 7
+
+#### Step one: Creating a bot user
+1. Go to [discordapp.com/developers/applications/me](discordapp.com/developers/applications/me).
+2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
+3. Click on "Create a Bot User" and confirm.
+4. Click the link next to "Token" to reveal your bot token, you will need it later.
+5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot`
+6. Paste the link in your web browser and follow the steps on the Discord website.
+
+#### Step two: Installing the bot
+1. Clone this repository to a directory of your choice.
+2. Install [NodeJS](https://nodejs.org/en/download/current/).
+3. Install dependencies with `npm install`.
+4. Go to the config folder, create a file named `token.txt` and place the Bot Token inside it.
+5. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
+6. Go back to the main folder and run `npm start`.
+
+Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you need any assistance.
 
 ## To-Do & Ideas
 - [x] Search for best buy orders
@@ -69,3 +81,10 @@ Just follow these steps to get started:
 - [x] Shortcuts for commonly used searches (e.g. PLEX)
 - [ ] Price tracking
 - [ ] Support for searches in Jita, Amarr & other trade hubs
+
+## Developer information
+Want to contribute? Awesome!
+Just follow these steps to get started:
+1. Fork this repository and clone the fork into a directory of your choice.
+2. Follow the Self-hosting steps to get a development version of the bot up and running
+5. Make your changes, test them and create a pull request.
