@@ -14,7 +14,6 @@ export const shortcuts = {
   'mni': 'Megathron Navy Issue',
   'mlu': 'Mining Laser Upgrade',
   'mtu': 'Mobile Tractor Unit',
-  'plex': '30 Day Pilot\'s License Extension (PLEX)',
   'rni': 'Raven Navy Issue',
   'vni': 'Vexor Navy Issue',
 };
