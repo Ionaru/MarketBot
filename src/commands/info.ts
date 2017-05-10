@@ -54,7 +54,7 @@ export async function infoFunction(discordMessage: Discord.Message) {
     `I've been online for ${onlineTime}.\n` +
     `\n` +
     `**More information**\n` +
-    `You can find information like source code, command aliases, self-hosting, logging and new features on` +
+    `You can find information like source code, command aliases, self-hosting, logging and new features on ` +
     `<https://github.com/Ionaru/MarketBot>.`);
   logCommand('info', discordMessage);
 }
