@@ -10,11 +10,11 @@ export let logger: Logger;
 
 export class Logger {
 
-  private logger: LoggerInstance;
   public info: any;
   public warn: any;
   public error: any;
   public debug: any;
+  private logger: LoggerInstance;
 
   constructor() {
     let transports = this.createTransports();
@@ -37,6 +37,19 @@ export class Logger {
     this.debug = this.logger.debug;
 
     this.info('Winston logger enabled');
+  }
+
+  private static getLogTimeStamp(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = ('0' + (now.getMonth() + 1)).slice(-2);
+    const day = ('0' + now.getDate()).slice(-2);
+    const hour = ('0' + now.getHours()).slice(-2);
+    const minute = ('0' + now.getMinutes()).slice(-2);
+    const second = ('0' + now.getSeconds()).slice(-2);
+    const date = [year, month, day].join('-');
+    const time = [hour, minute, second].join(':');
+    return [date, time].join(' ');
   }
 
   private createTransports(): Array<TransportInstance> {
@@ -176,17 +189,4 @@ export class Logger {
 
     return transports;
   }
-
-  private static getLogTimeStamp(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = ('0' + (now.getMonth() + 1)).slice(-2);
-    const day = ('0' + now.getDate()).slice(-2);
-    const hour = ('0' + now.getHours()).slice(-2);
-    const minute = ('0' + now.getMinutes()).slice(-2);
-    const second = ('0' + now.getSeconds()).slice(-2);
-    const date = [year, month, day].join('-');
-    const time = [hour, minute, second].join(':');
-    return [date, time].join(' ');
-  };
 }

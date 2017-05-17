@@ -23,7 +23,9 @@
     "member-access": false,
     "member-ordering": [
       true,
-      "variables-before-functions"
+      {
+        "order": "fields-first"
+      }
     ],
     "no-arg": true,
     "no-console": [
@@ -66,6 +68,7 @@
     ],
     "radix": true,
     "semicolon": [
+      true,
       "always"
     ],
     "triple-equals": [

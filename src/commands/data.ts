@@ -43,6 +43,6 @@ export async function dataFunction(discordMessage: Discord.Message) {
     reply = 'I was unable to fetch the required data, please try again later.';
   }
 
-  await discordMessage.channel.sendMessage(reply);
+  await discordMessage.channel.send(reply);
   logCommand('data', discordMessage);
 }

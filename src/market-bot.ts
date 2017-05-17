@@ -168,7 +168,7 @@ export function handleError(message: Discord.Message, caughtError: Error) {
   const time = Date.now();
   logger.error(`Caught error @ ${time}\n`, caughtError);
   logger.error(`Original message:`, message.content);
-  message.channel.sendMessage(
+  message.channel.send(
     `**ERROR** Something went wrong, please consult <@${creator.id}> (<https://discord.gg/k9tAX94>)\n\n` +
     `Error message: \`${caughtError.message} @ ${time}\``
   ).then().catch((error: Response) => {

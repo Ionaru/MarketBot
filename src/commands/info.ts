@@ -30,7 +30,7 @@ export async function infoFunction(discordMessage: Discord.Message) {
 
   const onlineTime = countdown(client.readyAt);
 
-  await discordMessage.channel.sendMessage(`**Greetings, I am MarketBot!**\n` +
+  await discordMessage.channel.send(`**Greetings, I am MarketBot!**\n` +
     `I was created by <@${creator.id}> to fetch information from the EVE Online market, ` +
     `all my data currently comes from EVE-Central, stop.hammerti.me.uk, the EVE Swagger Interface ` +
     `and the Static Data Export provided by CCP.\n` +

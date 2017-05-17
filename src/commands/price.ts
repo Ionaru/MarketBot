@@ -11,7 +11,7 @@ import { logCommand } from '../helpers/command-logger';
 export async function priceFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
 
-  const replyPlaceholder = <Discord.Message> await discordMessage.channel.sendMessage(
+  const replyPlaceholder = <Discord.Message> await discordMessage.channel.send(
     `Checking price, one moment, ${discordMessage.author.username}...`
   );
 

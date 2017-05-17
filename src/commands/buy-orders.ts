@@ -12,7 +12,7 @@ import { logCommand } from '../helpers/command-logger';
 export async function buyOrdersFunction(discordMessage: Discord.Message) {
   const message = parseMessage(discordMessage);
 
-  const replyPlaceHolder = <Discord.Message> await discordMessage.channel.sendMessage(
+  const replyPlaceHolder = <Discord.Message> await discordMessage.channel.send(
     `Searching for the highest buy orders, one moment, ${discordMessage.author.username}...`
   );
 
