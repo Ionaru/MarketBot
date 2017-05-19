@@ -9,12 +9,14 @@ import { parseTypeIDs } from './helpers/parsers';
 import { startLogger } from './helpers/command-logger';
 import { Logger, logger } from './helpers/program-logger';
 import { createCommandRegex } from './helpers/regex';
+import { trackFunction } from './commands/trace';
 import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
 import { dataFunction } from './commands/data';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
+import { Message } from './helpers/message-interface';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export const playing = {game: {name: 'with ISK (/i for info)'}};
@@ -54,12 +56,16 @@ export const regionCommands = [
 export const limitCommands = [
   'limit', 'l', 'max',
 ];
+export const trackCommands = [
+  'trace', 't', 'track'
+];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
 export const dataCommandRegex = createCommandRegex(dataCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
 export const infoCommandRegex = createCommandRegex(infoCommands, true);
+export const trackCommandRegex = createCommandRegex(trackCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
@@ -103,7 +109,7 @@ async function activate() {
       citadels = newCitadels;
       logger.info('Citadel data updated');
     }
-  }, 6 * 60 * 60 * 1000); // 6 hours
+  }, 30000); // 6 hours
 
   client.login(token);
   client.once('ready', () => {
@@ -113,7 +119,8 @@ async function activate() {
 
 function announceReady() {
   client.user.setPresence(playing).then();
-  client.on('message', (message: Discord.Message) => {
+  client.on('message', (receivedMessage: Discord.Message) => {
+    const message = new Message(receivedMessage);
     processMessage(message).then().catch((error: Error) => {
       handleError(message, error);
     });
@@ -150,25 +157,27 @@ async function deactivate(exitProcess: boolean) {
   }
 }
 
-async function processMessage(discordMessage: Discord.Message) {
-  if (discordMessage.content.match(priceCommandRegex)) {
-    await priceFunction(discordMessage);
-  } else if (discordMessage.content.match(dataCommandRegex)) {
-    await dataFunction(discordMessage);
-  } else if (discordMessage.content.match(sellOrdersCommandRegex)) {
-    await sellOrdersFunction(discordMessage);
-  } else if (discordMessage.content.match(buyOrdersCommandRegex)) {
-    await buyOrdersFunction(discordMessage);
-  } else if (discordMessage.content.match(infoCommandRegex)) {
-    await infoFunction(discordMessage);
-  }
+async function processMessage(message: Message) {
+  console.log(message.content);
+  console.log(message.author);
+  // if (message.content.match(priceCommandRegex)) {
+  //   await priceFunction(message);
+  // } else if (message.content.match(dataCommandRegex)) {
+  //   await dataFunction(message);
+  // } else if (message.content.match(sellOrdersCommandRegex)) {
+  //   await sellOrdersFunction(message);
+  // } else if (message.content.match(buyOrdersCommandRegex)) {
+  //   await buyOrdersFunction(message);
+  // } else if (message.content.match(infoCommandRegex)) {
+  //   await infoFunction(message);
+  // }
 }
 
-export function handleError(message: Discord.Message, caughtError: Error) {
+export function handleError(message: Message, caughtError: Error) {
   const time = Date.now();
   logger.error(`Caught error @ ${time}\n`, caughtError);
   logger.error(`Original message:`, message.content);
-  message.channel.send(
+  message.reply(
     `**ERROR** Something went wrong, please consult <@${creator.id}> (<https://discord.gg/k9tAX94>)\n\n` +
     `Error message: \`${caughtError.message} @ ${time}\``
   ).then().catch((error: Response) => {

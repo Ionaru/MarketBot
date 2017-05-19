@@ -7,12 +7,14 @@ import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchItemPrice } from '../helpers/api';
 import { formatNumber } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
+import { Message, newLine } from '../helpers/message-interface';
+import { itemFormat, regionFormat } from '../helpers/message-formatter';
 
-export async function priceFunction(discordMessage: Discord.Message) {
-  const message = parseMessage(discordMessage);
+export async function priceFunction(messageObject: Message) {
+  const message = parseMessage(messageObject.content);
 
-  const replyPlaceholder = <Discord.Message> await discordMessage.channel.send(
-    `Checking price, one moment, ${discordMessage.author.username}...`
+  const replyPlaceholder = <Discord.Message> await messageObject.reply(
+    `Checking price, one moment, ${messageObject.sender}...`
   );
 
   let reply = '';
@@ -29,7 +31,8 @@ export async function priceFunction(discordMessage: Discord.Message) {
     if (!itemData) {
       itemData = guessUserItemInput(message.item);
       if (itemData) {
-        reply += `"${message.item}" didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
+        reply += `"${message.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+        reply += newLine();
         // reply += '*Guessing words is really difficult for bots like me, ' +
         //     'please try to spell the words as accurate as possible.*\n';
       }
@@ -42,12 +45,13 @@ export async function priceFunction(discordMessage: Discord.Message) {
       if (message.region) {
         regionId = guessUserRegionInput(message.region);
         if (!regionId) {
-          reply += `I don't know of the "${message.region}" region, defaulting to **The Forge**\n`;
+          reply += `I don't know of the "${message.region}" region, defaulting to ${regionFormat('The Forge')}`;
+          reply += newLine();
           regionId = 10000002;
         }
       }
 
-      reply += '\n';
+      reply += newLine();
 
       regionName = regionList[regionId];
 
@@ -75,25 +79,25 @@ export async function priceFunction(discordMessage: Discord.Message) {
         }
 
         if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {
-          reply += `Price information for \`${itemData.name.en}\` in **${regionName}**:\n\n`;
+          reply += `Price information for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}:` + newLine(2);
 
           if (sellPrice !== 'unknown') {
-            reply += `🡺 Lowest selling price is \`${lowestSellPrice}\`\n`;
-            reply += `🡺 Average selling price is \`${sellPrice}\`\n`;
+            reply += `- Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();
+            reply += `- Average selling price is ${itemFormat(sellPrice)}` + newLine();
           } else {
-            reply += '🡺 Selling price data is unavailable\n';
+            reply += '- Selling price data is unavailable' + newLine();
           }
 
           reply += '\n';
           if (buyPrice !== 'unknown') {
-            reply += `🡺 Highest buying price is \`${highestBuyPrice}\`\n`;
-            reply += `🡺 Average buying price is \`${buyPrice}\`\n`;
+            reply += `- Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
+            reply += `- Average buying price is ${itemFormat(buyPrice)}` + newLine();
           } else {
-            reply += '🡺 Buying price data is unavailable\n';
+            reply += '- Buying price data is unavailable\n';
           }
 
         } else {
-          reply += `I couldn't find any price information for \`${itemData.name.en}\` in **${regionName}**, sorry.`;
+          reply += `I couldn't find any price information for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}, sorry.`;
         }
       } else {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
@@ -105,5 +109,5 @@ export async function priceFunction(discordMessage: Discord.Message) {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceholder.edit(reply);
-  logCommand('price', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('price', message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }

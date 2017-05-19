@@ -65,31 +65,31 @@ export async function startLogger(): Promise<void> {
 }
 
 export function logCommand(commandType: string, discordMessage: Discord.Message, outputItem?, outputRegion?) {
-  logger.debug(discordMessage.content);
+  // logger.debug(discordMessage.content);
 
-  const parsedMessage = parseMessage(discordMessage);
+  // const parsedMessage = parseMessage(discordMessage);
 
-  const logData: LogEntryAttr = {
-    sender_name: discordMessage.author.username,
-    sender_discriminator: Number(discordMessage.author.discriminator),
-    sender_id: discordMessage.author.id,
-    channel_type: discordMessage.channel.type,
-    command_type: commandType,
-    command_full: discordMessage.content,
-    item_input: parsedMessage.item,
-    item_output: outputItem,
-    region_input: parsedMessage.region,
-    region_output: outputRegion,
-  };
-
-  if (discordMessage.channel.type === 'text') {
-    discordMessage.channel = <Discord.TextChannel> discordMessage.channel;
-
-    logData.guild_id = discordMessage.guild.id;
-    logData.guild_name = discordMessage.guild.name;
-    logData.channel_id = discordMessage.channel.id;
-    logData.channel_name = discordMessage.channel.name;
-  }
-
-  LogEntry.create(logData).then();
+  // const logData: LogEntryAttr = {
+  //   sender_name: discordMessage.author.username,
+  //   sender_discriminator: Number(discordMessage.author.discriminator),
+  //   sender_id: discordMessage.author.id,
+  //   channel_type: discordMessage.channel.type,
+  //   command_type: commandType,
+  //   command_full: discordMessage.content,
+  //   item_input: parsedMessage.item,
+  //   item_output: outputItem,
+  //   region_input: parsedMessage.region,
+  //   region_output: outputRegion,
+  // };
+  //
+  // if (discordMessage.channel.type === 'text') {
+  //   discordMessage.channel = <Discord.TextChannel> discordMessage.channel;
+  //
+  //   logData.guild_id = discordMessage.guild.id;
+  //   logData.guild_name = discordMessage.guild.name;
+  //   logData.channel_id = discordMessage.channel.id;
+  //   logData.channel_name = discordMessage.channel.name;
+  // }
+  //
+  // LogEntry.create(logData).then();
 }
