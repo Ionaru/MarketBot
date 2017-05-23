@@ -1,10 +1,10 @@
 import * as sqlite3 from 'sqlite3';
 import { parseMessage } from './parsers';
 import { logger } from './program-logger';
+import { Message } from '../chat-service/discord-interface';
 import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
 import Model = SequelizeStatic.Model;
-import { Message } from '../chat-service/discord-interface';
 
 export let LogEntry;
 

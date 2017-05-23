@@ -1,10 +1,9 @@
 import { logCommand, LogEntry, LogEntryInstance } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { parseMessage } from '../helpers/parsers';
-import SequelizeStatic = require('sequelize');
-import { makeCode, newLine } from '../helpers/message-formatter';
-import { itemFormat } from '../helpers/message-formatter';
+import { itemFormat, makeCode, newLine } from '../helpers/message-formatter';
 import { Message } from '../chat-service/discord-interface';
+import SequelizeStatic = require('sequelize');
 
 export async function dataFunction(message: Message) {
 

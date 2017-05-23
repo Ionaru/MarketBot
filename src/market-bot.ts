@@ -12,10 +12,10 @@ import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
 import { dataFunction } from './commands/data';
 import { Client, Message } from './chat-service/discord-interface';
+import { trackFunction } from './commands/trace';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
-import { trackFunction } from './commands/trace';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 
