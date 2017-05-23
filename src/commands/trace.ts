@@ -1,4 +1,3 @@
-import * as Discord from 'discord.js';
 import { items } from '../market-bot';
 import { regionList } from '../regions';
 import { parseMessage } from '../helpers/parsers';
@@ -7,34 +6,31 @@ import { fetchMarketData } from '../helpers/api';
 import { MarketData } from '../typings';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { formatNumber, pluralize } from '../helpers/formatters';
+import { Message } from '../chat-service/discord-interface';
+import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 
-export async function trackFunction(discordMessage: Discord.Message) {
+export async function trackFunction(message: Message) {
   let reply = '';
 
-  if (discordMessage.channel.type === 'dm') {
+  if (message.isPrivate) {
 
-    const message = parseMessage(discordMessage);
-
-    // const replyPlaceholder = <Discord.Message> await discordMessage.channel.send(
-    //   `Checking price, one moment, ${discordMessage.author.username}...`
-    // );
+    const messageData = parseMessage(message.content);
 
     let itemData;
     let regionName;
 
-    if (message.item && message.item.length) {
+    if (messageData.item && messageData.item.length) {
 
       itemData = items.filter(_ => {
         if (_.name.en) {
-          return _.name.en.toUpperCase() === message.item.toUpperCase();
+          return _.name.en.toUpperCase() === messageData.item.toUpperCase();
         }
       })[0];
       if (!itemData) {
-        itemData = guessUserItemInput(message.item);
+        itemData = guessUserItemInput(messageData.item);
         if (itemData) {
-          reply += `"${message.item}" didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
-          // reply += '*Guessing words is really difficult for bots like me, ' +
-          //     'please try to spell the words as accurate as possible.*\n';
+          reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+          reply += newLine(2);
         }
       }
 
@@ -42,15 +38,16 @@ export async function trackFunction(discordMessage: Discord.Message) {
 
         let regionId = 10000002;
 
-        if (message.region) {
-          regionId = guessUserRegionInput(message.region);
+        if (messageData.region) {
+          regionId = guessUserRegionInput(messageData.region);
           if (!regionId) {
-            reply += `I don't know of the "${message.region}" region, defaulting to **The Forge**\n`;
+            reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat('The Force')}`;
+            reply += newLine();
             regionId = 10000002;
           }
         }
 
-        reply += '\n';
+        reply += newLine();
 
         regionName = regionList[regionId];
 
@@ -58,22 +55,21 @@ export async function trackFunction(discordMessage: Discord.Message) {
 
         const endpointCacheTime = 300 * 1000; // 300 seconds
 
-        const warnLimit = message.limit || 0.05;
+        // const warnLimit = messageData.limit || 0.05;
 
         const timeLimit = 60 * 60 * 1000;
 
         const endTime = Date.now() + timeLimit;
 
-        let changeLimit = message.limit || 1;
+        let changeLimit = messageData.limit || 1;
 
         if (changeLimit < 0.01) {
-          reply += '0.01 ISK is the minimum change amount I can handle.\n\n';
+          reply += '0.01 ISK is the minimum change amount I can handle.';
+          reply += newLine();
           changeLimit = 0.01;
         }
 
         const originalMarketData = await fetchMarketData(itemId, regionId);
-
-        // const json = await fetchItemPrice(itemId, regionId);
 
         if (originalMarketData) {
           const OsellOrders = originalMarketData.filter(_ => _.is_buy_order === false);
@@ -81,11 +77,10 @@ export async function trackFunction(discordMessage: Discord.Message) {
             const OsellOrdersSorted: Array<MarketData> = sortArrayByObjectProperty(OsellOrders, 'price');
             const OcheapestOrder = OsellOrdersSorted[0];
             let Oprice = OcheapestOrder.price;
-            const originalPrice = Oprice;
-            const breakingPrice = Oprice - (Oprice * warnLimit);
 
-            reply += `Starting price tracking for \`${itemData.name.en}\` in **${regionName}**, ` +
-              `I'll warn you when the price changes \`${formatNumber(changeLimit)} ISK\` from \`${formatNumber(Oprice)} ISK\``;
+            reply += `Starting price tracking for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}, ` +
+              `I'll warn you when the price changes ${makeCode(formatNumber(changeLimit) + 'ISK')} ` +
+              `, right now the price is ${makeCode(formatNumber(Oprice) + 'ISK')}`;
             const interval = setInterval(async () => {
               const marketData = await fetchMarketData(itemId, regionId);
               if (marketData) {
@@ -96,7 +91,7 @@ export async function trackFunction(discordMessage: Discord.Message) {
                   const price = cheapestOrder.price;
                   if (price !== Oprice) {
                     const changeIsk = Math.abs(price - Oprice);
-                    const b = +(Math.round(Number(changeIsk.toString() + 'e+' + '2'))  + 'e-' + 2);
+                    const b = +(Math.round(Number(changeIsk.toString() + 'e+' + '2')) + 'e-' + 2);
                     console.log('change:', changeIsk, b);
                     if (b >= changeLimit) {
                       // const change = formatNumber(((price - Oprice) / Oprice) * 100, 10);
@@ -104,14 +99,16 @@ export async function trackFunction(discordMessage: Discord.Message) {
                       const newPrice = formatNumber(price) + ' ISK';
                       const isWord = pluralize('is', 'are', cheapestOrder.volume_remain);
                       const itemWord = pluralize('item', 'items', cheapestOrder.volume_remain);
-                      let plus = '';
+                      let plus = '-';
                       if (newPrice > oldPrice) {
                         plus = '+';
                       }
-                      await discordMessage.author.send(
-                        `Attention, price change detected for \`${itemData.name.en}\` in **${regionName}**:\n\n` +
-                        `\`${oldPrice}\` 🡺 \`${newPrice}\`, change: \`${plus}${b} ISK\`, ` +
-                        `There ${isWord} \`${cheapestOrder.volume_remain}\` ${itemWord} available for this price.`);
+
+                      let tReply = `Attention, price change detected for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}:`;
+                      tReply += newLine(2);
+                      tReply += `${makeCode(oldPrice)} to ${makeCode(newPrice)}, change: ${makeCode(`${plus}${b} ISK`)}, `;
+                      tReply += `There ${isWord} ${makeCode(cheapestOrder.volume_remain.toString())} ${itemWord} available for this price.`;
+                      await message.reply(tReply);
                       Oprice = price;
                     }
                     // clearInterval(interval);
@@ -119,57 +116,17 @@ export async function trackFunction(discordMessage: Discord.Message) {
                 }
               }
               if (endTime <= Date.now()) {
-                await discordMessage.author.send('');
+                await message.reply('Tracking duration expired.');
                 clearInterval(interval);
               }
 
             }, endpointCacheTime);
           }
-
-          //
-          //   const sellData: PriceData = json[0]['sell'];
-          //   const buyData: PriceData = json[0]['buy'];
-          //
-          //   let sellPrice = 'unknown';
-          //   let lowestSellPrice = 'unknown';
-          //   if (sellData.fivePercent && sellData.fivePercent !== 0) {
-          //     sellPrice = formatNumber(sellData.fivePercent) + ' ISK';
-          //     lowestSellPrice = formatNumber(sellData.min) + ' ISK';
-          //   }
-          //
-          //   let buyPrice = 'unknown';
-          //   let highestBuyPrice = 'unknown';
-          //   if (buyData.fivePercent && buyData.fivePercent !== 0) {
-          //     buyPrice = formatNumber(buyData.fivePercent) + ' ISK';
-          //     highestBuyPrice = formatNumber(buyData.max) + ' ISK';
-          //   }
-          //
-          //   if (sellPrice !== 'unknown' || buyPrice !== 'unknown') {
-          //     reply += `Price information for \`${itemData.name.en}\` in **${regionName}**:\n\n`;
-          //
-          //     if (sellPrice !== 'unknown') {
-          //       reply += `🡺 Lowest selling price is \`${lowestSellPrice}\`\n`;
-          //       reply += `🡺 Average selling price is \`${sellPrice}\`\n`;
-          //     } else {
-          //       reply += '🡺 Selling price data is unavailable\n';
-          //     }
-          //
-          //     reply += '\n';
-          //     if (buyPrice !== 'unknown') {
-          //       reply += `🡺 Highest buying price is \`${highestBuyPrice}\`\n`;
-          //       reply += `🡺 Average buying price is \`${buyPrice}\`\n`;
-          //     } else {
-          //       reply += '🡺 Buying price data is unavailable\n';
-          //     }
-          //
-          //   } else {
-          //     reply += `I couldn't find any price information for \`${itemData.name.en}\` in **${regionName}**, sorry.`;
-          //   }
         } else {
           reply += 'My apologies, I was unable to fetch the required data from the web, please try again later.';
         }
       } else {
-        reply = `I don't know what you mean with "${message.item}" 😟`;
+        reply = `I don't know what you mean with "${messageData.item}" 😟`;
       }
     } else {
       reply = 'You need to give me an item to search for.';
@@ -177,7 +134,7 @@ export async function trackFunction(discordMessage: Discord.Message) {
     // await replyPlaceholder.edit(reply);
     // logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
   } else {
-    reply = 'Please use Direct Message to have me track an item price for you.';
+    reply = 'Please send me a private message to have me track an item price for you.';
   }
-  await discordMessage.author.send(reply);
+  await message.reply(reply);
 }

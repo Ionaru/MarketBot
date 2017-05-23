@@ -1,4 +1,3 @@
-import * as Discord from 'discord.js';
 import { items } from '../market-bot';
 import { regionList } from '../regions';
 import { PriceData } from '../typings';
@@ -7,34 +6,33 @@ import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { fetchItemPrice } from '../helpers/api';
 import { formatNumber } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
-import { Message, newLine } from '../helpers/message-interface';
-import { itemFormat, regionFormat } from '../helpers/message-formatter';
+import { Message } from '../chat-service/discord-interface';
+import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 
-export async function priceFunction(messageObject: Message) {
-  const message = parseMessage(messageObject.content);
+export async function priceFunction(message: Message) {
 
-  const replyPlaceholder = <Discord.Message> await messageObject.reply(
-    `Checking price, one moment, ${messageObject.sender}...`
+  const messageData = parseMessage(message.content);
+
+  const replyPlaceholder = await message.reply(
+    `Checking price, one moment, ${message.sender}...`
   );
 
   let reply = '';
   let itemData;
   let regionName;
 
-  if (message.item && message.item.length) {
+  if (messageData.item && messageData.item.length) {
 
     itemData = items.filter(_ => {
       if (_.name.en) {
-        return _.name.en.toUpperCase() === message.item.toUpperCase();
+        return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
     })[0];
     if (!itemData) {
-      itemData = guessUserItemInput(message.item);
+      itemData = guessUserItemInput(messageData.item);
       if (itemData) {
-        reply += `"${message.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+        reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
         reply += newLine();
-        // reply += '*Guessing words is really difficult for bots like me, ' +
-        //     'please try to spell the words as accurate as possible.*\n';
       }
     }
 
@@ -42,10 +40,10 @@ export async function priceFunction(messageObject: Message) {
 
       let regionId = 10000002;
 
-      if (message.region) {
-        regionId = guessUserRegionInput(message.region);
+      if (messageData.region) {
+        regionId = guessUserRegionInput(messageData.region);
         if (!regionId) {
-          reply += `I don't know of the "${message.region}" region, defaulting to ${regionFormat('The Forge')}`;
+          reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat('The Forge')}`;
           reply += newLine();
           regionId = 10000002;
         }
@@ -88,12 +86,12 @@ export async function priceFunction(messageObject: Message) {
             reply += '- Selling price data is unavailable' + newLine();
           }
 
-          reply += '\n';
+          reply += newLine();
           if (buyPrice !== 'unknown') {
             reply += `- Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
             reply += `- Average buying price is ${itemFormat(buyPrice)}` + newLine();
           } else {
-            reply += '- Buying price data is unavailable\n';
+            reply += '- Buying price data is unavailable' + newLine();
           }
 
         } else {
@@ -103,7 +101,7 @@ export async function priceFunction(messageObject: Message) {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
       }
     } else {
-      reply = `I don't know what you mean with "${message.item}" 😟`;
+      reply = `I don't know what you mean with "${messageData.item}" 😟`;
     }
   } else {
     reply = 'You need to give me an item to search for.';

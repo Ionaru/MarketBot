@@ -1,14 +1,16 @@
-import * as Discord from 'discord.js';
 import { logCommand, LogEntry, LogEntryInstance } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { parseMessage } from '../helpers/parsers';
 import SequelizeStatic = require('sequelize');
+import { makeCode, newLine } from '../helpers/message-formatter';
+import { itemFormat } from '../helpers/message-formatter';
+import { Message } from '../chat-service/discord-interface';
 
-export async function dataFunction(discordMessage: Discord.Message) {
+export async function dataFunction(message: Message) {
 
-  const parsedMessage = parseMessage(discordMessage);
+  const messageData = parseMessage(message.content);
 
-  const limit = Math.abs(parsedMessage.limit) || 5;
+  const limit = Math.abs(messageData.limit) || 5;
 
   const topItemOutput: Array<LogEntryInstance> = await LogEntry.findAll({
     attributes: ['item_output', [SequelizeStatic.fn('COUNT', SequelizeStatic.col('item_output')), 'number']],
@@ -22,14 +24,14 @@ export async function dataFunction(discordMessage: Discord.Message) {
   if (topItemOutput) {
     const areWord = pluralize('is', 'are', limit);
     const itemWord = pluralize('item', 'items', limit);
-    reply += `Here ${areWord} the top ${limit} searched ${itemWord}:\n\n`;
+    reply += `Here ${areWord} the top ${limit} searched ${itemWord}:` + newLine(2);
 
     let iter = 0;
     for (const row of topItemOutput) {
       iter++;
       const searchTimes = row['dataValues']['number'];
       const timesWord = pluralize('time', 'times', searchTimes);
-      const replyAddition = `${iter}. \`${row.item_output}\`, searched \`${searchTimes}\` ${timesWord}.\n`;
+      const replyAddition = `${iter}. ${itemFormat(row.item_output)}, searched ${makeCode(searchTimes)} ${timesWord}.` + newLine();
 
       if (replyAddition.length + reply.length < 2000) {
         // Adding this line will not make the message exceed the character limit, carry on.
@@ -43,6 +45,6 @@ export async function dataFunction(discordMessage: Discord.Message) {
     reply = 'I was unable to fetch the required data, please try again later.';
   }
 
-  await discordMessage.channel.send(reply);
-  logCommand('data', discordMessage);
+  await message.reply(reply);
+  logCommand('data', message);
 }

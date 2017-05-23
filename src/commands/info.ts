@@ -1,4 +1,3 @@
-import * as Discord from 'discord.js';
 import * as countdown from 'countdown';
 import {
   buyOrdersCommands,
@@ -14,8 +13,10 @@ import {
 } from '../market-bot';
 import { logCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
+import { makeBold, makeCode, makeItalics, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import { Message } from '../chat-service/discord-interface';
 
-export async function infoFunction(discordMessage: Discord.Message) {
+export async function infoFunction(message: Message) {
 
   const priceCommand = commandPrefix + priceCommands[0];
   const regionCommand = commandPrefix + regionCommands[0];
@@ -25,36 +26,36 @@ export async function infoFunction(discordMessage: Discord.Message) {
   const dataCommand = commandPrefix + dataCommands[0];
   const infoCommand = commandPrefix + infoCommands[0];
 
-  const serverCount = client.guilds.array().length;
-  const serverWord = pluralize('server', 'servers', serverCount);
+  const serverCount = client.serverCount;
+  const serverWord = pluralize('server', 'serverCount', serverCount);
 
-  const onlineTime = countdown(client.readyAt);
+  const onlineTime = countdown(client.upTime);
 
-  await discordMessage.channel.send(`**Greetings, I am MarketBot!**\n` +
-    `I was created by <@${creator.id}> to fetch information from the EVE Online market, ` +
+  await message.reply(makeBold('Greetings, I am MarketBot!') + newLine() +
+    `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market, ` +
     `all my data currently comes from EVE-Central, stop.hammerti.me.uk, the EVE Swagger Interface ` +
-    `and the Static Data Export provided by CCP.\n` +
-    `\n` +
-    `**Commands**\n` +
-    `You can access my functions by using these commands:\n\n` +
-    `- \`${priceCommand} <item name> ${regionCommand} <region name>\` ` +
+    `and the Static Data Export provided by CCP.` + newLine() +
+    newLine() +
+    `${makeBold('Commands')}` + newLine() +
+    `You can access my functions by using these commands:` + newLine(2) +
+    `- ${makeCode(`${priceCommand} <item name> ${regionCommand} <region name>`)} ` +
     `- Use this to let me fetch data from the EVE Online market for a given item, ` +
-    `by default I use the market in The Forge region (where Jita is).\n\n` +
-    `- \`${sellOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
+    `by default I use the market in The Forge region (where Jita is).` + newLine(2) +
+    `- ${makeCode(`${sellOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} ` +
     `- When issued with this command, I will search a regional market for the cheapest sell orders available. ` +
-    `*This does not include orders in Citadels*.\n\n` +
-    `- \`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
-    `- When issued with this command, I will search a regional market for the highest buy orders available.\n\n` +
-    `- \`${dataCommand} ${limitCommand} <limit>\` - Show a list of most searched items.\n\n` +
-    `- \`${infoCommand}\` - Show this information.\n\n` +
-    `*\`${regionCommand}\` and \`${limitCommand}\` are always optional*\n` +
-    `\n` +
-    `**Status**\n` +
-    `I am currently active on ${serverCount} ${serverWord}.\n` +
-    `I've been online for ${onlineTime}.\n` +
-    `\n` +
-    `**More information**\n` +
+    `*This does not include orders in Citadels*.` + newLine(2) +
+    `- ${makeCode(`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} ` +
+    `- When issued with this command, I will search a regional market for the highest buy orders available.` + newLine(2) +
+    `- ${makeCode(`${dataCommand} ${limitCommand} <limit>`)} - Show a list of most searched items.` + newLine(2) +
+    `- ${makeCode(`${infoCommand}`)} - Show this information.` + newLine(2) +
+    makeItalics(`${makeCode(regionCommand)} and ${makeCode(limitCommand)} are always optional`) + newLine() +
+    newLine() +
+    makeBold('Status') + newLine() +
+    `I am currently active on ${serverCount} ${serverWord}.` + newLine() +
+    `I've been online for ${onlineTime}.` + newLine() +
+    newLine() +
+    makeBold('More information') + newLine() +
     `You can find information like source code, command aliases, self-hosting, logging and new features on ` +
-    `<https://github.com/Ionaru/MarketBot>.`);
-  logCommand('info', discordMessage);
+    makeURL('https://github.com/Ionaru/MarketBot'));
+  logCommand('info', message);
 }

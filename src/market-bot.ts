@@ -1,4 +1,3 @@
-import * as Discord from 'discord.js';
 import { UniverseApi } from '../swagger/api';
 import { CitadelData, SDEObject } from './typings';
 import { infoFunction } from './commands/info';
@@ -9,22 +8,21 @@ import { parseTypeIDs } from './helpers/parsers';
 import { startLogger } from './helpers/command-logger';
 import { Logger, logger } from './helpers/program-logger';
 import { createCommandRegex } from './helpers/regex';
-import { trackFunction } from './commands/trace';
 import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
 import { dataFunction } from './commands/data';
+import { Client, Message } from './chat-service/discord-interface';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
-import { Message } from './helpers/message-interface';
+import { trackFunction } from './commands/trace';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
-export const playing = {game: {name: 'with ISK (/i for info)'}};
 
 export const universeApi = new UniverseApi();
 export let items: Array<SDEObject>;
 
-export let client: Discord.Client;
+export let client: Client;
 export let fuse: Fuse;
 export let token: string;
 
@@ -94,16 +92,8 @@ async function activate() {
 
   citadels = await fetchCitadelData();
 
-  logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
-
-  token = readToken(tokenPath);
-
-  await startLogger();
-
-  client = new Discord.Client();
-
   // Schedule a refresh of the citadel list every 6 hours
-  client.setInterval(async () => {
+  setInterval(async () => {
     const newCitadels = await fetchCitadelData();
     if (citadels.toString() !== newCitadels.toString()) {
       citadels = newCitadels;
@@ -111,43 +101,33 @@ async function activate() {
     }
   }, 30000); // 6 hours
 
-  client.login(token);
-  client.once('ready', () => {
+  logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
+
+  token = readToken(tokenPath);
+
+  await startLogger();
+
+  client = new Client(token);
+
+  client.login();
+  client.emitter.once('ready', () => {
     announceReady();
   });
 }
 
 function announceReady() {
-  client.user.setPresence(playing).then();
-  client.on('message', (receivedMessage: Discord.Message) => {
-    const message = new Message(receivedMessage);
+  client.emitter.on('message', (message: Message) => {
     processMessage(message).then().catch((error: Error) => {
       handleError(message, error);
     });
   });
-  logger.info(`I am ${client.user.username}, now online!`);
-
-  client.on('warn', (warning: string) => {
-    logger.warn(warning);
-  });
-  client.on('error', (error: Error) => {
-    logger.error(error);
-  });
-  client.once('disconnect', (event: CloseEvent) => {
-    logger.warn('Connection closed');
-    logger.warn('Code:', event.code);
-    logger.warn('Reason:', event.reason);
-    logger.warn('Performing soft reboot');
-    deactivate(false).then(() => {
-      activate().then();
-    });
-  });
+  logger.info(`I am ${client.name}, now online!`);
 }
 
 async function deactivate(exitProcess: boolean) {
   logger.info('Quitting!');
   if (client) {
-    await client.destroy();
+    await client.disconnect();
     client = null;
     logger.info('Client destroyed');
   }
@@ -158,32 +138,23 @@ async function deactivate(exitProcess: boolean) {
 }
 
 async function processMessage(message: Message) {
-  console.log(message.content);
-  console.log(message.author);
-  // if (message.content.match(priceCommandRegex)) {
-  //   await priceFunction(message);
-  // } else if (message.content.match(dataCommandRegex)) {
-  //   await dataFunction(message);
-  // } else if (message.content.match(sellOrdersCommandRegex)) {
-  //   await sellOrdersFunction(message);
-  // } else if (message.content.match(buyOrdersCommandRegex)) {
-  //   await buyOrdersFunction(message);
-  // } else if (message.content.match(infoCommandRegex)) {
-  //   await infoFunction(message);
-  // }
+  if (message.content.match(priceCommandRegex)) {
+    await priceFunction(message);
+  } else if (message.content.match(dataCommandRegex)) {
+    await dataFunction(message);
+  } else if (message.content.match(sellOrdersCommandRegex)) {
+    await sellOrdersFunction(message);
+  } else if (message.content.match(buyOrdersCommandRegex)) {
+    await buyOrdersFunction(message);
+  } else if (message.content.match(infoCommandRegex)) {
+    await infoFunction(message);
+  } else if (message.content.match(trackCommandRegex)) {
+    await trackFunction(message);
+  }
 }
 
-export function handleError(message: Message, caughtError: Error) {
-  const time = Date.now();
-  logger.error(`Caught error @ ${time}\n`, caughtError);
-  logger.error(`Original message:`, message.content);
-  message.reply(
-    `**ERROR** Something went wrong, please consult <@${creator.id}> (<https://discord.gg/k9tAX94>)\n\n` +
-    `Error message: \`${caughtError.message} @ ${time}\``
-  ).then().catch((error: Response) => {
-    logger.error(`Unable to send error message to channel '${message.channel}'!`);
-    logger.error(error);
-  });
+function handleError(message: Message, caughtError: Error) {
+  message.sendError(caughtError).then();
 }
 
 activate().then();

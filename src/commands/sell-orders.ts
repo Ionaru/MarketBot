@@ -1,4 +1,3 @@
-import * as Discord from 'discord.js';
 import { items, universeApi } from '../market-bot';
 import { regionList } from '../regions';
 import { MarketData } from '../typings';
@@ -8,32 +7,34 @@ import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
+import { Message } from '../chat-service/discord-interface';
+import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 
-export async function sellOrdersFunction(discordMessage: Discord.Message) {
-  const message = parseMessage(discordMessage);
+export async function sellOrdersFunction(message: Message) {
 
-  const replyPlaceHolder = <Discord.Message> await discordMessage.channel.send(
-    `Searching for the cheapest sell orders, one moment, ${discordMessage.author.username}...`
+  const messageData = parseMessage(message.content);
+
+  const replyPlaceHolder = await message.reply(
+    `Searching for the cheapest sell orders, one moment, ${message.sender}...`
   );
 
   let reply = '';
   let itemData;
   let regionName;
 
-  if (message.item && message.item.length) {
+  if (messageData.item && messageData.item.length) {
 
     itemData = items.filter(_ => {
       if (_.name.en) {
-        return _.name.en.toUpperCase() === message.item.toUpperCase();
+        return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
     })[0];
 
     if (!itemData) {
-      itemData = guessUserItemInput(message.item);
+      itemData = guessUserItemInput(messageData.item);
       if (itemData) {
-        reply += `"${message.item}" didn't directly match any item I know of, my best guess is \`${itemData.name.en}\`\n`;
-        // reply += '*Guessing words is really difficult for bots like me, ' +
-        //     'please try to spell the words as accurate as possible.*\n\n';
+        reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+        reply += newLine(2);
       }
     }
 
@@ -41,15 +42,16 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
 
       let regionId = 10000002;
 
-      if (message.region) {
-        regionId = guessUserRegionInput(message.region);
+      if (messageData.region) {
+        regionId = guessUserRegionInput(messageData.region);
         if (!regionId) {
-          reply += `I don't know of the "${message.region}" region, defaulting to **The Forge**\n`;
+          reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat('The Force')}`;
+          reply += newLine();
           regionId = 10000002;
         }
       }
 
-      reply += '\n';
+      reply += newLine();
 
       regionName = regionList[regionId];
 
@@ -78,9 +80,10 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
           const nameData = await universeApi.postUniverseNames(locationIds);
           const locationNames = nameData.body;
 
-          reply += `The cheapest \`${itemData.name.en}\` sell orders in **${regionName}**:\n\n`;
+          reply += `The cheapest ${itemFormat(itemData.name.en)} sell orders in ${regionFormat(regionName)}:`;
+          reply += newLine(2);
 
-          const limit = message.limit || 5;
+          const limit = messageData.limit || 5;
           let iter = 0;
           for (const order of sellOrdersSorted) {
             const orderPrice = formatNumber(order.price);
@@ -88,9 +91,10 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
             const volume = formatNumber(order.volume_remain, 0);
             const itemWord = pluralize('item', 'items', order.volume_remain);
 
-            const replyAddition = `\`${orderPrice} ISK\` at \`${locationName}\`, \`${volume}\` ${itemWord} left.\n`;
+            let replyAddition = `${makeCode(orderPrice + ' ISK')} at ${makeCode(locationName)}, ${makeCode(volume)} ${itemWord} left.`;
+            replyAddition += newLine();
 
-            // Discord messages can not be longer than 2000 characters, if this command is issued with a
+            // Messages can not be longer than 2000 characters, if this command is issued with a
             // large limit, it can exceed that.
             if (replyAddition.length + reply.length < 2000) {
               // Adding this line will not make the message exceed the character limit, carry on.
@@ -107,17 +111,17 @@ export async function sellOrdersFunction(discordMessage: Discord.Message) {
           }
 
         } else {
-          reply += `I couldn't find any sell orders for \`${itemData.name.en}\` in **${regionName}**.`;
+          reply += `I couldn't find any sell orders for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
         }
       } else {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
       }
     } else {
-      reply = `I don't know what you mean with "${message.item}" 😟`;
+      reply = `I don't know what you mean with "${messageData.item}" 😟`;
     }
   } else {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceHolder.edit(reply);
-  logCommand('sell-orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('sell-orders', message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }
