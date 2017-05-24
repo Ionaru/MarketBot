@@ -129,7 +129,7 @@ export async function trackFunction(message: Message) {
         reply = `I don't know what you mean with "${messageData.item}" 😟`;
       }
     } else {
-      reply = 'You need to give me an item to search for.';
+      reply = 'You need to give me an item to track.';
     }
     // await replyPlaceholder.edit(reply);
     // logCommand('orders', discordMessage, (itemData ? itemData.name.en : null), (regionName ? regionName : null));

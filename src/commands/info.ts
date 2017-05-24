@@ -46,8 +46,8 @@ export async function infoFunction(message: Message) {
     `*This does not include orders in Citadels*.` + newLine(2) +
     `- ${makeCode(`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} ` +
     `- When issued with this command, I will search a regional market for the highest buy orders available.` + newLine(2) +
-    `- ${makeCode(`${dataCommand} ${limitCommand} <limit>`)} - Show a list of most searched items.` + newLine(2) +
-    `- ${makeCode(`${infoCommand}`)} - Show this information.` + newLine(2) +
+    `- ${makeCode(dataCommand)} - Show some bot statistics.` + newLine(2) +
+    `- ${makeCode(infoCommand)} - Show this information.` + newLine(2) +
     makeItalics(`${makeCode(regionCommand)} and ${makeCode(limitCommand)} are always optional`) + newLine() +
     newLine() +
     makeBold('Status') + newLine() +

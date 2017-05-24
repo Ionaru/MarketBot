@@ -16,7 +16,7 @@ export const makeCodeEndTag = '`';
 export const makeUrlStartTag = '<';
 export const makeUrlEndTag = '>';
 
-export const makeUserLinkStartTag = '@<';
+export const makeUserLinkStartTag = '<@';
 export const makeUserLinkEndTag = '>';
 
 export const newLineTag = '\n';
@@ -181,6 +181,10 @@ export class Client {
 
   get serverCount(): number {
     return this.client.guilds.array().length;
+  }
+
+  get privateChannelCount(): number {
+    return this.client.channels.array().filter(_ => _.type === 'dm').length;
   }
 
   get upTime(): Date {

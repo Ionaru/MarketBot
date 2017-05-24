@@ -1,4 +1,5 @@
 import { commandPrefix } from '../market-bot';
+import * as escapeStringRegexp from 'escape-string-regexp';
 
 export function createCommandRegex(commands: Array<string>, rootCommand = false): RegExp {
   let rootOnly = '';
@@ -7,6 +8,6 @@ export function createCommandRegex(commands: Array<string>, rootCommand = false)
   }
 
   return new RegExp(`${rootOnly}(${commands.map((element) => {
-    return commandPrefix + element + '\\b';
+    return escapeStringRegexp(commandPrefix) + element + '\\b';
   }).join('|')})`, 'i');
 }

@@ -12,7 +12,7 @@ import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
 import { dataFunction } from './commands/data';
 import { Client, Message } from './chat-service/discord-interface';
-import { trackFunction } from './commands/trace';
+import { trackFunction } from './commands/track';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
@@ -31,19 +31,19 @@ export let citadels: CitadelData;
 const tokenPath = path.join(__dirname, '../config/token.txt');
 const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
 
-export const commandPrefix = '/';
+export const commandPrefix = '\$';
 
 export const priceCommands = [
-  'price', 'p', 'value',
+  'price', 'p', 'value', '', ' '
 ];
 export const dataCommands = [
   'data', 'd'
 ];
 export const sellOrdersCommands = [
-  'sell', 's', 'cheap', 'c'
+  'sell-orders', 'sell', 's', 'cheap', 'c'
 ];
 export const buyOrdersCommands = [
-  'buy', 'b'
+  'buy-orders', 'buy', 'b'
 ];
 export const infoCommands = [
   'info', 'i', 'about', 'help'
@@ -52,10 +52,10 @@ export const regionCommands = [
   'region', 'r'
 ];
 export const limitCommands = [
-  'limit', 'l', 'max',
+  'limit', 'l', 'max'
 ];
 export const trackCommands = [
-  'trace', 't', 'track'
+  'track', 't'
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
@@ -138,18 +138,25 @@ async function deactivate(exitProcess: boolean) {
 }
 
 async function processMessage(message: Message) {
-  if (message.content.match(priceCommandRegex)) {
-    await priceFunction(message);
-  } else if (message.content.match(dataCommandRegex)) {
-    await dataFunction(message);
-  } else if (message.content.match(sellOrdersCommandRegex)) {
-    await sellOrdersFunction(message);
-  } else if (message.content.match(buyOrdersCommandRegex)) {
-    await buyOrdersFunction(message);
-  } else if (message.content.match(infoCommandRegex)) {
-    await infoFunction(message);
-  } else if (message.content.match(trackCommandRegex)) {
-    await trackFunction(message);
+  switch (true) {
+    case dataCommandRegex.test(message.content):
+      await dataFunction(message);
+      break;
+    case sellOrdersCommandRegex.test(message.content):
+      await sellOrdersFunction(message);
+      break;
+    case buyOrdersCommandRegex.test(message.content):
+      await buyOrdersFunction(message);
+      break;
+    case infoCommandRegex.test(message.content):
+      await infoFunction(message);
+      break;
+    case trackCommandRegex.test(message.content):
+      await trackFunction(message);
+      break;
+    case priceCommandRegex.test(message.content):
+      await priceFunction(message);
+      break;
   }
 }
 

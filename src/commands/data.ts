@@ -1,48 +1,70 @@
+import * as countdown from 'countdown';
 import { logCommand, LogEntry, LogEntryInstance } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
-import { parseMessage } from '../helpers/parsers';
-import { itemFormat, makeCode, newLine } from '../helpers/message-formatter';
+import { itemFormat, makeBold, makeCode, newLine } from '../helpers/message-formatter';
 import { Message } from '../chat-service/discord-interface';
 import SequelizeStatic = require('sequelize');
+import { client, commandPrefix } from '../market-bot';
 
 export async function dataFunction(message: Message) {
-
-  const messageData = parseMessage(message.content);
-
-  const limit = Math.abs(messageData.limit) || 5;
 
   const topItemOutput: Array<LogEntryInstance> = await LogEntry.findAll({
     attributes: ['item_output', [SequelizeStatic.fn('COUNT', SequelizeStatic.col('item_output')), 'number']],
     group: ['item_output'],
     order: [[SequelizeStatic.literal('number'), 'DESC']],
-    limit: [limit]
+    limit: [5]
   });
+
+  const topCommands: Array<LogEntryInstance> = await LogEntry.findAll({
+    attributes: ['command_type', [SequelizeStatic.fn('COUNT', SequelizeStatic.col('command_type')), 'number']],
+    group: ['command_type'],
+    order: [[SequelizeStatic.literal('number'), 'DESC']]
+  });
+
+  const commandCount: number = await LogEntry.count();
+  const userCount: number = await LogEntry.aggregate('sender_id', 'count', {distinct: true});
+  const serverCount: number = await LogEntry.aggregate('guild_id', 'count', {distinct: true});
+  const channelCount: number = await LogEntry.aggregate('channel_id', 'count', {distinct: true});
 
   let reply = '';
 
   if (topItemOutput) {
-    const areWord = pluralize('is', 'are', limit);
-    const itemWord = pluralize('item', 'items', limit);
-    reply += `Here ${areWord} the top ${limit} searched ${itemWord}:` + newLine(2);
+    reply += makeBold('Top searched items:');
 
     let iter = 0;
     for (const row of topItemOutput) {
       iter++;
       const searchTimes = row['dataValues']['number'];
       const timesWord = pluralize('time', 'times', searchTimes);
-      const replyAddition = `${iter}. ${itemFormat(row.item_output)}, searched ${makeCode(searchTimes)} ${timesWord}.` + newLine();
-
-      if (replyAddition.length + reply.length < 2000) {
-        // Adding this line will not make the message exceed the character limit, carry on.
-        reply += replyAddition;
-      } else {
-        // We've reached the character limit, break from the loop.
-        break;
-      }
+      reply += newLine();
+      reply += `${iter}. ${itemFormat(row.item_output)}, searched ${makeCode(searchTimes)} ${timesWord}.`;
     }
-  } else {
-    reply = 'I was unable to fetch the required data, please try again later.';
   }
+
+  if (commandCount && userCount && channelCount && serverCount) {
+    reply += newLine(2);
+    reply += makeBold('Command counts:');
+    reply += newLine();
+    reply += `I have processed ${makeCode(commandCount + ' commands')} in total, ` +
+      `issued by ${makeCode(userCount + ' users')} across ${makeCode(channelCount + ' channels')} ` +
+      `on ${makeCode(serverCount + ' servers')}.`;
+    reply += newLine();
+
+    for (const row of topCommands) {
+      reply += newLine();
+      const timeWord = pluralize('time', 'times', row['dataValues']['number']);
+      reply += makeCode(commandPrefix + row.command_type) + ' has been issued ' + makeCode(row['dataValues']['number']) + ` ${timeWord}.`;
+    }
+  }
+
+  reply += newLine(2);
+  reply += makeBold('Current statistics:');
+  reply += newLine();
+  const currentServerCount = client.serverCount;
+  const serverWord = pluralize('server', 'serverCount', currentServerCount);
+  reply += `I am currently online on ${makeCode(`${currentServerCount} ${serverWord}`)}.`;
+  reply += newLine();
+  reply += `I've been online for ${makeCode(countdown(client.upTime))}.`;
 
   await message.reply(reply);
   logCommand('data', message);
