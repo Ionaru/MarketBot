@@ -12,12 +12,12 @@ export function sortArrayByObjectPropertyLength(array: Array<any>, p1: string, p
   return array.sort(compare);
 }
 
-export function sortArrayByObjectProperty(array: Array<any>, p1: string, inverse = false): Array<any> {
+export function sortArrayByObjectProperty(array: Array<any>, property: string, inverse = false): Array<any> {
   function compare(a, b) {
-    if (a[p1] < b[p1]) {
+    if (a[property] < b[property]) {
       return inverse ? 1 : -1;
     }
-    if (a[p1] > b[p1]) {
+    if (a[property] > b[property]) {
       return inverse ? -1 : 1;
     }
     return 0;

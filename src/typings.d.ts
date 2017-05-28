@@ -1,3 +1,5 @@
+import { Message } from './chat-service/discord-interface';
+
 export interface SDEObject {
   basePrice: number;
   description: {
@@ -87,4 +89,18 @@ export interface CitadelData {
     firstSeen: string;
     regionName: string;
   };
+}
+
+export interface TrackingEntry {
+  item: SDEObject;
+  region: {
+    name: string;
+    id: number;
+  };
+  message: Message;
+  trackingLimit: number;
+  trackingPrice: number;
+  trackingStart: number;
+  trackingDuration: number;
+  currentPrice?: number;
 }
