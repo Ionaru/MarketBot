@@ -46,7 +46,7 @@ export async function fetchCitadelData(): Promise<CitadelData> {
   });
   if (citadelResponse) {
     return await citadelResponse.json().catch(() => {
-      return [];
+      return {};
     });
   }
 }

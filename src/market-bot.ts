@@ -90,12 +90,16 @@ async function activate() {
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 
-  citadels = await fetchCitadelData();
+  citadels = await fetchCitadelData().catch(() => {
+    return {};
+  });
 
   // Schedule a refresh of the citadel list every 6 hours
   setInterval(async () => {
-    const newCitadels = await fetchCitadelData();
-    if (citadels.toString() !== newCitadels.toString()) {
+    const newCitadels = await fetchCitadelData().catch(() => {
+      return {};
+    });
+    if (Object.keys(newCitadels).length && newCitadels.toString() !== citadels.toString()) {
       citadels = newCitadels;
       logger.info('Citadel data updated');
     }
