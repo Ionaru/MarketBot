@@ -103,7 +103,7 @@ async function activate() {
       citadels = newCitadels;
       logger.info('Citadel data updated');
     }
-  }, 30000); // 6 hours
+  }, 6 * 60 * 60 * 1000); // 6 hours
 
   logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
 
