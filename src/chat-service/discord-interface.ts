@@ -92,7 +92,7 @@ export class Message {
   }
 
   async reply(message: string): Promise<Message> {
-    const sent = await this._message.reply(message, {reply: null});
+    const sent = await this._message.channel.send(message);
     return new Message(sent[0] || sent);
   }
 
