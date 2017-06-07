@@ -30,11 +30,13 @@ export class Message {
   private _channel: { id: string, name: string, type: 'dm' | 'text' | 'voice' | 'group' };
   private _server: { id: string, name: string };
   private _content: string;
+  private _id: string;
 
   constructor(message: Discord.Message) {
     this._message = message;
     this._sender = message.author.username;
     this._content = message.content;
+    this._id = message.id;
     this._author = {
       id: message.author.id,
       name: message.author.tag
@@ -61,6 +63,10 @@ export class Message {
     }
 
     this._origin = 'Discord';
+  }
+
+  get id(): string {
+    return this._id;
   }
 
   get server(): { id: string, name: string } {
@@ -169,6 +175,14 @@ export class Client {
   public async reconnect() {
     await this.disconnect();
     this.login();
+  }
+
+  public async sendToChannel(id: string, message: string) {
+    const channel: Discord.Channel = this.client.channels.array().filter(_ => _.id === id)[0];
+    if (channel.type === 'dm' || channel.type === 'text') {
+      const textChannel = <Discord.TextChannel> channel;
+      await textChannel.send(message);
+    }
   }
 
   get emitter(): EventEmitter {

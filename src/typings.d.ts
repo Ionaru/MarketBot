@@ -90,17 +90,3 @@ export interface CitadelData {
     regionName: string;
   };
 }
-
-export interface TrackingEntry {
-  item: SDEObject;
-  region: {
-    name: string;
-    id: number;
-  };
-  message: Message;
-  trackingLimit: number;
-  trackingPrice: number;
-  trackingStart: number;
-  trackingDuration: number;
-  currentPrice?: number;
-}

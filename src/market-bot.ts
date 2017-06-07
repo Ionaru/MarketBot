@@ -12,7 +12,7 @@ import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
 import { dataFunction } from './commands/data';
 import { Client, Message } from './chat-service/discord-interface';
-import { trackFunction } from './commands/track';
+import { initTracking, startTrackingCycle, trackFunction } from './commands/track';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
@@ -111,6 +111,8 @@ async function activate() {
 
   await startLogger();
 
+  await initTracking();
+
   client = new Client(token);
 
   client.login();
@@ -120,6 +122,8 @@ async function activate() {
 }
 
 function announceReady() {
+  startTrackingCycle().then();
+
   client.emitter.on('message', (message: Message) => {
     processMessage(message).then().catch((error: Error) => {
       handleError(message, error);

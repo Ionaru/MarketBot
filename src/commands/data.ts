@@ -58,7 +58,7 @@ export async function dataFunction(message: Message) {
   }
 
   reply += newLine(2);
-  reply += makeBold('Current statistics:');
+  reply += makeBold('Bot status:');
   reply += newLine();
   const currentServerCount = client.serverCount;
   const serverWord = pluralize('server', 'serverCount', currentServerCount);

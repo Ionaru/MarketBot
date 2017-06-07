@@ -40,7 +40,7 @@ export async function startLogger(): Promise<void> {
   sequelizeDatabase
     .authenticate()
     .then(function () {
-      logger.info('Connection to database has been established successfully');
+      logger.info('Connection to logging database has been established successfully');
     }, function (err) {
       logger.error('Unable to connect to the database:', err);
     });
