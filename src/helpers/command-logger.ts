@@ -26,7 +26,6 @@ export interface LogEntryAttr {
 
 /* tslint:disable:no-empty-interface */
 export interface LogEntryInstance extends Instance<LogEntryAttr>, LogEntryAttr { }
-export interface LogEntryModel extends Model<LogEntryAttr, LogEntryAttr> { }
 /* tslint:enable:no-unused-variable */
 
 export async function startLogger(): Promise<void> {
@@ -34,7 +33,9 @@ export async function startLogger(): Promise<void> {
 
   const sequelizeDatabase = new SequelizeStatic('sqlite://botlog.db', {
     dialect: 'sqlite',
-    logging: logger.debug
+    logging: function (str) {
+      logger.debug(str);
+    }
   });
 
   sequelizeDatabase

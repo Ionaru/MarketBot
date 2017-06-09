@@ -54,8 +54,11 @@ export const regionCommands = [
 export const limitCommands = [
   'limit', 'l', 'max'
 ];
-export const trackCommands = [
-  'track', 't'
+export const sellTrackingCommands = [
+  'track-sell', 'ts',
+];
+export const buyTrackingCommands = [
+  'track-buy', 'tb',
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
@@ -63,7 +66,8 @@ export const dataCommandRegex = createCommandRegex(dataCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
 export const infoCommandRegex = createCommandRegex(infoCommands, true);
-export const trackCommandRegex = createCommandRegex(trackCommands, true);
+export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
+export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
@@ -159,8 +163,11 @@ async function processMessage(message: Message) {
     case infoCommandRegex.test(message.content):
       await infoFunction(message);
       break;
-    case trackCommandRegex.test(message.content):
-      await trackFunction(message);
+    case sellTrackingCommandRegex.test(message.content):
+      await trackFunction(message, 'sell');
+      break;
+    case buyTrackingCommandRegex.test(message.content):
+      await trackFunction(message, 'buy');
       break;
     case priceCommandRegex.test(message.content):
       await priceFunction(message);

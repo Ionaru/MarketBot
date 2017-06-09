@@ -1,7 +1,7 @@
 import * as Discord from 'discord.js';
 import { EventEmitter } from 'events';
 import { logger } from '../helpers/program-logger';
-import { creator } from '../market-bot';
+import { commandPrefix, creator, infoCommands } from '../market-bot';
 import { makeBold, makeCode, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 
 export const makeBoldStartTag = '**';
@@ -135,7 +135,7 @@ export class Client {
 
     this.client.on('ready', () => {
       this._name = this.client.user.username;
-      this.client.user.setPresence({game: {name: 'with ISK (/i for info)'}}).then();
+      this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
       this.onReady();
     });
 

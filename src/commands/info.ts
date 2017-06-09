@@ -1,5 +1,5 @@
 import {
-  buyOrdersCommands,
+  buyOrdersCommands, buyTrackingCommands,
   commandPrefix,
   creator,
   dataCommands,
@@ -7,7 +7,7 @@ import {
   limitCommands,
   priceCommands,
   regionCommands,
-  sellOrdersCommands
+  sellOrdersCommands, sellTrackingCommands
 } from '../market-bot';
 import { logCommand } from '../helpers/command-logger';
 import { makeBold, makeCode, makeItalics, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
@@ -43,6 +43,14 @@ export async function infoFunction(message: Message) {
   reply += newLine(2);
   reply += `- ${makeCode(`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
   reply += `- When issued with this command, I will search a regional market for the highest buy orders available.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${sellTrackingCommands} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
+  reply += `- This will enable sell price tracking for an item in a specific region I will notify you of changes in the item price`;
+  reply += `The limit is minimum the amount of ISK the price needs to change before a notification is sent.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${buyTrackingCommands} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
+  reply += `- This will enable buy price tracking for an item in a specific region. I will notify you of changes in the item price`;
+  reply += `The limit is minimum the amount of ISK the price needs to change before a notification is sent.`;
   reply += newLine(2);
   reply += `- ${makeCode(dataCommand)} - Show some bot statistics.`;
   reply += newLine(2);
