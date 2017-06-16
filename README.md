@@ -55,7 +55,7 @@ or are missing any functionality.
 Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
 
 ## Self-hosting
-It is possible to self-host this bot, it requires NodeJS 7
+It is possible to self-host this bot, it requires NodeJS 7 or greater.
 
 #### Step one: Creating a bot user
 1. Go to [discordapp.com/developers/applications/me](discordapp.com/developers/applications/me).
