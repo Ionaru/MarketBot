@@ -58,7 +58,7 @@ Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: 
 It is possible to self-host this bot, it requires NodeJS 7 or greater.
 
 #### Step one: Creating a bot user
-1. Go to [discordapp.com/developers/applications/me](discordapp.com/developers/applications/me).
+1. Go to [https://discordapp.com/developers/applications/me](discordapp.com/developers/applications/me).
 2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
 3. Click on "Create a Bot User" and confirm.
 4. Click the link next to "Token" to reveal your bot token, you will need it later.
