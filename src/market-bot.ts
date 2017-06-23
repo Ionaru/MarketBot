@@ -31,10 +31,10 @@ export let citadels: CitadelData;
 const tokenPath = path.join(__dirname, '../config/token.txt');
 const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
 
-export const commandPrefix = '\$';
+export const commandPrefix = '/';
 
 export const priceCommands = [
-  'price', 'p', 'value', '', ' '
+  'price', 'p', 'value'
 ];
 export const dataCommands = [
   'data', 'd'
