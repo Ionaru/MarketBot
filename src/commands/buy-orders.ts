@@ -7,8 +7,8 @@ import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
-import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
-import { Message } from '../chat-service/discord-interface';
+import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
+import { maxMessageLength, Message } from '../chat-service/discord-interface';
 
 export async function buyOrdersFunction(message: Message) {
   const messageData = parseMessage(message.content);
@@ -78,8 +78,11 @@ export async function buyOrdersFunction(message: Message) {
 
           locationIds = [...new Set(locationIds)];
 
-          const nameData = await universeApi.postUniverseNames(locationIds);
-          const locationNames = nameData.body;
+          let locationNames = [];
+          if (locationIds.length) {
+            const nameData = await universeApi.postUniverseNames(locationIds);
+            locationNames = nameData.body;
+          }
 
           reply += `The highest ${itemFormat(itemData.name.en)} buy orders in ${regionFormat(regionName)}:`;
           reply += newLine(2);
@@ -108,13 +111,20 @@ export async function buyOrdersFunction(message: Message) {
               range += pluralize(' jump', ' jumps', Number(range));
             }
 
-            let replyAddition = `${makeCode(orderPrice + ' ISK')} for ${makeCode(volume)} ${itemWord} `;
+            let volumeAddition = '';
+            if (order.min_volume !== 1) {
+              const volumeWord = pluralize('item', 'items', order.min_volume);
+              const minVol = formatNumber(order.min_volume, 0);
+              volumeAddition = makeBold(`(min: ${makeCode(minVol)} ${volumeWord}) `);
+            }
+
+            let replyAddition = `${makeCode(orderPrice + ' ISK')} for ${makeCode(volume)} ${itemWord} ${volumeAddition}`;
             replyAddition += `with ${makeCode(range)} order range from ${makeCode(locationName)}`;
             replyAddition += newLine();
 
             // Messages can not be longer than 2000 characters, if this command is issued with a
             // large limit, it can exceed that.
-            if (replyAddition.length + reply.length < 2000) {
+            if (replyAddition.length + reply.length < maxMessageLength) {
               // Adding this line will not make the message exceed the character limit, carry on.
               reply += replyAddition;
             } else {

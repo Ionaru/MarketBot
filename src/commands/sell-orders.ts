@@ -7,7 +7,7 @@ import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
-import { Message } from '../chat-service/discord-interface';
+import { maxMessageLength, Message } from '../chat-service/discord-interface';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 
 export async function sellOrdersFunction(message: Message) {
@@ -96,7 +96,7 @@ export async function sellOrdersFunction(message: Message) {
 
             // Messages can not be longer than 2000 characters, if this command is issued with a
             // large limit, it can exceed that.
-            if (replyAddition.length + reply.length < 2000) {
+            if (replyAddition.length + reply.length < maxMessageLength) {
               // Adding this line will not make the message exceed the character limit, carry on.
               reply += replyAddition;
             } else {

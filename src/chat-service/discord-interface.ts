@@ -2,7 +2,10 @@ import * as Discord from 'discord.js';
 import { EventEmitter } from 'events';
 import { logger } from '../helpers/program-logger';
 import { commandPrefix, creator, infoCommands } from '../market-bot';
-import { makeBold, makeCode, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import { makeCode, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import * as PrettyError from 'pretty-error';
+// var PrettyError = require('pretty-error');
+const pe = new PrettyError();
 
 export const makeBoldStartTag = '**';
 export const makeBoldEndTag = '**';
@@ -20,6 +23,8 @@ export const makeUserLinkStartTag = '<@';
 export const makeUserLinkEndTag = '>';
 
 export const newLineTag = '\n';
+
+export const maxMessageLength = 2000;
 
 export class Message {
 
@@ -98,18 +103,22 @@ export class Message {
   }
 
   async reply(message: string): Promise<Message> {
+    if (message.length > maxMessageLength) {
+      throw new Error('MaxMessageLengthReached');
+    }
     const sent = await this._message.channel.send(message);
     return new Message(sent[0] || sent);
   }
 
   async sendError(caughtError: Error) {
     const time = Date.now();
-    logger.error(`Caught error @ ${time}` + newLine(), caughtError);
+    logger.error(`Caught error @ ${time}` + newLine(), pe.render(caughtError));
     logger.error(`Original message:`, this.content);
     this.reply(
-      `${makeBold('ERROR')} Something went wrong, please consult ${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')})` +
+      `I'm sorry, it appears I have developed a fault, please consult` +
+      `${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) for assistance.` +
       newLine(2) +
-      `Error message: ${makeCode(`${caughtError.message} @ ${time}`)}`
+      `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`
     ).then().catch((error: Response) => {
       logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'!`);
       logger.error(error);
@@ -117,6 +126,9 @@ export class Message {
   }
 
   async edit(message: string): Promise<void> {
+    if (message.length > maxMessageLength) {
+      throw new Error('MaxMessageLengthReached');
+    }
     await this._message.edit(message);
   }
 }
@@ -178,6 +190,9 @@ export class Client {
   }
 
   public async sendToChannel(id: string, message: string) {
+    if (message.length > maxMessageLength) {
+      throw new Error('MaxMessageLengthReached');
+    }
     const channel: Discord.Channel = this.client.channels.array().filter(_ => _.id === id)[0];
     if (channel.type === 'dm' || channel.type === 'text') {
       const textChannel = <Discord.TextChannel> channel;
