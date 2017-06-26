@@ -200,7 +200,12 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   await TrackingEntry.create(trackingEntry);
   await replyPlaceHolder.edit(reply);
 
-  logCommand('track', message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+
+  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+}
+
+async function clearTracking(message: Message) {
+  const trackingEntries: Array<TrackingEntryInstance> = await TrackingEntry.findAll();
 }
 
 function droppedRose(amount) {
