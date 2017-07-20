@@ -40,10 +40,10 @@ export const dataCommands = [
   'data', 'd'
 ];
 export const sellOrdersCommands = [
-  'sell-orders', 'sell', 's', 'cheap', 'c'
+  'sell-orders', 'sell', 'so', 'cheap', 'c'
 ];
 export const buyOrdersCommands = [
-  'buy-orders', 'buy', 'b'
+  'buy-orders', 'buy', 'bo'
 ];
 export const infoCommands = [
   'info', 'i', 'about', 'help'
@@ -55,10 +55,10 @@ export const limitCommands = [
   'limit', 'l', 'max'
 ];
 export const sellTrackingCommands = [
-  'track-sell', 'ts',
+  'track-sell-orders', 'tso',
 ];
 export const buyTrackingCommands = [
-  'track-buy', 'tb',
+  'track-buy-orders', 'tbo',
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
