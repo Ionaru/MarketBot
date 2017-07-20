@@ -73,8 +73,8 @@ export async function dataFunction(message: Message) {
   reply += makeBold('Bot status');
   reply += newLine();
   const currentServerCount = client.serverCount;
-  serverWord = pluralize('server', 'serverCount', currentServerCount);
-  reply += `I am currently online on ${makeCode(`${currentServerCount} ${serverWord}`)}.`;
+  serverWord = pluralize('server', 'servers', currentServerCount);
+  reply += `I am currently online on ${makeCode(currentServerCount)} ${serverWord}.`;
   reply += newLine();
   reply += `I've been online for ${makeCode(countdown(client.upTime))}.`;
 
