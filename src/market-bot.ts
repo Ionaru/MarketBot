@@ -12,7 +12,7 @@ import { buyOrdersFunction } from './commands/buy-orders';
 import { fetchCitadelData } from './helpers/api';
 import { dataFunction } from './commands/data';
 import { Client, Message } from './chat-service/discord-interface';
-import { initTracking, startTrackingCycle, trackFunction } from './commands/track';
+import { clearTracking, initTracking, startTrackingCycle, trackFunction } from './commands/track';
 import path = require('path');
 import Fuse = require('fuse.js');
 import programLogger = require('./helpers/program-logger');
@@ -40,7 +40,7 @@ export const dataCommands = [
   'data', 'd'
 ];
 export const sellOrdersCommands = [
-  'sell-orders', 'sell', 'so', 'cheap', 'c'
+  'sell-orders', 'sell', 'so', 'cheapest'
 ];
 export const buyOrdersCommands = [
   'buy-orders', 'buy', 'bo'
@@ -60,6 +60,9 @@ export const sellTrackingCommands = [
 export const buyTrackingCommands = [
   'track-buy-orders', 'tbo',
 ];
+export const clearTrackingCommands = [
+  'track-clear', 'tc',
+];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
 export const dataCommandRegex = createCommandRegex(dataCommands, true);
@@ -68,6 +71,7 @@ export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true)
 export const infoCommandRegex = createCommandRegex(infoCommands, true);
 export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
 export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
+export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
@@ -136,7 +140,7 @@ function announceReady() {
   logger.info(`I am ${client.name}, now online!`);
 }
 
-async function deactivate(exitProcess: boolean) {
+async function deactivate(exitProcess: boolean): Promise<void> {
   logger.info('Quitting!');
   if (client) {
     await client.disconnect();
@@ -149,7 +153,7 @@ async function deactivate(exitProcess: boolean) {
   }
 }
 
-async function processMessage(message: Message) {
+async function processMessage(message: Message): Promise<void> {
   switch (true) {
     case dataCommandRegex.test(message.content):
       await dataFunction(message);
@@ -168,6 +172,9 @@ async function processMessage(message: Message) {
       break;
     case buyTrackingCommandRegex.test(message.content):
       await trackFunction(message, 'buy');
+      break;
+    case clearTrackingCommandRegex.test(message.content):
+      await clearTracking(message);
       break;
     case priceCommandRegex.test(message.content):
       await priceFunction(message);

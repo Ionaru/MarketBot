@@ -1,5 +1,5 @@
 import {
-  buyOrdersCommands, buyTrackingCommands,
+  buyOrdersCommands, buyTrackingCommands, clearTrackingCommands,
   commandPrefix,
   creator,
   dataCommands,
@@ -24,6 +24,7 @@ export async function infoFunction(message: Message) {
   const infoCommand = commandPrefix + infoCommands[0];
   const sellTrackingCommand = commandPrefix + sellTrackingCommands[0];
   const buyTrackingCommand = commandPrefix + buyTrackingCommands[0];
+  const clearTrackingCommand = commandPrefix + clearTrackingCommands[0];
 
   let reply = makeBold('Greetings, I am MarketBot!');
   reply += newLine();
@@ -53,6 +54,8 @@ export async function infoFunction(message: Message) {
   reply += `- ${makeCode(`${buyTrackingCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
   reply += `- This will enable buy price tracking for an item in a specific region. I will notify you of changes in the item price`;
   reply += `The limit is minimum the amount of ISK the price needs to change before a notification is sent.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(clearTrackingCommand)} - Clear your item tracking list.`;
   reply += newLine(2);
   reply += `- ${makeCode(dataCommand)} - Show some bot statistics.`;
   reply += newLine(2);

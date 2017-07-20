@@ -13,7 +13,6 @@ import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helper
 import { logCommand } from '../helpers/command-logger';
 import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
-import Model = SequelizeStatic.Model;
 
 export let TrackingEntry;
 
@@ -33,7 +32,9 @@ export interface TrackingEntryAttr {
 }
 
 /* tslint:disable:no-empty-interface */
-export interface TrackingEntryInstance extends Instance<TrackingEntryAttr>, TrackingEntryAttr { }
+export interface TrackingEntryInstance extends Instance<TrackingEntryAttr>, TrackingEntryAttr {
+}
+
 /* tslint:enable:no-unused-variable */
 
 export async function initTracking() {
@@ -86,8 +87,8 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   );
 
   if (!(message.isPrivate)) {
-    const reply = 'Please send me a private message to have me track an item price for you.';
-    await replyPlaceHolder.edit(reply);
+    const isNotPrivateReply = 'Please send me a private message to have me track an item price for you.';
+    await replyPlaceHolder.edit(isNotPrivateReply);
     return;
   }
 
@@ -99,8 +100,8 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   let regionName;
 
   if (!(messageData.item && messageData.item.length)) {
-    const reply = 'You need to give me an item to track.';
-    await replyPlaceHolder.edit(reply);
+    const noItemReply = 'You need to give me an item to track.';
+    await replyPlaceHolder.edit(noItemReply);
     return;
   }
 
@@ -204,8 +205,16 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }
 
-async function clearTracking(message: Message) {
+export async function clearTracking(message: Message) {
   const trackingEntries: Array<TrackingEntryInstance> = await TrackingEntry.findAll();
+  if (trackingEntries && trackingEntries.length) {
+    const personalEntries = trackingEntries.filter(_ => _.sender_id === message.author.id);
+    for (const entry of personalEntries) {
+      await entry.destroy();
+    }
+  }
+  await message.reply(`Your tracking list is now empty, ${message.sender}.`);
+  logCommand(`track-clear`, message, null, null);
 }
 
 function droppedRose(amount) {

@@ -1,4 +1,4 @@
-import { items, priceCommandRegex } from '../market-bot';
+import { items } from '../market-bot';
 import { regionList } from '../regions';
 import { PriceData } from '../typings';
 import { parseMessage } from '../helpers/parsers';
@@ -11,7 +11,7 @@ import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter'
 
 export async function priceFunction(message: Message) {
 
-  const messageData = parseMessage(message.content, priceCommandRegex);
+  const messageData = parseMessage(message.content);
 
   const replyPlaceholder = await message.reply(
     `Checking price, one moment, ${message.sender}...`

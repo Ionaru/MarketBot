@@ -1,7 +1,7 @@
 import { ParsedMessage, SDEObject } from '../typings';
 import { commandPrefix, limitCommandRegex, regionCommandRegex } from '../market-bot';
 
-export function parseMessage(message: string, regexp?: RegExp): ParsedMessage {
+export function parseMessage(message: string): ParsedMessage {
   const parsedMessage: ParsedMessage = {
     item: null,
     region: null,
@@ -10,16 +10,11 @@ export function parseMessage(message: string, regexp?: RegExp): ParsedMessage {
 
   // Remove double spaces because that confuses the input guessing system
   let messageText = message.replace(/ +(?= )/g, '');
-  let messageWords: Array<string> = null;
+  let messageWords: Array<string>;
 
-  if (regexp) {
-    const match = messageText.match(regexp);
-    messageText = messageText.replace(match[0], '');
-  } else {
-    // Split the message into seperate words and remove the first word (the command tag)
-    messageWords = messageText.split(' ');
-    messageWords.shift();
-  }
+  // Split the message into separate words and remove the first word (the command tag)
+  messageWords = messageText.split(' ');
+  messageWords.shift();
 
   if (messageWords) {
     messageText = messageWords.join(' ');

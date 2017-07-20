@@ -4,7 +4,6 @@ import { logger } from './program-logger';
 import { Message } from '../chat-service/discord-interface';
 import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
-import Model = SequelizeStatic.Model;
 
 export let LogEntry;
 
