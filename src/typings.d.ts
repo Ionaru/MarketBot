@@ -1,3 +1,5 @@
+import { Message } from './chat-service/discord-interface';
+
 export interface SDEObject {
   basePrice: number;
   description: {

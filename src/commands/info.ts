@@ -1,8 +1,5 @@
-import * as Discord from 'discord.js';
-import * as countdown from 'countdown';
 import {
-  buyOrdersCommands,
-  client,
+  buyOrdersCommands, buyTrackingCommands, clearTrackingCommands,
   commandPrefix,
   creator,
   dataCommands,
@@ -10,12 +7,13 @@ import {
   limitCommands,
   priceCommands,
   regionCommands,
-  sellOrdersCommands
+  sellOrdersCommands, sellTrackingCommands
 } from '../market-bot';
 import { logCommand } from '../helpers/command-logger';
-import { pluralize } from '../helpers/formatters';
+import { makeBold, makeCode, makeItalics, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import { Message } from '../chat-service/discord-interface';
 
-export async function infoFunction(discordMessage: Discord.Message) {
+export async function infoFunction(message: Message) {
 
   const priceCommand = commandPrefix + priceCommands[0];
   const regionCommand = commandPrefix + regionCommands[0];
@@ -24,37 +22,52 @@ export async function infoFunction(discordMessage: Discord.Message) {
   const buyOrdersCommand = commandPrefix + buyOrdersCommands[0];
   const dataCommand = commandPrefix + dataCommands[0];
   const infoCommand = commandPrefix + infoCommands[0];
+  const sellTrackingCommand = commandPrefix + sellTrackingCommands[0];
+  const buyTrackingCommand = commandPrefix + buyTrackingCommands[0];
+  const clearTrackingCommand = commandPrefix + clearTrackingCommands[0];
 
-  const serverCount = client.guilds.array().length;
-  const serverWord = pluralize('server', 'servers', serverCount);
+  let reply = makeBold('Greetings, I am MarketBot!');
+  reply += newLine();
+  reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market, `;
+  reply += `all my data currently comes from EVE-Central, stop.hammerti.me.uk, the EVE Swagger Interface `;
+  reply += `and the Static Data Export provided by CCP.`;
+  reply += newLine(2);
+  reply += `${makeBold('Commands')}`;
+  reply += newLine();
+  reply += `You can access my functions by using these commands:`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${priceCommand} <item name> ${regionCommand} <region name>`)} `;
+  reply += `- Use this to let me fetch data from the EVE Online market for a given item, `;
+  reply += `by default I use the market in The Forge region (where Jita is).`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${sellOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
+  reply += `- When issued with this command, I will search a regional market for the cheapest sell orders available. `;
+  reply += `*This does not include orders in Citadels*.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
+  reply += `- When issued with this command, I will search a regional market for the highest buy orders available.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${sellTrackingCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
+  reply += `- This will enable sell price tracking for an item in a specific region I will notify you of changes in the item price`;
+  reply += `The limit is minimum the amount of ISK the price needs to change before a notification is sent.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(`${buyTrackingCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>`)} `;
+  reply += `- This will enable buy price tracking for an item in a specific region. I will notify you of changes in the item price`;
+  reply += `The limit is minimum the amount of ISK the price needs to change before a notification is sent.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(clearTrackingCommand)} - Clear your item tracking list.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(dataCommand)} - Show some bot statistics.`;
+  reply += newLine(2);
+  reply += `- ${makeCode(infoCommand)} - Show this information.`;
+  reply += newLine(2);
+  reply += makeItalics(`${makeCode(regionCommand)} and ${makeCode(limitCommand)} are always optional`);
+  reply += newLine(2);
+  reply += makeBold('More information');
+  reply += newLine();
+  reply += `You can find information like source code, command aliases, self-hosting, logging and new features on `;
+  reply += makeURL('https://github.com/Ionaru/MarketBot');
 
-  const onlineTime = countdown(client.readyAt);
-
-  await discordMessage.channel.send(`**Greetings, I am MarketBot!**\n` +
-    `I was created by <@${creator.id}> to fetch information from the EVE Online market, ` +
-    `all my data currently comes from EVE-Central, stop.hammerti.me.uk, the EVE Swagger Interface ` +
-    `and the Static Data Export provided by CCP.\n` +
-    `\n` +
-    `**Commands**\n` +
-    `You can access my functions by using these commands:\n\n` +
-    `- \`${priceCommand} <item name> ${regionCommand} <region name>\` ` +
-    `- Use this to let me fetch data from the EVE Online market for a given item, ` +
-    `by default I use the market in The Forge region (where Jita is).\n\n` +
-    `- \`${sellOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
-    `- When issued with this command, I will search a regional market for the cheapest sell orders available. ` +
-    `*This does not include orders in Citadels*.\n\n` +
-    `- \`${buyOrdersCommand} <item name> ${regionCommand} <region name> ${limitCommand} <limit>\` ` +
-    `- When issued with this command, I will search a regional market for the highest buy orders available.\n\n` +
-    `- \`${dataCommand} ${limitCommand} <limit>\` - Show a list of most searched items.\n\n` +
-    `- \`${infoCommand}\` - Show this information.\n\n` +
-    `*\`${regionCommand}\` and \`${limitCommand}\` are always optional*\n` +
-    `\n` +
-    `**Status**\n` +
-    `I am currently active on ${serverCount} ${serverWord}.\n` +
-    `I've been online for ${onlineTime}.\n` +
-    `\n` +
-    `**More information**\n` +
-    `You can find information like source code, command aliases, self-hosting, logging and new features on ` +
-    `<https://github.com/Ionaru/MarketBot>.`);
-  logCommand('info', discordMessage);
+  await message.reply(reply);
+  logCommand('info', message);
 }

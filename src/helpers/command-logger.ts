@@ -1,10 +1,9 @@
 import * as sqlite3 from 'sqlite3';
-import * as Discord from 'discord.js';
 import { parseMessage } from './parsers';
 import { logger } from './program-logger';
+import { Message } from '../chat-service/discord-interface';
 import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
-import Model = SequelizeStatic.Model;
 
 export let LogEntry;
 
@@ -13,9 +12,8 @@ export interface LogEntryAttr {
   guild_name?: string;
   channel_id?: string;
   channel_name?: string;
-  channel_type: 'text' | 'dm' | 'group' | 'voice';
+  channel_type: string;
   sender_name: string;
-  sender_discriminator: number;
   sender_id: string;
   item_input?: string;
   item_output?: string;
@@ -27,7 +25,6 @@ export interface LogEntryAttr {
 
 /* tslint:disable:no-empty-interface */
 export interface LogEntryInstance extends Instance<LogEntryAttr>, LogEntryAttr { }
-export interface LogEntryModel extends Model<LogEntryAttr, LogEntryAttr> { }
 /* tslint:enable:no-unused-variable */
 
 export async function startLogger(): Promise<void> {
@@ -35,13 +32,15 @@ export async function startLogger(): Promise<void> {
 
   const sequelizeDatabase = new SequelizeStatic('sqlite://botlog.db', {
     dialect: 'sqlite',
-    logging: logger.debug
+    logging: function (str) {
+      logger.debug(str);
+    }
   });
 
   sequelizeDatabase
     .authenticate()
     .then(function () {
-      logger.info('Connection to database has been established successfully');
+      logger.info('Connection to logging database has been established successfully');
     }, function (err) {
       logger.error('Unable to connect to the database:', err);
     });
@@ -53,7 +52,6 @@ export async function startLogger(): Promise<void> {
     channel_name: SequelizeStatic.STRING,
     channel_type: SequelizeStatic.STRING,
     sender_name: SequelizeStatic.STRING,
-    sender_discriminator: SequelizeStatic.INTEGER,
     sender_id: SequelizeStatic.STRING,
     item_input: SequelizeStatic.STRING,
     item_output: SequelizeStatic.STRING,
@@ -64,32 +62,26 @@ export async function startLogger(): Promise<void> {
   }).sync();
 }
 
-export function logCommand(commandType: string, discordMessage: Discord.Message, outputItem?, outputRegion?) {
+export function logCommand(commandType: string, discordMessage: Message, outputItem?, outputRegion?) {
   logger.debug(discordMessage.content);
 
-  const parsedMessage = parseMessage(discordMessage);
+  const parsedMessage = parseMessage(discordMessage.content);
 
   const logData: LogEntryAttr = {
-    sender_name: discordMessage.author.username,
-    sender_discriminator: Number(discordMessage.author.discriminator),
-    sender_id: discordMessage.author.id,
+    guild_id: discordMessage.server.id,
+    guild_name: discordMessage.server.name,
+    channel_id: discordMessage.channel.id,
+    channel_name: discordMessage.channel.name,
     channel_type: discordMessage.channel.type,
-    command_type: commandType,
-    command_full: discordMessage.content,
+    sender_id: discordMessage.author.id,
+    sender_name: discordMessage.author.name,
     item_input: parsedMessage.item,
     item_output: outputItem,
     region_input: parsedMessage.region,
     region_output: outputRegion,
+    command_type: commandType,
+    command_full: discordMessage.content,
   };
-
-  if (discordMessage.channel.type === 'text') {
-    discordMessage.channel = <Discord.TextChannel> discordMessage.channel;
-
-    logData.guild_id = discordMessage.guild.id;
-    logData.guild_name = discordMessage.guild.name;
-    logData.channel_id = discordMessage.channel.id;
-    logData.channel_name = discordMessage.channel.name;
-  }
 
   LogEntry.create(logData).then();
 }

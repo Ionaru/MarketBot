@@ -1,8 +1,7 @@
-import * as Discord from 'discord.js';
 import { ParsedMessage, SDEObject } from '../typings';
 import { commandPrefix, limitCommandRegex, regionCommandRegex } from '../market-bot';
 
-export function parseMessage(message: Discord.Message): ParsedMessage {
+export function parseMessage(message: string): ParsedMessage {
   const parsedMessage: ParsedMessage = {
     item: null,
     region: null,
@@ -10,14 +9,19 @@ export function parseMessage(message: Discord.Message): ParsedMessage {
   };
 
   // Remove double spaces because that confuses the input guessing system
-  const messageText = message.content.replace(/ +(?= )/g, '');
+  let messageText = message.replace(/ +(?= )/g, '');
+  let messageWords: Array<string>;
 
-  // Split the message into seperate words and remove the first word (the command tag)
-  const messageWords = messageText.split(' ');
+  // Split the message into separate words and remove the first word (the command tag)
+  messageWords = messageText.split(' ');
   messageWords.shift();
 
+  if (messageWords) {
+    messageText = messageWords.join(' ');
+  }
+
   // Search for the item text
-  let itemText = messageWords.join(' ');
+  let itemText = messageText;
   if (itemText.indexOf(commandPrefix) !== -1) {
     itemText = itemText.substring(0, itemText.indexOf(commandPrefix)).trim();
   }
