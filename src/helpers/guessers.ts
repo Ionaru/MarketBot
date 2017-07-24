@@ -79,15 +79,11 @@ export function guessUserItemInput(itemString: string): SDEObject {
 }
 
 export function guessUserRegionInput(regionString: string): number {
-  let foundRegion;
-
   for (const key in regionList) {
     if (regionList.hasOwnProperty(key)) {
       if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1) {
-        foundRegion = key;
-        break;
+        return Number(key);
       }
     }
   }
-  return foundRegion;
 }

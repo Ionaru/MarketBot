@@ -78,6 +78,8 @@ export const limitCommandRegex = createCommandRegex(limitCommands);
 async function activate() {
   programLogger.logger = new Logger();
 
+  logger.info('Running NodeJS ' + process.version);
+
   logger.info('Bot has awoken, loading typeIDs.yaml');
   const typeIDs = readTypeIDs(typeIDsPath);
   logger.info('File loaded, starting parse cycle');
@@ -98,7 +100,8 @@ async function activate() {
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 
-  citadels = await fetchCitadelData().catch(() => {
+  citadels = await fetchCitadelData().catch((error) => {
+    logger.error(error);
     return {};
   });
 

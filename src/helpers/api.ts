@@ -1,14 +1,14 @@
 import { CitadelData, MarketData } from '../typings';
-import fetch from 'node-fetch';
 import { logger } from './program-logger';
 import { sortArrayByObjectProperty } from './arrays';
+import 'isomorphic-fetch';
 
 export async function fetchItemPrice(itemId, regionId) {
   const host = 'https://api.eve-central.com/api/marketstat/json';
   const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
 
   logger.debug(url);
-  const refreshResponse = await fetch(url).catch(async (errorResponse) => {
+  const refreshResponse: Response = await fetch(url).catch(async (errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return null;
   });
@@ -25,7 +25,7 @@ export async function fetchMarketData(itemId, regionId): Promise<Array<MarketDat
   const url = host + path;
 
   logger.debug(url);
-  const refreshResponse = await fetch(url).catch((errorResponse) => {
+  const refreshResponse: Response = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return null;
   });
@@ -57,7 +57,7 @@ export async function fetchCitadelData(): Promise<CitadelData> {
   const path = `api/citadel/all`;
   const url = host + path;
 
-  const citadelResponse = await fetch(url, {timeout: 5000}).catch((errorResponse) => {
+  const citadelResponse: Response = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return null;
   });

@@ -8,7 +8,6 @@
     "test": "mocha --compilers ts:ts-node/register ./src/**/*.spec.ts"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
     "countdown": "^2.6.0",
     "discord.js": "^11.1.0",
     "escape-string-regexp": "^1.0.5",
@@ -16,11 +15,9 @@
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.9.0",
     "mkdirp": "^0.5.1",
-    "node-fetch": "^1.7.1",
     "pretty-error": "^2.1.1",
     "request": "^2.81.0",
-    "sequelize": "^4.4.0",
-    "slack": "^8.3.1",
+    "sequelize": "^4.4.2",
     "sqlite3": "^3.1.8",
     "ts-node": "^3.2.1",
     "typescript": "^2.4.2",
@@ -29,13 +26,11 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.8",
     "@types/chai": "^4.0.1",
     "@types/js-yaml": "^3.9.0",
     "@types/mkdirp": "^0.5.0",
     "@types/mocha": "^2.2.41",
-    "@types/node": "^8.0.14",
-    "@types/node-fetch": "^1.6.7",
+    "@types/node": "^8.0.15",
     "@types/request": "^2.0.0",
     "@types/sequelize": "^4.0.66",
     "@types/sinon": "^2.3.3",

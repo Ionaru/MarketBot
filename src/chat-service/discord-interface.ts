@@ -4,7 +4,7 @@ import { logger } from '../helpers/program-logger';
 import { commandPrefix, creator, infoCommands } from '../market-bot';
 import { makeCode, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 import * as PrettyError from 'pretty-error';
-// var PrettyError = require('pretty-error');
+
 const pe = new PrettyError();
 
 export const makeBoldStartTag = '**';
@@ -115,8 +115,8 @@ export class Message {
     logger.error(`Caught error @ ${time}` + newLine(), pe.render(caughtError));
     logger.error(`Original message:`, this.content);
     this.reply(
-      `I'm sorry, it appears I have developed a fault, please consult` +
-      `${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) for assistance.` +
+      `I'm sorry, it appears I have developed a fault, please let` +
+      `${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.` +
       newLine(2) +
       `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`
     ).then().catch((error: Response) => {

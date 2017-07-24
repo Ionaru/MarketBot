@@ -55,7 +55,7 @@ or are missing any functionality.
 Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
 
 ## Self-hosting
-It is possible to self-host this bot, it requires NodeJS 7 or greater.
+It is possible to self-host this bot, it requires NodeJS 8 or greater.
 
 #### Step one: Creating a bot user
 1. Go to [https://discordapp.com/developers/applications/me](https://discordapp.com/developers/applications/me).
@@ -79,7 +79,7 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [x] Search for best buy orders
 - [ ] Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate
 - [x] Shortcuts for commonly used searches (e.g. PLEX)
-- [ ] Price tracking
+- [x] Price tracking
 - [ ] Support for searches in Jita, Amarr & other trade hubs
 
 ## Developer information
