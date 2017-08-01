@@ -40,10 +40,10 @@ export const dataCommands = [
   'data', 'd'
 ];
 export const sellOrdersCommands = [
-  'sell-orders', 'sell', 'so', 'cheapest'
+  'sell-orders', 'sell', 'so', 's'
 ];
 export const buyOrdersCommands = [
-  'buy-orders', 'buy', 'bo'
+  'buy-orders', 'buy', 'bo', 'b'
 ];
 export const infoCommands = [
   'info', 'i', 'about', 'help'
