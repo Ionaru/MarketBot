@@ -1,4 +1,4 @@
-export function sortArrayByObjectPropertyLength(array: Array<any>, p1: string, p2: string, inverse = false): Array<any> {
+export function sortArrayByObjectPropertyLength(array: any[], p1: string, p2: string, inverse = false): any[] {
   function compare(a, b) {
     if (a[p1][p2].length < b[p1][p2].length) {
       return inverse ? 1 : -1;
@@ -12,7 +12,7 @@ export function sortArrayByObjectPropertyLength(array: Array<any>, p1: string, p
   return array.sort(compare);
 }
 
-export function sortArrayByObjectProperty(array: Array<any>, property: string, inverse = false): Array<any> {
+export function sortArrayByObjectProperty(array: any[], property: string, inverse = false): any[] {
   function compare(a, b) {
     if (a[property] < b[property]) {
       return inverse ? 1 : -1;

@@ -1,14 +1,15 @@
-import { items, universeApi } from '../market-bot';
-import { regionList } from '../regions';
-import { MarketData } from '../typings';
-import { parseMessage } from '../helpers/parsers';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { Message } from '../chat-service/discord/message';
+import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
-import { formatNumber, pluralize } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
-import { maxMessageLength, Message } from '../chat-service/discord-interface';
+import { formatNumber, pluralize } from '../helpers/formatters';
+import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
+import { parseMessage } from '../helpers/parsers';
+import { items, universeApi } from '../market-bot';
+import { regionList } from '../regions';
+import { IMarketData } from '../typings';
 
 export async function sellOrdersFunction(message: Message) {
 
@@ -24,7 +25,7 @@ export async function sellOrdersFunction(message: Message) {
 
   if (messageData.item && messageData.item.length) {
 
-    itemData = items.filter(_ => {
+    itemData = items.filter((_) => {
       if (_.name.en) {
         return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
@@ -61,11 +62,11 @@ export async function sellOrdersFunction(message: Message) {
 
       if (marketData) {
 
-        const sellOrders = marketData.filter(_ => _.is_buy_order === false);
+        const sellOrders = marketData.filter((_) => _.is_buy_order === false);
 
         if (sellOrders && sellOrders.length) {
 
-          const sellOrdersSorted: Array<MarketData> = sortArrayByObjectProperty(sellOrders, 'price');
+          const sellOrdersSorted: IMarketData[] = sortArrayByObjectProperty(sellOrders, 'price');
 
           const cheapestOrder = sellOrdersSorted[0];
           const price = cheapestOrder.price;
@@ -87,7 +88,7 @@ export async function sellOrdersFunction(message: Message) {
           let iter = 0;
           for (const order of sellOrdersSorted) {
             const orderPrice = formatNumber(order.price);
-            const locationName = locationNames.filter(_ => _.id === order.location_id)[0].name;
+            const locationName = locationNames.filter((_) => _.id === order.location_id)[0].name;
             const volume = formatNumber(order.volume_remain, 0);
             const itemWord = pluralize('item', 'items', order.volume_remain);
 

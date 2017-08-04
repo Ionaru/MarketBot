@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 
-export function readTypeIDs(path): Object {
+export function readTypeIDs(path): object {
   return jsyaml.load(fs.readFileSync(path).toString());
 }
 

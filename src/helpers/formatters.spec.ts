@@ -1,5 +1,6 @@
-import { formatNumber, pluralize } from './formatters';
 import { expect } from 'chai';
+
+import { formatNumber, pluralize } from './formatters';
 
 describe('Formatters', () => {
 

@@ -1,16 +1,16 @@
-import { ParsedMessage, SDEObject } from '../typings';
 import { commandPrefix, limitCommandRegex, regionCommandRegex } from '../market-bot';
+import { IParsedMessage, ISDEObject } from '../typings';
 
-export function parseMessage(message: string): ParsedMessage {
-  const parsedMessage: ParsedMessage = {
+export function parseMessage(message: string): IParsedMessage {
+  const parsedMessage: IParsedMessage = {
     item: null,
-    region: null,
     limit: null,
+    region: null
   };
 
   // Remove double spaces because that confuses the input guessing system
   let messageText = message.replace(/ +(?= )/g, '');
-  let messageWords: Array<string>;
+  let messageWords: string[];
 
   // Split the message into separate words and remove the first word (the command tag)
   messageWords = messageText.split(' ');
@@ -50,12 +50,12 @@ export function parseMessage(message: string): ParsedMessage {
   return parsedMessage;
 }
 
-export function parseTypeIDs(typeIDs: Object): Array<SDEObject> {
+export function parseTypeIDs(typeIDs: object): ISDEObject[] {
   const itemsArray = [];
 
   for (const key in typeIDs) {
     if (typeIDs.hasOwnProperty(key)) {
-      const value: SDEObject = typeIDs[key];
+      const value: ISDEObject = typeIDs[key];
       value.itemID = Number(key);
       itemsArray.push(value);
     }

@@ -1,5 +1,10 @@
+import { Message } from '../chat-service/discord/message';
+import { logCommand } from '../helpers/command-logger';
+import { makeBold, makeCode, makeItalics, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 import {
-  buyOrdersCommands, buyTrackingCommands, clearTrackingCommands,
+  buyOrdersCommands,
+  buyTrackingCommands,
+  clearTrackingCommands,
   commandPrefix,
   creator,
   dataCommands,
@@ -7,11 +12,9 @@ import {
   limitCommands,
   priceCommands,
   regionCommands,
-  sellOrdersCommands, sellTrackingCommands
+  sellOrdersCommands,
+  sellTrackingCommands
 } from '../market-bot';
-import { logCommand } from '../helpers/command-logger';
-import { makeBold, makeCode, makeItalics, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
-import { Message } from '../chat-service/discord-interface';
 
 export async function infoFunction(message: Message) {
 

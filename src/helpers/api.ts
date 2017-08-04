@@ -1,7 +1,8 @@
-import { CitadelData, MarketData } from '../typings';
-import { logger } from './program-logger';
-import { sortArrayByObjectProperty } from './arrays';
 import 'isomorphic-fetch';
+import { logger } from 'winston-pnp-logger';
+
+import { ICitadelData, IMarketData } from '../typings';
+import { sortArrayByObjectProperty } from './arrays';
 
 export async function fetchItemPrice(itemId, regionId) {
   const host = 'https://api.eve-central.com/api/marketstat/json';
@@ -19,7 +20,7 @@ export async function fetchItemPrice(itemId, regionId) {
   }
 }
 
-export async function fetchMarketData(itemId, regionId): Promise<Array<MarketData>> {
+export async function fetchMarketData(itemId, regionId): Promise<IMarketData[]> {
   const host = 'https://esi.tech.ccp.is/';
   const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
   const url = host + path;
@@ -36,23 +37,23 @@ export async function fetchMarketData(itemId, regionId): Promise<Array<MarketDat
   }
 }
 
-export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, regionId: number): Promise<MarketData> {
+export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketData> {
   const marketData = await fetchMarketData(itemId, regionId);
   if (marketData && marketData.length) {
     if (type === 'sell') {
-      const sellOrders = marketData.filter(_ => _.is_buy_order === false);
-      const sortedSellOrders: Array<MarketData> = sortArrayByObjectProperty(sellOrders, 'price');
+      const sellOrders = marketData.filter((_) => _.is_buy_order === false);
+      const sortedSellOrders: IMarketData[] = sortArrayByObjectProperty(sellOrders, 'price');
       return sortedSellOrders[0];
     } else if (type === 'buy') {
-      const buyOrders = marketData.filter(_ => _.is_buy_order === true);
-      const sortedBuyOrders: Array<MarketData> = sortArrayByObjectProperty(buyOrders, 'price', true);
+      const buyOrders = marketData.filter((_) => _.is_buy_order === true);
+      const sortedBuyOrders: IMarketData[] = sortArrayByObjectProperty(buyOrders, 'price', true);
       return sortedBuyOrders[0];
     }
   }
   return null;
 }
 
-export async function fetchCitadelData(): Promise<CitadelData> {
+export async function fetchCitadelData(): Promise<ICitadelData> {
   const host = 'https://stop.hammerti.me.uk/';
   const path = `api/citadel/all`;
   const url = host + path;

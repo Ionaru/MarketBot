@@ -1,13 +1,13 @@
+import { Message } from '../chat-service/discord/message';
+import { fetchItemPrice } from '../helpers/api';
+import { logCommand } from '../helpers/command-logger';
+import { formatNumber } from '../helpers/formatters';
+import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
+import { parseMessage } from '../helpers/parsers';
 import { items } from '../market-bot';
 import { regionList } from '../regions';
-import { PriceData } from '../typings';
-import { parseMessage } from '../helpers/parsers';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
-import { fetchItemPrice } from '../helpers/api';
-import { formatNumber } from '../helpers/formatters';
-import { logCommand } from '../helpers/command-logger';
-import { Message } from '../chat-service/discord-interface';
-import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
+import { IPriceData } from '../typings';
 
 export async function priceFunction(message: Message) {
 
@@ -23,7 +23,7 @@ export async function priceFunction(message: Message) {
 
   if (messageData.item && messageData.item.length) {
 
-    itemData = items.filter(_ => {
+    itemData = items.filter((_) => {
       if (_.name.en) {
         return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
@@ -59,8 +59,8 @@ export async function priceFunction(message: Message) {
 
       if (json && json.length) {
 
-        const sellData: PriceData = json[0]['sell'];
-        const buyData: PriceData = json[0]['buy'];
+        const sellData: IPriceData = json[0].sell;
+        const buyData: IPriceData = json[0].buy;
 
         let sellPrice = 'unknown';
         let lowestSellPrice = 'unknown';

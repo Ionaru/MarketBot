@@ -1,6 +1,4 @@
-import { Message } from './chat-service/discord-interface';
-
-export interface SDEObject {
+export interface ISDEObject {
   basePrice: number;
   description: {
     de: string;
@@ -27,7 +25,7 @@ export interface SDEObject {
   itemID: number;
 }
 
-export interface MarketData {
+export interface IMarketData {
   order_id: number;
   type_id: number;
   location_id: number;
@@ -41,12 +39,12 @@ export interface MarketData {
   range: string;
 }
 
-export interface PriceData {
+export interface IPriceData {
   forQuery: {
     bid: boolean;
-    types: Array<number>;
-    regions: Array<number>;
-    systems: Array<number>;
+    types: number[];
+    regions: number[];
+    systems: number[];
     hours: number;
     minq: number;
   };
@@ -63,14 +61,14 @@ export interface PriceData {
   generated: number;
 }
 
-export interface ParsedMessage {
+export interface IParsedMessage {
   item: string;
   region: string;
   limit: number;
   // system: string;
 }
 
-export interface CitadelData {
+export interface ICitadelData {
   [id: number]: {
     typeId: number;
     name: string;

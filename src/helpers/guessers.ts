@@ -1,37 +1,40 @@
-import { SDEObject } from '../typings';
-import { fuse, items } from '../market-bot';
-import { sortArrayByObjectPropertyLength } from './arrays';
-import { regionList } from '../regions';
 import * as escapeStringRegexp from 'escape-string-regexp';
 
+import { fuse, items } from '../market-bot';
+import { regionList } from '../regions';
+import { ISDEObject } from '../typings';
+import { sortArrayByObjectPropertyLength } from './arrays';
+
 export const shortcuts = {
-  'bcs': 'Ballistic Control System',
-  'dc': 'Damage Control',
-  'dda': 'Drone Damage Amplifier',
-  'dni': 'Dominix Navy Issue',
-  'fnc': 'Federation Navy Comet',
-  'hfi': 'Hurricane Fleet Issue',
-  'mni': 'Megathron Navy Issue',
-  'mlu': 'Mining Laser Upgrade',
-  'mtu': 'Mobile Tractor Unit',
-  'rni': 'Raven Navy Issue',
-  'vni': 'Vexor Navy Issue',
+  bcs: 'Ballistic Control System',
+  dc: 'Damage Control',
+  dda: 'Drone Damage Amplifier',
+  dni: 'Dominix Navy Issue',
+  fnc: 'Federation Navy Comet',
+  hfi: 'Hurricane Fleet Issue',
+  lsi: 'Large Skill Injector',
+  mlu: 'Mining Laser Upgrade',
+  mni: 'Megathron Navy Issue',
+  mtu: 'Mobile Tractor Unit',
+  rni: 'Raven Navy Issue',
+  ssi: 'Small Skill Injector',
+  vni: 'Vexor Navy Issue'
 };
 
-export function guessUserItemInput(itemString: string): SDEObject {
+export function guessUserItemInput(itemString: string): ISDEObject {
 
   itemString = escapeStringRegexp(itemString);
 
   let itemData;
 
   let regex: RegExp;
-  let possibilities: Array<SDEObject> = [];
+  let possibilities: ISDEObject[] = [];
 
   const itemWords = itemString.split(' ');
 
   // Check if word is defined as a shortcut
   regex = new RegExp(`^${itemWords[0]}`, 'i');
-  const shortcut = Object.keys(shortcuts).filter(_ => {
+  const shortcut = Object.keys(shortcuts).filter((_) => {
     return _.match(regex);
   })[0];
 
@@ -42,7 +45,7 @@ export function guessUserItemInput(itemString: string): SDEObject {
 
   // Check in start of the words
   regex = new RegExp(`^${itemString}`, 'i');
-  possibilities.push(...items.filter(_ => {
+  possibilities.push(...items.filter((_) => {
     if (_.name.en) {
       return _.name.en.match(regex);
     }
@@ -51,7 +54,7 @@ export function guessUserItemInput(itemString: string): SDEObject {
   if (!possibilities.length) {
     // Check at end of the words
     regex = new RegExp(`${itemString}$`, 'i');
-    possibilities.push(...items.filter(_ => {
+    possibilities.push(...items.filter((_) => {
       if (_.name.en) {
         return _.name.en.match(regex);
       }
@@ -59,7 +62,7 @@ export function guessUserItemInput(itemString: string): SDEObject {
 
     if (!possibilities.length) {
       // Check in middle of words
-      possibilities.push(...items.filter(_ => {
+      possibilities.push(...items.filter((_) => {
         if (_.name.en) {
           return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
         }
@@ -72,7 +75,7 @@ export function guessUserItemInput(itemString: string): SDEObject {
     possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
     itemData = possibilities[0];
   } else {
-    itemData = <SDEObject> fuse.search(itemString)[0];
+    itemData = fuse.search(itemString)[0] as ISDEObject;
   }
 
   return itemData;

@@ -1,14 +1,15 @@
-import { citadels, items, universeApi } from '../market-bot';
-import { regionList } from '../regions';
-import { MarketData } from '../typings';
-import { parseMessage } from '../helpers/parsers';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { Message } from '../chat-service/discord/message';
+import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
-import { formatNumber, pluralize } from '../helpers/formatters';
 import { logCommand } from '../helpers/command-logger';
+import { formatNumber, pluralize } from '../helpers/formatters';
+import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
-import { maxMessageLength, Message } from '../chat-service/discord-interface';
+import { parseMessage } from '../helpers/parsers';
+import { citadels, items, universeApi } from '../market-bot';
+import { regionList } from '../regions';
+import { IMarketData } from '../typings';
 
 export async function buyOrdersFunction(message: Message) {
   const messageData = parseMessage(message.content);
@@ -23,7 +24,7 @@ export async function buyOrdersFunction(message: Message) {
 
   if (messageData.item && messageData.item.length) {
 
-    itemData = items.filter(_ => {
+    itemData = items.filter((_) => {
       if (_.name.en) {
         return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
@@ -60,14 +61,11 @@ export async function buyOrdersFunction(message: Message) {
 
       if (marketData) {
 
-        const buyOrders = marketData.filter(_ => _.is_buy_order === true);
+        const buyOrders = marketData.filter((_) => _.is_buy_order === true);
 
         if (buyOrders && buyOrders.length) {
 
-          const buyOrdersSorted: Array<MarketData> = sortArrayByObjectProperty(buyOrders, 'price', true);
-
-          const bestOrder = buyOrdersSorted[0];
-          const price = bestOrder.price;
+          const buyOrdersSorted: IMarketData[] = sortArrayByObjectProperty(buyOrders, 'price', true);
 
           let locationIds = [];
           for (const order of buyOrdersSorted) {
@@ -91,7 +89,7 @@ export async function buyOrdersFunction(message: Message) {
           let iter = 0;
           for (const order of buyOrdersSorted) {
             const orderPrice = formatNumber(order.price);
-            const location = locationNames.filter(_ => _.id === order.location_id)[0];
+            const location = locationNames.filter((_) => _.id === order.location_id)[0];
             let locationName = 'Unknown location';
             if (location) {
               locationName = location.name;

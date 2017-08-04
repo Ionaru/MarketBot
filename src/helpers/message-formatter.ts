@@ -10,36 +10,36 @@ import {
   makeUserLinkEndTag,
   makeUserLinkStartTag,
   newLineTag
-} from '../chat-service/discord-interface';
+} from '../chat-service/discord/misc';
 
-export function makeBold(string: string | number): string {
-  return `${makeBoldStartTag}${string}${makeBoldEndTag}`;
+export function makeBold(text: string | number): string {
+  return `${makeBoldStartTag}${text}${makeBoldEndTag}`;
 }
 
-export function makeItalics(string: string | number): string {
-  return `${makeItalicsStartTag}${string}${makeItalicsEndTag}`;
+export function makeItalics(text: string | number): string {
+  return `${makeItalicsStartTag}${text}${makeItalicsEndTag}`;
 }
 
-export function makeCode(string: string | number): string {
-  return `${makeCodeStartTag}${string}${makeCodeEndTag}`;
+export function makeCode(text: string | number): string {
+  return `${makeCodeStartTag}${text}${makeCodeEndTag}`;
 }
 
-export function makeURL(string: string | number): string {
-  return `${makeUrlStartTag}${string}${makeUrlEndTag}`;
+export function makeURL(text: string | number): string {
+  return `${makeUrlStartTag}${text}${makeUrlEndTag}`;
 }
 
-export function makeUserLink(string: string | number): string {
-  return `${makeUserLinkStartTag}${string}${makeUserLinkEndTag}`;
+export function makeUserLink(text: string | number): string {
+  return `${makeUserLinkStartTag}${text}${makeUserLinkEndTag}`;
 }
 
 export function newLine(amount = 1): string {
   return newLineTag.repeat(amount);
 }
 
-export function itemFormat(string: string | number): string {
-  return makeCode(string);
+export function itemFormat(text: string | number): string {
+  return makeCode(text);
 }
 
-export function regionFormat(string: string | number): string {
-  return makeBold(string);
+export function regionFormat(text: string | number): string {
+  return makeBold(text);
 }

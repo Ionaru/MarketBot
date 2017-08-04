@@ -1,13 +1,14 @@
-import * as sqlite3 from 'sqlite3';
-import { parseMessage } from './parsers';
-import { logger } from './program-logger';
-import { Message } from '../chat-service/discord-interface';
-import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
+import SequelizeStatic = require('sequelize');
+import * as sqlite3 from 'sqlite3';
+import { logger } from 'winston-pnp-logger';
 
-export let LogEntry;
+import { Message } from '../chat-service/discord/message';
+import { parseMessage } from './parsers';
 
-export interface LogEntryAttr {
+export let logEntry;
+
+export interface ILogEntryAttr {
   guild_id?: string;
   guild_name?: string;
   channel_id?: string;
@@ -24,41 +25,42 @@ export interface LogEntryAttr {
 }
 
 /* tslint:disable:no-empty-interface */
-export interface LogEntryInstance extends Instance<LogEntryAttr>, LogEntryAttr { }
+export interface ILogEntryInstance extends Instance<ILogEntryAttr>, ILogEntryAttr { }
 /* tslint:enable:no-unused-variable */
 
 export async function startLogger(): Promise<void> {
-  const db = new sqlite3.Database('botlog.db').close();
+  new sqlite3.Database('botlog.db').close();
 
+  // noinspection JSUnusedGlobalSymbols
   const sequelizeDatabase = new SequelizeStatic('sqlite://botlog.db', {
     dialect: 'sqlite',
-    logging: function (str) {
+    logging: (str) => {
       logger.debug(str);
     }
   });
 
   sequelizeDatabase
     .authenticate()
-    .then(function () {
+    .then(() => {
       logger.info('Connection to logging database has been established successfully');
-    }, function (err) {
+    }, (err) => {
       logger.error('Unable to connect to the database:', err);
     });
 
-  LogEntry = await sequelizeDatabase.define('LogEntry', {
-    guild_id: SequelizeStatic.STRING,
-    guild_name: SequelizeStatic.STRING,
+  logEntry = await sequelizeDatabase.define('LogEntry', {
     channel_id: SequelizeStatic.STRING,
     channel_name: SequelizeStatic.STRING,
     channel_type: SequelizeStatic.STRING,
-    sender_name: SequelizeStatic.STRING,
-    sender_id: SequelizeStatic.STRING,
+    command_full: SequelizeStatic.TEXT,
+    command_type: SequelizeStatic.STRING,
+    guild_id: SequelizeStatic.STRING,
+    guild_name: SequelizeStatic.STRING,
     item_input: SequelizeStatic.STRING,
     item_output: SequelizeStatic.STRING,
     region_input: SequelizeStatic.STRING,
     region_output: SequelizeStatic.STRING,
-    command_type: SequelizeStatic.STRING,
-    command_full: SequelizeStatic.TEXT,
+    sender_id: SequelizeStatic.STRING,
+    sender_name: SequelizeStatic.STRING
   }).sync();
 }
 
@@ -67,21 +69,21 @@ export function logCommand(commandType: string, discordMessage: Message, outputI
 
   const parsedMessage = parseMessage(discordMessage.content);
 
-  const logData: LogEntryAttr = {
-    guild_id: discordMessage.server.id,
-    guild_name: discordMessage.server.name,
+  const logData: ILogEntryAttr = {
     channel_id: discordMessage.channel.id,
     channel_name: discordMessage.channel.name,
     channel_type: discordMessage.channel.type,
-    sender_id: discordMessage.author.id,
-    sender_name: discordMessage.author.name,
+    command_full: discordMessage.content,
+    command_type: commandType,
+    guild_id: discordMessage.server.id,
+    guild_name: discordMessage.server.name,
     item_input: parsedMessage.item,
     item_output: outputItem,
     region_input: parsedMessage.region,
     region_output: outputRegion,
-    command_type: commandType,
-    command_full: discordMessage.content,
+    sender_id: discordMessage.author.id,
+    sender_name: discordMessage.author.name
   };
 
-  LogEntry.create(logData).then();
+  logEntry.create(logData).then();
 }

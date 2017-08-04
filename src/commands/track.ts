@@ -1,22 +1,22 @@
 import * as countdown from 'countdown';
-import * as sqlite3 from 'sqlite3';
-import { logger } from '../helpers/program-logger';
+import { logger } from 'winston-pnp-logger';
+
+import { Message } from '../chat-service/discord/message';
+import { getCheapestOrder } from '../helpers/api';
+import { logCommand } from '../helpers/command-logger';
+import { formatNumber, pluralize } from '../helpers/formatters';
+import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
+import { parseMessage } from '../helpers/parsers';
 import { client, items } from '../market-bot';
 import { regionList } from '../regions';
-import { parseMessage } from '../helpers/parsers';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
-import { getCheapestOrder } from '../helpers/api';
-import { MarketData, SDEObject } from '../typings';
-import { formatNumber, pluralize } from '../helpers/formatters';
-import { Message } from '../chat-service/discord-interface';
-import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
-import { logCommand } from '../helpers/command-logger';
+import { IMarketData, ISDEObject } from '../typings';
 import SequelizeStatic = require('sequelize');
 import Instance = SequelizeStatic.Instance;
 
-export let TrackingEntry;
+export let trackingEntry;
 
-export interface TrackingEntryAttr {
+export interface ITrackingEntryAttr {
   item_id: number;
   region_id: number;
   message_data: string;
@@ -28,45 +28,44 @@ export interface TrackingEntryAttr {
   tracking_start: number;
   tracking_duration: number;
   current_price: number;
-  current_order?: MarketData;
+  current_order?: IMarketData;
 }
 
 /* tslint:disable:no-empty-interface */
-export interface TrackingEntryInstance extends Instance<TrackingEntryAttr>, TrackingEntryAttr {
+export interface ITrackingEntryInstance extends Instance<ITrackingEntryAttr>, ITrackingEntryAttr {
 }
 
 /* tslint:enable:no-unused-variable */
 
 export async function initTracking() {
-  const db = new sqlite3.Database('botlog.db').close();
-
+  // noinspection JSUnusedGlobalSymbols
   const sequelizeDatabase = new SequelizeStatic('sqlite://tracking.db', {
     dialect: 'sqlite',
-    logging: function (str) {
+    logging: (str) => {
       logger.debug(str);
     }
   });
 
   sequelizeDatabase
     .authenticate()
-    .then(function () {
+    .then(() => {
       logger.info('Connection to tracking database has been established successfully');
-    }, function (err) {
+    }, (err) => {
       logger.error('Unable to connect to the database:', err);
     });
 
-  TrackingEntry = await sequelizeDatabase.define('TrackingEntry', {
-    item_id: SequelizeStatic.INTEGER,
-    region_id: SequelizeStatic.INTEGER,
-    message_data: SequelizeStatic.TEXT,
+  trackingEntry = await sequelizeDatabase.define('TrackingEntry', {
     channel_id: SequelizeStatic.STRING,
+    current_price: SequelizeStatic.DECIMAL,
+    item_id: SequelizeStatic.INTEGER,
+    message_data: SequelizeStatic.TEXT,
+    region_id: SequelizeStatic.INTEGER,
     sender_id: SequelizeStatic.STRING,
-    tracking_type: SequelizeStatic.STRING,
+    tracking_duration: SequelizeStatic.INTEGER,
     tracking_limit: SequelizeStatic.DECIMAL,
     tracking_price: SequelizeStatic.DECIMAL,
     tracking_start: SequelizeStatic.INTEGER,
-    tracking_duration: SequelizeStatic.INTEGER,
-    current_price: SequelizeStatic.DECIMAL,
+    tracking_type: SequelizeStatic.STRING
   }).sync();
 }
 
@@ -96,7 +95,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
 
   const messageData = parseMessage(message.content);
 
-  let itemData: SDEObject;
+  let itemData: ISDEObject;
   let regionName;
 
   if (!(messageData.item && messageData.item.length)) {
@@ -107,7 +106,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
 
   let reply = '';
 
-  itemData = items.filter(_ => {
+  itemData = items.filter((_) => {
     if (_.name.en) {
       return _.name.en.toUpperCase() === messageData.item.toUpperCase();
     }
@@ -147,8 +146,8 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
     changeLimit = 0.01;
   }
 
-  const x: Array<TrackingEntryInstance> = await TrackingEntry.findAll();
-  const dupEntries = x.filter(_ => {
+  const x: ITrackingEntryInstance[] = await trackingEntry.findAll();
+  const dupEntries = x.filter((_) => {
     return _.sender_id === message.author.id;
   });
   if (dupEntries.length + 1 > maxEntries) {
@@ -157,7 +156,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
     return;
   }
 
-  const itemDup = dupEntries.filter(_ => {
+  const itemDup = dupEntries.filter((_) => {
     if (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type) {
       return true;
     }
@@ -184,31 +183,30 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   reply += newLine(2);
   reply += `Tracking will last ${makeCode(countdown(Date.now() + timeLimit))}`;
 
-  const trackingEntry: TrackingEntryAttr = {
-    item_id: itemData.itemID,
-    region_id: regionId,
-    message_data: messageIdentifier,
+  const entry: ITrackingEntryAttr = {
     channel_id: message.channel.id,
+    current_price: originalPrice,
+    item_id: itemData.itemID,
+    message_data: messageIdentifier,
+    region_id: regionId,
     sender_id: message.author.id,
-    tracking_type: type,
+    tracking_duration: timeLimit,
     tracking_limit: changeLimit,
     tracking_price: originalPrice,
     tracking_start: Date.now(),
-    tracking_duration: timeLimit,
-    current_price: originalPrice,
+    tracking_type: type
   };
 
-  await TrackingEntry.create(trackingEntry);
+  await trackingEntry.create(entry);
   await replyPlaceHolder.edit(reply);
-
 
   logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
 }
 
 export async function clearTracking(message: Message) {
-  const trackingEntries: Array<TrackingEntryInstance> = await TrackingEntry.findAll();
+  const trackingEntries: ITrackingEntryInstance[] = await trackingEntry.findAll();
   if (trackingEntries && trackingEntries.length) {
-    const personalEntries = trackingEntries.filter(_ => _.sender_id === message.author.id);
+    const personalEntries = trackingEntries.filter((_) => _.sender_id === message.author.id);
     for (const entry of personalEntries) {
       await entry.destroy();
     }
@@ -229,9 +227,9 @@ function droppedRose(amount) {
  * */
 async function performTrackingCycle() {
 
-  const trackingEntries: Array<TrackingEntryInstance> = await TrackingEntry.findAll();
+  const trackingEntries: ITrackingEntryInstance[] = await trackingEntry.findAll();
 
-  const entriesDone: Array<TrackingEntryInstance> = [];
+  const entriesDone: ITrackingEntryInstance[] = [];
 
   for (const entry of trackingEntries) {
 
@@ -243,10 +241,10 @@ async function performTrackingCycle() {
     }
 
     let currentPrice: number;
-    let currentOrder: MarketData;
+    let currentOrder: IMarketData;
 
-    // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries
-    const duplicateEntry = entriesDone.filter(_ => {
+    // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
+    const duplicateEntry = entriesDone.filter((_) => {
         return _.item_id === entry.item_id && _.region_id === entry.region_id && _.current_price;
       }
     )[0];
@@ -279,7 +277,7 @@ async function performTrackingCycle() {
           entry.current_price = currentOrder.price;
           entry.save().then();
         }).catch((error) => {
-          console.warn('Cannot send message', error);
+          logger.warn('Cannot send message', error);
           entry.destroy().then();
         });
       }
@@ -289,7 +287,7 @@ async function performTrackingCycle() {
   }
 }
 
-async function sendChangeMessage(channelId: string, currentOrder: MarketData, entry: TrackingEntryAttr, change: number) {
+async function sendChangeMessage(channelId: string, currentOrder: IMarketData, entry: ITrackingEntryAttr, change: number) {
   const oldPrice = formatNumber(entry.tracking_price) + ' ISK';
   const newPrice = formatNumber(currentOrder.price) + ' ISK';
   const isWord = pluralize('is', 'are', currentOrder.volume_remain);
@@ -297,7 +295,7 @@ async function sendChangeMessage(channelId: string, currentOrder: MarketData, en
   const droppedRoseWord = droppedRose(currentOrder.price - entry.tracking_price);
   const changeText = makeCode(`${formatNumber(change)} ISK`);
 
-  const itemName = items.filter(_ => _.itemID === entry.item_id)[0].name.en;
+  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en;
   const regionName = regionList[entry.region_id];
 
   let reply = `Attention, change detected in ${makeBold(entry.tracking_type)} price `;
@@ -310,12 +308,12 @@ async function sendChangeMessage(channelId: string, currentOrder: MarketData, en
   await client.sendToChannel(channelId, reply);
 }
 
-function sendExpiredMessage(channelId: string, entry: TrackingEntryAttr) {
+function sendExpiredMessage(channelId: string, entry: ITrackingEntryAttr) {
 
-  const itemName = items.filter(_ => _.itemID === entry.item_id)[0].name.en;
+  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en;
   const regionName = regionList[entry.region_id];
 
   let reply = `Tracking of the ${makeBold(entry.tracking_type)} price `;
   reply += `for ${itemFormat(itemName)} in ${regionFormat(regionName)} expired.`;
-  client.sendToChannel(channelId, reply).catch(() => {});
+  client.sendToChannel(channelId, reply).catch();
 }

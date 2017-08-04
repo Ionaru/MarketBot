@@ -1,7 +1,8 @@
-import { commandPrefix } from '../market-bot';
 import * as escapeStringRegexp from 'escape-string-regexp';
 
-export function createCommandRegex(commands: Array<string>, rootCommand = false): RegExp {
+import { commandPrefix } from '../market-bot';
+
+export function createCommandRegex(commands: string[], rootCommand = false): RegExp {
   let rootOnly = '';
   if (rootCommand) {
     rootOnly = '^';

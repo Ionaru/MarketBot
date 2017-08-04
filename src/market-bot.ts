@@ -1,32 +1,33 @@
-import { UniverseApi } from '../swagger/api';
-import { CitadelData, SDEObject } from './typings';
-import { infoFunction } from './commands/info';
-import { sellOrdersFunction } from './commands/sell-orders';
-import { priceFunction } from './commands/price';
-import { readToken, readTypeIDs } from './helpers/readers';
-import { parseTypeIDs } from './helpers/parsers';
-import { startLogger } from './helpers/command-logger';
-import { Logger, logger } from './helpers/program-logger';
-import { createCommandRegex } from './helpers/regex';
-import { buyOrdersFunction } from './commands/buy-orders';
-import { fetchCitadelData } from './helpers/api';
-import { dataFunction } from './commands/data';
-import { Client, Message } from './chat-service/discord-interface';
-import { clearTracking, initTracking, startTrackingCycle, trackFunction } from './commands/track';
-import path = require('path');
 import Fuse = require('fuse.js');
-import programLogger = require('./helpers/program-logger');
+import path = require('path');
+import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
+
+import { UniverseApi } from '../swagger/api';
+import { Client } from './chat-service/discord/client';
+import { Message } from './chat-service/discord/message';
+import { buyOrdersFunction } from './commands/buy-orders';
+import { dataFunction } from './commands/data';
+import { infoFunction } from './commands/info';
+import { priceFunction } from './commands/price';
+import { sellOrdersFunction } from './commands/sell-orders';
+import { clearTracking, initTracking, startTrackingCycle, trackFunction } from './commands/track';
+import { fetchCitadelData } from './helpers/api';
+import { startLogger } from './helpers/command-logger';
+import { parseTypeIDs } from './helpers/parsers';
+import { readToken, readTypeIDs } from './helpers/readers';
+import { createCommandRegex } from './helpers/regex';
+import { ICitadelData, ISDEObject } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 
 export const universeApi = new UniverseApi();
-export let items: Array<SDEObject>;
+export let items: ISDEObject[];
 
 export let client: Client;
 export let fuse: Fuse;
 export let token: string;
 
-export let citadels: CitadelData;
+export let citadels: ICitadelData;
 
 const tokenPath = path.join(__dirname, '../config/token.txt');
 const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
@@ -55,13 +56,13 @@ export const limitCommands = [
   'limit', 'l', 'max'
 ];
 export const sellTrackingCommands = [
-  'track-sell-orders', 'tso',
+  'track-sell-orders', 'tso'
 ];
 export const buyTrackingCommands = [
-  'track-buy-orders', 'tbo',
+  'track-buy-orders', 'tbo'
 ];
 export const clearTrackingCommands = [
-  'track-clear', 'tc',
+  'track-clear', 'tc'
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
@@ -76,7 +77,10 @@ export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
 async function activate() {
-  programLogger.logger = new Logger();
+  // noinspection TsLint
+  new WinstonPnPLogger({
+    logDir: '../logs'
+  });
 
   logger.info('Running NodeJS ' + process.version);
 
@@ -86,14 +90,14 @@ async function activate() {
   items = parseTypeIDs(typeIDs);
 
   fuse = new Fuse(items, {
+    distance: 100,
+    keys: ['name.en'],
+    location: 0,
+    maxPatternLength: 128,
+    minMatchCharLength: 1,
     shouldSort: true,
     threshold: 0.6,
-    location: 0,
-    distance: 100,
-    maxPatternLength: 128,
-    tokenize: true,
-    minMatchCharLength: 1,
-    keys: ['name.en']
+    tokenize: true
   });
 
   logger.info(`Parsing complete, ${items.length} items loaded into memory`);
@@ -191,11 +195,11 @@ function handleError(message: Message, caughtError: Error) {
 
 activate().then();
 process.stdin.resume();
-process.on('unhandledRejection', function (reason: string, p: Promise<any>): void {
+process.on('unhandledRejection', (reason: string, p: Promise<any>): void => {
   logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
 });
-process.on('uncaughtException', function (error) {
-  logger.error(error);
+process.on('uncaughtException', (error) => {
+  logger.error(error.message);
   deactivate(true).then();
 });
 process.on('SIGINT', () => {
