@@ -1,5 +1,5 @@
-import SequelizeStatic = require('sequelize');
 import * as countdown from 'countdown';
+import SequelizeStatic = require('sequelize');
 
 import { Message } from '../chat-service/discord/message';
 import { ILogEntryInstance, logCommand, logEntry } from '../helpers/command-logger';

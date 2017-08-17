@@ -1,6 +1,8 @@
 import * as countdown from 'countdown';
 import { logger } from 'winston-pnp-logger';
 
+import SequelizeStatic = require('sequelize');
+import Instance = SequelizeStatic.Instance;
 import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
@@ -11,8 +13,6 @@ import { parseMessage } from '../helpers/parsers';
 import { client, items } from '../market-bot';
 import { regionList } from '../regions';
 import { IMarketData, ISDEObject } from '../typings';
-import SequelizeStatic = require('sequelize');
-import Instance = SequelizeStatic.Instance;
 
 export let trackingEntry;
 

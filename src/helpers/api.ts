@@ -4,6 +4,8 @@ import { logger } from 'winston-pnp-logger';
 import { ICitadelData, IMarketData } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
+const ccpHost = 'https://esi.tech.ccp.is/';
+
 export async function fetchItemPrice(itemId, regionId) {
   const host = 'https://api.eve-central.com/api/marketstat/json';
   const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
@@ -21,9 +23,8 @@ export async function fetchItemPrice(itemId, regionId) {
 }
 
 export async function fetchMarketData(itemId, regionId): Promise<IMarketData[]> {
-  const host = 'https://esi.tech.ccp.is/';
   const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
-  const url = host + path;
+  const url = ccpHost + path;
 
   logger.debug(url);
   const refreshResponse: Response = await fetch(url).catch((errorResponse) => {

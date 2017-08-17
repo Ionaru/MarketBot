@@ -68,9 +68,6 @@ export async function sellOrdersFunction(message: Message) {
 
           const sellOrdersSorted: IMarketData[] = sortArrayByObjectProperty(sellOrders, 'price');
 
-          const cheapestOrder = sellOrdersSorted[0];
-          const price = cheapestOrder.price;
-
           let locationIds = [];
           for (const order of sellOrdersSorted) {
             locationIds.push(order.location_id);
@@ -78,8 +75,16 @@ export async function sellOrdersFunction(message: Message) {
 
           locationIds = [...new Set(locationIds)];
 
-          const nameData = await universeApi.postUniverseNames(locationIds);
-          const locationNames = nameData.body;
+          const nameData = await universeApi.postUniverseNames(locationIds).catch(() => {
+            return null;
+          });
+
+          let locationNames: any[];
+          if (nameData) {
+            locationNames = nameData.body;
+          } else {
+            locationNames = [];
+          }
 
           reply += `The cheapest ${itemFormat(itemData.name.en)} sell orders in ${regionFormat(regionName)}:`;
           reply += newLine(2);
@@ -88,7 +93,14 @@ export async function sellOrdersFunction(message: Message) {
           let iter = 0;
           for (const order of sellOrdersSorted) {
             const orderPrice = formatNumber(order.price);
-            const locationName = locationNames.filter((_) => _.id === order.location_id)[0].name;
+
+            const locationNameData = locationNames.filter((_) => _.id === order.location_id)[0];
+            let locationName: string;
+            if (locationNameData) {
+              locationName = locationNameData.name;
+            } else {
+              locationName = `an unknown location with ID ${order.location_id}`;
+            }
             const volume = formatNumber(order.volume_remain, 0);
             const itemWord = pluralize('item', 'items', order.volume_remain);
 

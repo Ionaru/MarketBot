@@ -76,10 +76,16 @@ export async function buyOrdersFunction(message: Message) {
 
           locationIds = [...new Set(locationIds)];
 
-          let locationNames = [];
+          let locationNames: any[];
           if (locationIds.length) {
-            const nameData = await universeApi.postUniverseNames(locationIds);
-            locationNames = nameData.body;
+            const nameData = await universeApi.postUniverseNames(locationIds).catch(() => {
+              return null;
+            });
+            if (nameData) {
+              locationNames = nameData.body;
+            } else {
+              locationNames = [];
+            }
           }
 
           reply += `The highest ${itemFormat(itemData.name.en)} buy orders in ${regionFormat(regionName)}:`;
@@ -90,15 +96,15 @@ export async function buyOrdersFunction(message: Message) {
           for (const order of buyOrdersSorted) {
             const orderPrice = formatNumber(order.price);
             const location = locationNames.filter((_) => _.id === order.location_id)[0];
-            let locationName = 'Unknown location';
+            let locationName = `an unknown location with ID ${order.location_id}`;
             if (location) {
               locationName = location.name;
-            } else {
+            } else if (order.location_id.toString().length === 13) {
               const citadel = citadels[order.location_id];
               if (citadel) {
                 locationName = citadel.name;
               } else {
-                locationName = 'An unknown citadel';
+                locationName = 'an unknown citadel';
               }
             }
 
