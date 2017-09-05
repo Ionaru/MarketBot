@@ -1,3 +1,13 @@
+export interface INamesData {
+  category: string;
+  id: number;
+  name: string;
+}
+
+export interface ITypeIDs {
+  [index: number]: ISDEObject;
+}
+
 export interface ISDEObject {
   basePrice: number;
   description: {

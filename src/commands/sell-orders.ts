@@ -1,15 +1,15 @@
 import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
-import { fetchMarketData } from '../helpers/api';
+import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { items, universeApi } from '../market-bot';
+import { items } from '../market-bot';
 import { regionList } from '../regions';
-import { IMarketData } from '../typings';
+import { IMarketData, INamesData } from '../typings';
 
 export async function sellOrdersFunction(message: Message) {
 
@@ -25,7 +25,7 @@ export async function sellOrdersFunction(message: Message) {
 
   if (messageData.item && messageData.item.length) {
 
-    itemData = items.filter((_) => {
+    itemData = items.filter((_): boolean | void => {
       if (_.name.en) {
         return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
@@ -41,7 +41,7 @@ export async function sellOrdersFunction(message: Message) {
 
     if (itemData) {
 
-      let regionId = 10000002;
+      let regionId: number | void = 10000002;
 
       if (messageData.region) {
         regionId = guessUserRegionInput(messageData.region);
@@ -75,15 +75,9 @@ export async function sellOrdersFunction(message: Message) {
 
           locationIds = [...new Set(locationIds)];
 
-          const nameData = await universeApi.postUniverseNames(locationIds).catch(() => {
-            return null;
-          });
-
-          let locationNames: any[];
-          if (nameData) {
-            locationNames = nameData.body;
-          } else {
-            locationNames = [];
+          let locationNames: INamesData[] = [];
+          if (locationIds.length) {
+            locationNames = await fetchUniverseNames(locationIds);
           }
 
           reply += `The cheapest ${itemFormat(itemData.name.en)} sell orders in ${regionFormat(regionName)}:`;
@@ -95,12 +89,8 @@ export async function sellOrdersFunction(message: Message) {
             const orderPrice = formatNumber(order.price);
 
             const locationNameData = locationNames.filter((_) => _.id === order.location_id)[0];
-            let locationName: string;
-            if (locationNameData) {
-              locationName = locationNameData.name;
-            } else {
-              locationName = `an unknown location with ID ${order.location_id}`;
-            }
+            const locationName = locationNameData ? locationNameData.name : `an unknown location with ID ${order.location_id}`;
+
             const volume = formatNumber(order.volume_remain, 0);
             const itemWord = pluralize('item', 'items', order.volume_remain);
 
@@ -136,5 +126,5 @@ export async function sellOrdersFunction(message: Message) {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceHolder.edit(reply);
-  logCommand('sell-orders', message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('sell-orders', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
 }

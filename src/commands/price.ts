@@ -23,7 +23,7 @@ export async function priceFunction(message: Message) {
 
   if (messageData.item && messageData.item.length) {
 
-    itemData = items.filter((_) => {
+    itemData = items.filter((_): boolean | void => {
       if (_.name.en) {
         return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
@@ -38,7 +38,7 @@ export async function priceFunction(message: Message) {
 
     if (itemData) {
 
-      let regionId = 10000002;
+      let regionId: number | void = 10000002;
 
       if (messageData.region) {
         regionId = guessUserRegionInput(messageData.region);
@@ -107,5 +107,5 @@ export async function priceFunction(message: Message) {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceholder.edit(reply);
-  logCommand('price', message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('price', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
 }

@@ -14,7 +14,7 @@ import { client, items } from '../market-bot';
 import { regionList } from '../regions';
 import { IMarketData, ISDEObject } from '../typings';
 
-export let trackingEntry;
+export let trackingEntry: any;
 
 export interface ITrackingEntryAttr {
   item_id: number;
@@ -41,7 +41,7 @@ export async function initTracking() {
   // noinspection JSUnusedGlobalSymbols
   const sequelizeDatabase = new SequelizeStatic('sqlite://tracking.db', {
     dialect: 'sqlite',
-    logging: (str) => {
+    logging: (str: string) => {
       logger.debug(str);
     }
   });
@@ -73,13 +73,13 @@ export async function startTrackingCycle() {
   await performTrackingCycle();
   setInterval(async () => {
     await performTrackingCycle();
-  }, 300 * 1000);
+  }, 5 * 60 * 1000);
 }
 
 export async function trackFunction(message: Message, type: 'buy' | 'sell') {
 
   const maxEntries = 3;
-  const timeLimit = 60 * 60 * 1000;
+  const timeLimit = 6 * 60 * 60 * 1000;
 
   const replyPlaceHolder = await message.reply(
     `Setting up for price tracking. One moment please, ${message.sender}...`
@@ -106,7 +106,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
 
   let reply = '';
 
-  itemData = items.filter((_) => {
+  itemData = items.filter((_): boolean | void => {
     if (_.name.en) {
       return _.name.en.toUpperCase() === messageData.item.toUpperCase();
     }
@@ -125,7 +125,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
     return;
   }
 
-  let regionId = 10000002;
+  let regionId: number | void = 10000002;
 
   if (messageData.region) {
     regionId = guessUserRegionInput(messageData.region);
@@ -156,7 +156,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
     return;
   }
 
-  const itemDup = dupEntries.filter((_) => {
+  const itemDup = dupEntries.filter((_): boolean | void => {
     if (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type) {
       return true;
     }
@@ -181,7 +181,8 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
     `I'll warn you when the ${makeBold(type)} price changes ${makeCode(formatNumber(changeLimit) + ' ISK')}. ` +
     ` Right now the price is ${makeCode(formatNumber(originalPrice) + ' ISK')}`;
   reply += newLine(2);
-  reply += `Tracking will last ${makeCode(countdown(Date.now() + timeLimit))}`;
+  const trackingTimeLimit = countdown(Date.now() + timeLimit) as countdown.Timespan;
+  reply += `Tracking will last ${makeCode(trackingTimeLimit.toString())}`;
 
   const entry: ITrackingEntryAttr = {
     channel_id: message.channel.id,
@@ -200,7 +201,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   await trackingEntry.create(entry);
   await replyPlaceHolder.edit(reply);
 
-  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
 }
 
 export async function clearTracking(message: Message) {
@@ -212,10 +213,10 @@ export async function clearTracking(message: Message) {
     }
   }
   await message.reply(`Your tracking list is now empty, ${message.sender}.`);
-  logCommand(`track-clear`, message, null, null);
+  logCommand(`track-clear`, message, undefined, undefined);
 }
 
-function droppedRose(amount) {
+function droppedRose(amount: number) {
   if (amount < 0) {
     return 'dropped';
   }
@@ -233,15 +234,8 @@ async function performTrackingCycle() {
 
   for (const entry of trackingEntries) {
 
-    // Remove tracking entry when the time since tracking start exceeds the max duration
-    if (Date.now() - entry.tracking_start > entry.tracking_duration) {
-      sendExpiredMessage(entry.channel_id, entry);
-      entry.destroy().then();
-      break;
-    }
-
-    let currentPrice: number;
-    let currentOrder: IMarketData;
+    let currentPrice: number = 0;
+    let currentOrder: IMarketData | undefined;
 
     // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
     const duplicateEntry = entriesDone.filter((_) => {
@@ -253,7 +247,7 @@ async function performTrackingCycle() {
       currentOrder = duplicateEntry.current_order;
     } else {
       currentOrder = await getCheapestOrder(entry.tracking_type, entry.item_id, entry.region_id).catch(() => {
-        return null;
+        return undefined;
       });
       if (currentOrder) {
         currentPrice = currentOrder.price;
@@ -261,7 +255,7 @@ async function performTrackingCycle() {
     }
 
     // Only run if we have a currentPrice and if it is different from the tracking price
-    if (currentPrice && currentPrice !== entry.tracking_price) {
+    if (currentOrder && currentPrice && currentPrice !== entry.tracking_price) {
 
       // Calculate the difference between the two values and get the absolute number from it
       const change = currentPrice - entry.tracking_price;
@@ -273,15 +267,25 @@ async function performTrackingCycle() {
       if (roundedChange >= entry.tracking_limit) {
         await sendChangeMessage(entry.channel_id, currentOrder, entry, changeAbsolute).then(() => {
           // Update the tracking_price so we don't notify twice for the same price change
-          entry.tracking_price = currentOrder.price;
-          entry.current_price = currentOrder.price;
-          entry.save().then();
+          if (entry && currentOrder) {
+            entry.tracking_price = currentOrder.price;
+            entry.current_price = currentOrder.price;
+            entry.save().then();
+          }
         }).catch((error) => {
-          logger.warn('Cannot send message', error);
+          logger.error('Cannot send message', error);
           entry.destroy().then();
         });
       }
     }
+
+    // Remove tracking entry when the time since tracking start exceeds the max duration
+    if (Date.now() - entry.tracking_start > entry.tracking_duration) {
+      sendExpiredMessage(entry.sender_id, entry.channel_id, entry).then();
+      entry.destroy().then();
+      continue;
+    }
+
     entry.current_order = currentOrder;
     entriesDone.push(entry);
   }
@@ -305,15 +309,19 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketData, e
   reply += `from ${makeCode(oldPrice)} to ${makeCode(newPrice)}. `;
   reply += newLine();
   reply += `There ${isWord} ${makeCode(currentOrder.volume_remain.toString())} ${itemWord} set at this price.`;
-  await client.sendToChannel(channelId, reply);
+  if (client) {
+    await client.sendToChannel(channelId, reply);
+  }
 }
 
-function sendExpiredMessage(channelId: string, entry: ITrackingEntryAttr) {
+async function sendExpiredMessage(senderId: string, channelId: string, entry: ITrackingEntryAttr) {
 
   const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en;
   const regionName = regionList[entry.region_id];
 
   let reply = `Tracking of the ${makeBold(entry.tracking_type)} price `;
   reply += `for ${itemFormat(itemName)} in ${regionFormat(regionName)} expired.`;
-  client.sendToChannel(channelId, reply).catch();
+  if (client) {
+    await client.sendToChannel(channelId, reply, senderId);
+  }
 }

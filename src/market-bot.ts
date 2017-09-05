@@ -1,8 +1,6 @@
 import Fuse = require('fuse.js');
-import path = require('path');
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
-import { UniverseApi } from '../swagger/api';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { buyOrdersFunction } from './commands/buy-orders';
@@ -20,17 +18,16 @@ import { ICitadelData, ISDEObject } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 
-export const universeApi = new UniverseApi();
 export let items: ISDEObject[];
 
-export let client: Client;
+export let client: Client | undefined;
 export let fuse: Fuse;
 export let token: string;
 
 export let citadels: ICitadelData;
 
-const tokenPath = path.join(__dirname, '../config/token.txt');
-const typeIDsPath = path.join(__dirname, '../data/typeIDs.yaml');
+const tokenPath = 'config/token.txt';
+const typeIDsPath = 'data/typeIDs.yaml';
 
 export const commandPrefix = '/';
 
@@ -79,10 +76,10 @@ export const limitCommandRegex = createCommandRegex(limitCommands);
 async function activate() {
   // noinspection TsLint
   new WinstonPnPLogger({
-    logDir: '../logs'
+    logDir: 'logs'
   });
 
-  logger.info('Running NodeJS ' + process.version);
+  logger.debug('Running NodeJS ' + process.version);
 
   logger.info('Bot has awoken, loading typeIDs.yaml');
   const typeIDs = readTypeIDs(typeIDsPath);
@@ -139,19 +136,21 @@ async function activate() {
 function announceReady() {
   startTrackingCycle().then();
 
-  client.emitter.on('message', (message: Message) => {
-    processMessage(message).then().catch((error: Error) => {
-      handleError(message, error);
+  if (client) {
+    client.emitter.on('message', (message: Message) => {
+      processMessage(message).then().catch((error: Error) => {
+        handleError(message, error);
+      });
     });
-  });
-  logger.info(`I am ${client.name}, now online!`);
+    logger.info(`I am ${client.name}, now online!`);
+  }
 }
 
 async function deactivate(exitProcess: boolean): Promise<void> {
   logger.info('Quitting!');
   if (client) {
     await client.disconnect();
-    client = null;
+    client = undefined;
     logger.info('Client destroyed');
   }
   logger.info('Done!');
@@ -189,7 +188,7 @@ async function processMessage(message: Message): Promise<void> {
   }
 }
 
-function handleError(message: Message, caughtError: Error) {
+export function handleError(message: Message, caughtError: Error) {
   message.sendError(caughtError).then();
 }
 

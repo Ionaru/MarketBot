@@ -1,7 +1,7 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:recommended"
+    "tslint:latest"
   ],
   "jsRules": {},
   "rules": {
@@ -9,6 +9,7 @@
       true,
       140
     ],
+    "no-null-keyword": true,
     "no-unused-expression": [
       true,
       "allow-new"

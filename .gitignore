@@ -5,12 +5,15 @@
 
 # Node/Npm files
 npm-debug.log*
-/node_modules/
+node_modules/
+
+# Build files
+dist/
 
 # Sensitive application files
-/config/token.txt
-/data/typeIDs.yaml
-/logs/
+config/token.txt
+data/typeIDs.yaml
+logs/
 
 # System files
 *.db

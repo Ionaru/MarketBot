@@ -1,4 +1,4 @@
-import * as escapeStringRegexp from 'escape-string-regexp';
+import escapeStringRegexp = require('escape-string-regexp');
 
 import { commandPrefix } from '../market-bot';
 

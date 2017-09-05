@@ -1,6 +1,5 @@
 import * as countdown from 'countdown';
 import SequelizeStatic = require('sequelize');
-
 import { Message } from '../chat-service/discord/message';
 import { ILogEntryInstance, logCommand, logEntry } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
@@ -41,7 +40,8 @@ export async function dataFunction(message: Message) {
     const searchTimes = row.getDataValue('number');
     const timesWord = pluralize('time', 'times', searchTimes);
     reply += newLine();
-    reply += `${iter}. ${itemFormat(row.item_output)}, searched ${makeCode(searchTimes)} ${timesWord}.`;
+    const itemAmount = row.item_output as string;
+    reply += `${iter}. ${itemFormat(itemAmount)}, searched ${makeCode(searchTimes)} ${timesWord}.`;
   }
 
   reply += newLine(2);
@@ -70,14 +70,17 @@ export async function dataFunction(message: Message) {
   userWord = pluralize('user', 'users', trackingUsers);
   reply += `I am currently tracking ${makeCode(trackingCount)} item ${priceWord} for ${makeCode(trackingUsers)} unique ${userWord}.`;
 
-  reply += newLine(2);
-  reply += makeBold('Bot status');
-  reply += newLine();
-  const currentServerCount = client.serverCount;
-  serverWord = pluralize('server', 'servers', currentServerCount);
-  reply += `I am currently online on ${makeCode(currentServerCount)} ${serverWord}.`;
-  reply += newLine();
-  reply += `I've been online for ${makeCode(countdown(client.upTime))}.`;
+  if (client) {
+    reply += newLine(2);
+    reply += makeBold('Bot status');
+    reply += newLine();
+    const currentServerCount = client.serverCount;
+    serverWord = pluralize('server', 'servers', currentServerCount);
+    reply += `I am currently online on ${makeCode(currentServerCount)} ${serverWord}.`;
+    reply += newLine();
+    const upTime = countdown(client.upTime) as countdown.Timespan;
+    reply += `I've been online for ${makeCode(upTime.toString())}.`;
+  }
 
   await message.reply(reply);
   logCommand('data', message);

@@ -62,14 +62,27 @@ export class Client {
     this.login();
   }
 
-  public async sendToChannel(id: string, message: string) {
+  public async sendToChannel(id: string, message: string, userId?: string): Promise<void> {
     if (message.length > maxMessageLength) {
       throw new Error('MaxMessageLengthReached');
     }
-    const channel: Discord.Channel = this.client.channels.array().filter((_) => _.id === id)[0];
-    if (channel.type === 'dm' || channel.type === 'text') {
-      const textChannel = channel as Discord.TextChannel;
-      await textChannel.send(message);
+    try {
+      const channel: Discord.Channel = this.client.channels.array().filter((_) => _.id === id)[0];
+      if (channel) {
+        if (channel.type === 'dm' || channel.type === 'text') {
+          const textChannel = channel as Discord.TextChannel | Discord.DMChannel;
+          await textChannel.send(message).catch((error) => {throw new Error(error); });
+        }
+      } else {
+        // Try to create a DM channel with the user, this might not always succeed depending on their privacy settings.
+        const user: Discord.User = this.client.users.array().filter((_) => _.id === userId)[0];
+        if (user) {
+          const dmChannel: Discord.DMChannel = await user.createDM();
+          await dmChannel.send(message).catch((error) => {throw new Error(error); });
+        }
+      }
+    } catch (error) {
+      logger.error('Cannot send message:', error);
     }
   }
 

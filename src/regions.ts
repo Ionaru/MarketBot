@@ -1,4 +1,8 @@
-export const regionList = Object.freeze({
+interface IRegionList {
+  [key: number]: string;
+}
+
+export const regionList: IRegionList = Object.freeze({
   10000054: 'Aridia',
   10000069: 'Black Rise',
   10000055: 'Branch',

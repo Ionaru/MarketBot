@@ -1,12 +1,12 @@
-import Instance = SequelizeStatic.Instance;
 import SequelizeStatic = require('sequelize');
-import * as sqlite3 from 'sqlite3';
+import Instance = SequelizeStatic.Instance;
+import { Database } from 'sqlite3';
 import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
 import { parseMessage } from './parsers';
 
-export let logEntry;
+export let logEntry: any;
 
 export interface ILogEntryAttr {
   guild_id?: string;
@@ -25,16 +25,17 @@ export interface ILogEntryAttr {
 }
 
 /* tslint:disable:no-empty-interface */
-export interface ILogEntryInstance extends Instance<ILogEntryAttr>, ILogEntryAttr { }
+export interface ILogEntryInstance extends Instance<ILogEntryAttr>, ILogEntryAttr {}
+
 /* tslint:enable:no-unused-variable */
 
 export async function startLogger(): Promise<void> {
-  new sqlite3.Database('botlog.db').close();
+  new Database('botlog.db').close();
 
   // noinspection JSUnusedGlobalSymbols
   const sequelizeDatabase = new SequelizeStatic('sqlite://botlog.db', {
     dialect: 'sqlite',
-    logging: (str) => {
+    logging: (str: string) => {
       logger.debug(str);
     }
   });
@@ -64,7 +65,7 @@ export async function startLogger(): Promise<void> {
   }).sync();
 }
 
-export function logCommand(commandType: string, discordMessage: Message, outputItem?, outputRegion?) {
+export function logCommand(commandType: string, discordMessage: Message, outputItem?: string, outputRegion?: string) {
   logger.debug(discordMessage.content);
 
   const parsedMessage = parseMessage(discordMessage.content);

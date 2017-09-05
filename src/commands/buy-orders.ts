@@ -1,15 +1,15 @@
 import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
-import { fetchMarketData } from '../helpers/api';
+import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { citadels, items, universeApi } from '../market-bot';
+import { citadels, items } from '../market-bot';
 import { regionList } from '../regions';
-import { IMarketData } from '../typings';
+import { IMarketData, INamesData } from '../typings';
 
 export async function buyOrdersFunction(message: Message) {
   const messageData = parseMessage(message.content);
@@ -24,7 +24,7 @@ export async function buyOrdersFunction(message: Message) {
 
   if (messageData.item && messageData.item.length) {
 
-    itemData = items.filter((_) => {
+    itemData = items.filter((_): boolean | void => {
       if (_.name.en) {
         return _.name.en.toUpperCase() === messageData.item.toUpperCase();
       }
@@ -40,7 +40,7 @@ export async function buyOrdersFunction(message: Message) {
 
     if (itemData) {
 
-      let regionId = 10000002;
+      let regionId: number | void = 10000002;
 
       if (messageData.region) {
         regionId = guessUserRegionInput(messageData.region);
@@ -76,16 +76,9 @@ export async function buyOrdersFunction(message: Message) {
 
           locationIds = [...new Set(locationIds)];
 
-          let locationNames: any[];
+          let locationNames: INamesData[] = [];
           if (locationIds.length) {
-            const nameData = await universeApi.postUniverseNames(locationIds).catch(() => {
-              return null;
-            });
-            if (nameData) {
-              locationNames = nameData.body;
-            } else {
-              locationNames = [];
-            }
+            locationNames = await fetchUniverseNames(locationIds);
           }
 
           reply += `The highest ${itemFormat(itemData.name.en)} buy orders in ${regionFormat(regionName)}:`;
@@ -101,11 +94,7 @@ export async function buyOrdersFunction(message: Message) {
               locationName = location.name;
             } else if (order.location_id.toString().length === 13) {
               const citadel = citadels[order.location_id];
-              if (citadel) {
-                locationName = citadel.name;
-              } else {
-                locationName = 'an unknown citadel';
-              }
+              locationName = citadel ? citadel.name : 'an unknown citadel';
             }
 
             const volume = formatNumber(order.volume_remain, 0);
@@ -155,5 +144,5 @@ export async function buyOrdersFunction(message: Message) {
     reply = 'You need to give me an item to search for.';
   }
   await replyPlaceHolder.edit(reply);
-  logCommand('buy-orders', message, (itemData ? itemData.name.en : null), (regionName ? regionName : null));
+  logCommand('buy-orders', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
 }

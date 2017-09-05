@@ -1,11 +1,15 @@
-import * as escapeStringRegexp from 'escape-string-regexp';
+import escapeStringRegexp = require('escape-string-regexp');
 
 import { fuse, items } from '../market-bot';
 import { regionList } from '../regions';
 import { ISDEObject } from '../typings';
 import { sortArrayByObjectPropertyLength } from './arrays';
 
-export const shortcuts = {
+interface IShortcuts {
+  [shortcut: string]: string;
+}
+
+export const shortcuts: IShortcuts = {
   bcs: 'Ballistic Control System',
   dc: 'Damage Control',
   dda: 'Drone Damage Amplifier',
@@ -45,7 +49,7 @@ export function guessUserItemInput(itemString: string): ISDEObject {
 
   // Check in start of the words
   regex = new RegExp(`^${itemString}`, 'i');
-  possibilities.push(...items.filter((_) => {
+  possibilities.push(...items.filter((_): RegExpMatchArray | null | void => {
     if (_.name.en) {
       return _.name.en.match(regex);
     }
@@ -54,7 +58,7 @@ export function guessUserItemInput(itemString: string): ISDEObject {
   if (!possibilities.length) {
     // Check at end of the words
     regex = new RegExp(`${itemString}$`, 'i');
-    possibilities.push(...items.filter((_) => {
+    possibilities.push(...items.filter((_): RegExpMatchArray | null | void => {
       if (_.name.en) {
         return _.name.en.match(regex);
       }
@@ -62,7 +66,7 @@ export function guessUserItemInput(itemString: string): ISDEObject {
 
     if (!possibilities.length) {
       // Check in middle of words
-      possibilities.push(...items.filter((_) => {
+      possibilities.push(...items.filter((_): boolean | void => {
         if (_.name.en) {
           return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
         }
@@ -81,7 +85,7 @@ export function guessUserItemInput(itemString: string): ISDEObject {
   return itemData;
 }
 
-export function guessUserRegionInput(regionString: string): number {
+export function guessUserRegionInput(regionString: string): number | void {
   for (const key in regionList) {
     if (regionList.hasOwnProperty(key)) {
       if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1) {

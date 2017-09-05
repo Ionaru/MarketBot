@@ -2,17 +2,27 @@
   "compilerOptions": {
     "baseUrl": "",
     "declaration": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "lib": ["es6", "dom"],
-    "mapRoot": "./",
+    "mapRoot": "./dist",
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "../dist/out-tsc",
+    "outDir": "./dist",
     "sourceMap": true,
     "target": "es6",
     "typeRoots": [
       "./node_modules/@types"
     ]
-  }
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }
