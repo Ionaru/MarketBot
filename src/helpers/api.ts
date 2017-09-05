@@ -11,12 +11,12 @@ export async function fetchItemPrice(itemId: number, regionId: number) {
   const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
 
   logger.debug(url);
-  const refreshResponse: Response | undefined = await fetch(url).catch(async (errorResponse) => {
+  const priceResponse: Response | undefined = await fetch(url).catch(async (errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
-  if (refreshResponse) {
-    return await refreshResponse.json().catch(() => {
+  if (priceResponse) {
+    return await priceResponse.json().catch(() => {
       return {};
     });
   }
@@ -27,14 +27,18 @@ export async function fetchMarketData(itemId: number, regionId: number): Promise
   const url = ccpHost + path;
 
   logger.debug(url);
-  const refreshResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const marketResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
-  if (refreshResponse) {
-    return await refreshResponse.json().catch(() => {
-      return [];
-    });
+  if (marketResponse) {
+    if (marketResponse.ok) {
+      return await marketResponse.json().catch(() => {
+        return [];
+      });
+    } else {
+      logger.error('Request not OK:', url, marketResponse);
+    }
   }
   return [];
 }
