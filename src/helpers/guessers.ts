@@ -1,9 +1,8 @@
 import escapeStringRegexp = require('escape-string-regexp');
-
-import { fuse, items } from '../market-bot';
 import { regionList } from '../regions';
 import { ISDEObject } from '../typings';
 import { sortArrayByObjectPropertyLength } from './arrays';
+import { fuse, items } from './items-loader';
 
 interface IShortcuts {
   [shortcut: string]: string;
@@ -29,14 +28,12 @@ export function guessUserItemInput(itemString: string): ISDEObject {
 
   itemString = escapeStringRegexp(itemString);
 
-  let itemData;
-
   let regex: RegExp;
   let possibilities: ISDEObject[] = [];
 
   const itemWords = itemString.split(' ');
 
-  // Check if word is defined as a shortcut
+  // Check if word is defined as a shortcut.
   regex = new RegExp(`^${itemWords[0]}`, 'i');
   const shortcut = Object.keys(shortcuts).filter((_) => {
     return _.match(regex);
@@ -47,7 +44,7 @@ export function guessUserItemInput(itemString: string): ISDEObject {
     itemString = itemWords.join(' ');
   }
 
-  // Check in start of the words
+  // Check in start of the words.
   regex = new RegExp(`^${itemString}`, 'i');
   possibilities.push(...items.filter((_): RegExpMatchArray | null | void => {
     if (_.name.en) {
@@ -56,33 +53,33 @@ export function guessUserItemInput(itemString: string): ISDEObject {
   }));
 
   if (!possibilities.length) {
-    // Check at end of the words
+    // Check at end of the words.
     regex = new RegExp(`${itemString}$`, 'i');
     possibilities.push(...items.filter((_): RegExpMatchArray | null | void => {
       if (_.name.en) {
         return _.name.en.match(regex);
       }
     }));
-
-    if (!possibilities.length) {
-      // Check in middle of words
-      possibilities.push(...items.filter((_): boolean | void => {
-        if (_.name.en) {
-          return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
-        }
-      }));
-    }
   }
 
-  if (possibilities.length) {
-    // Sort by word length, shortest is usually the correct one
-    possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
-    itemData = possibilities[0];
-  } else {
-    itemData = fuse.search(itemString)[0] as ISDEObject;
+  if (!possibilities.length) {
+    // Check in middle of words.
+    possibilities.push(...items.filter((_): boolean | void => {
+      if (_.name.en) {
+        return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
+      }
+    }));
   }
 
-  return itemData;
+  if (!possibilities.length) {
+    // Use Fuse to search (slow but fuzzy).
+    possibilities.push(fuse.search(itemString)[0] as ISDEObject);
+  }
+
+  // Sort by word length, shortest is usually the correct one.
+  possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
+  return possibilities[0];
+
 }
 
 export function guessUserRegionInput(regionString: string): number | void {

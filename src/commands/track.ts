@@ -1,16 +1,17 @@
 import * as countdown from 'countdown';
-import { logger } from 'winston-pnp-logger';
-
 import SequelizeStatic = require('sequelize');
+import { logger } from 'winston-pnp-logger';
 import Instance = SequelizeStatic.Instance;
+
 import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { items } from '../helpers/items-loader';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { client, items } from '../market-bot';
+import { client } from '../market-bot';
 import { regionList } from '../regions';
 import { IMarketData, ISDEObject } from '../typings';
 

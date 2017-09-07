@@ -5,17 +5,21 @@ import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { items } from '../helpers/items-loader';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { citadels, items } from '../market-bot';
+import { citadels } from '../market-bot';
 import { regionList } from '../regions';
 import { IMarketData, INamesData } from '../typings';
 
 export async function buyOrdersFunction(message: Message) {
   const messageData = parseMessage(message.content);
 
+  const limit = messageData.limit || 5;
+  const orderWord = pluralize('order', 'orders', limit);
+
   const replyPlaceHolder = await message.reply(
-    `Searching for the highest buy orders, one moment, ${message.sender}...`
+    `Searching for the highest buy ${orderWord}, one moment, ${message.sender}...`
   );
 
   let reply = '';
@@ -61,14 +65,14 @@ export async function buyOrdersFunction(message: Message) {
 
       if (marketData) {
 
-        const buyOrders = marketData.filter((_) => _.is_buy_order === true);
+        let buyOrders: IMarketData[] = marketData.filter((_) => _.is_buy_order === true);
 
         if (buyOrders && buyOrders.length) {
 
-          const buyOrdersSorted: IMarketData[] = sortArrayByObjectProperty(buyOrders, 'price', true);
+          buyOrders = sortArrayByObjectProperty(buyOrders, 'price', true).slice(0, limit);
 
           let locationIds = [];
-          for (const order of buyOrdersSorted) {
+          for (const order of buyOrders) {
             if (order.location_id < 100000000) {
               locationIds.push(order.location_id);
             }
@@ -84,9 +88,7 @@ export async function buyOrdersFunction(message: Message) {
           reply += `The highest ${itemFormat(itemData.name.en)} buy orders in ${regionFormat(regionName)}:`;
           reply += newLine(2);
 
-          const limit = messageData.limit || 5;
-          let iter = 0;
-          for (const order of buyOrdersSorted) {
+          for (const order of buyOrders) {
             const orderPrice = formatNumber(order.price);
             const location = locationNames.filter((_) => _.id === order.location_id)[0];
             let locationName = `an unknown location with ID ${order.location_id}`;
@@ -122,11 +124,6 @@ export async function buyOrdersFunction(message: Message) {
               reply += replyAddition;
             } else {
               // We've reached the character limit, break from the loop.
-              break;
-            }
-
-            iter++;
-            if (iter >= limit) {
               break;
             }
           }

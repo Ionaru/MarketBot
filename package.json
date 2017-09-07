@@ -11,8 +11,9 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "lint": "tslint --project tsconfig.json --type-check -c tslint.json \"src/**/*.ts\"",
-    "start": "npm run build && node dist/market-bot.js",
-    "test": "npm run build && mocha dist/src/**/*.spec.js"
+    "start": "npm run build && node dist/index.js",
+    "start:ts": "node  --require ts-node/register src/index.ts",
+    "test": "mocha --require ts-node/register src/**/*.spec.ts"
   },
   "dependencies": {
     "countdown": "^2.6.0",
@@ -44,6 +45,7 @@
     "chai": "^4.1.2",
     "mocha": "^3.5.0",
     "sinon": "^3.2.1",
+    "ts-node": "^3.3.0",
     "tslint": "^5.7.0"
   },
   "license": "MIT"

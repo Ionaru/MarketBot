@@ -1,5 +1,4 @@
-import Fuse = require('fuse.js');
-import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
+import { logger } from 'winston-pnp-logger';
 
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
@@ -11,23 +10,20 @@ import { sellOrdersFunction } from './commands/sell-orders';
 import { clearTracking, initTracking, startTrackingCycle, trackFunction } from './commands/track';
 import { fetchCitadelData } from './helpers/api';
 import { startLogger } from './helpers/command-logger';
-import { parseTypeIDs } from './helpers/parsers';
-import { readToken, readTypeIDs } from './helpers/readers';
+import { loadItems } from './helpers/items-loader';
+import { readToken } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
-import { ICitadelData, ISDEObject } from './typings';
+import { ICitadelData } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 
-export let items: ISDEObject[];
-
 export let client: Client | undefined;
-export let fuse: Fuse;
 export let token: string;
 
 export let citadels: ICitadelData;
 
-const tokenPath = 'config/token.txt';
-const typeIDsPath = 'data/typeIDs.yaml';
+export const tokenPath = 'config/token.txt';
+export const typeIDsPath = 'data/typeIDs.yaml';
 
 export const commandPrefix = '/';
 
@@ -73,31 +69,9 @@ export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommand
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
-async function activate() {
-  // noinspection TsLint
-  new WinstonPnPLogger({
-    logDir: 'logs'
-  });
-
-  logger.debug('Running NodeJS ' + process.version);
-
-  logger.info('Bot has awoken, loading typeIDs.yaml');
-  const typeIDs = readTypeIDs(typeIDsPath);
-  logger.info('File loaded, starting parse cycle');
-  items = parseTypeIDs(typeIDs);
-
-  fuse = new Fuse(items, {
-    distance: 100,
-    keys: ['name.en'],
-    location: 0,
-    maxPatternLength: 128,
-    minMatchCharLength: 1,
-    shouldSort: true,
-    threshold: 0.6,
-    tokenize: true
-  });
-
-  logger.info(`Parsing complete, ${items.length} items loaded into memory`);
+export async function activate() {
+  logger.info('Bot has awoken, loading items');
+  loadItems();
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 
@@ -146,14 +120,21 @@ function announceReady() {
   }
 }
 
-async function deactivate(exitProcess: boolean): Promise<void> {
-  logger.info('Quitting!');
+export async function deactivate(exitProcess: boolean, error = false): Promise<void> {
+  let quitMessage = 'Quitting';
+  if (error) {
+    quitMessage += ' because of an uncaught error!';
+  }
+
+  logger.info(quitMessage);
   if (client) {
     await client.disconnect();
     client = undefined;
     logger.info('Client destroyed');
   }
+
   logger.info('Done!');
+
   if (exitProcess) {
     process.exit(0);
   }
@@ -191,16 +172,3 @@ async function processMessage(message: Message): Promise<void> {
 export function handleError(message: Message, caughtError: Error) {
   message.sendError(caughtError).then();
 }
-
-activate().then();
-process.stdin.resume();
-process.on('unhandledRejection', (reason: string, p: Promise<any>): void => {
-  logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
-});
-process.on('uncaughtException', (error) => {
-  logger.error(error.message);
-  deactivate(true).then();
-});
-process.on('SIGINT', () => {
-  deactivate(true).then();
-});
