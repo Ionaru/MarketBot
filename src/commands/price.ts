@@ -85,7 +85,7 @@ export async function priceFunction(message: Message) {
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
     reply += `I couldn't find any price information for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}, sorry.`;
-    await replyPlaceholder.edit(reply);
+    return await replyPlaceholder.edit(reply);
   }
 
   reply += `Price information for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}:` + newLine(2);

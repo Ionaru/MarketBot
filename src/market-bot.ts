@@ -11,7 +11,7 @@ import { clearTracking, initTracking, startTrackingCycle, trackFunction } from '
 import { fetchCitadelData } from './helpers/api';
 import { startLogger } from './helpers/command-logger';
 import { loadItems } from './helpers/items-loader';
-import { readToken } from './helpers/readers';
+import { readToken, readTypeIDs } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
 import { ICitadelData } from './typings';
 
@@ -71,7 +71,7 @@ export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
   logger.info('Bot has awoken, loading items');
-  loadItems();
+  loadItems(readTypeIDs(typeIDsPath));
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 

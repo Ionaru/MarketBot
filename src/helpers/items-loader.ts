@@ -1,10 +1,8 @@
 import * as Fuse from 'fuse.js';
 import { logger } from 'winston-pnp-logger';
 
-import { typeIDsPath } from '../market-bot';
-import { ISDEObject } from '../typings';
+import { ISDEObject, ITypeIDs } from '../typings';
 import { parseTypeIDs } from './parsers';
-import { readTypeIDs } from './readers';
 
 export let fuse: Fuse;
 export let fuseOptions = {
@@ -20,9 +18,8 @@ export let fuseOptions = {
 
 export let items: ISDEObject[];
 
-export function loadItems(): void {
-  const typeIDs = readTypeIDs(typeIDsPath);
-  logger.info('File loaded, starting parse cycle');
+export function loadItems(typeIDs: ITypeIDs): void {
+  logger.info('typeIDs loaded, starting parse cycle');
   items = parseTypeIDs(typeIDs);
   logger.info(`Parsing complete, ${items.length} items loaded into memory`);
   fuse = new Fuse(items, fuseOptions);
