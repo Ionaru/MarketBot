@@ -35,8 +35,13 @@ export interface ITrackingEntryAttr {
 /* tslint:disable:no-empty-interface */
 export interface ITrackingEntryInstance extends Instance<ITrackingEntryAttr>, ITrackingEntryAttr {
 }
-
 /* tslint:enable:no-unused-variable */
+
+interface ITrackCommandLogicReturn {
+  reply: string;
+  itemData: ISDEObject | undefined;
+  regionName: string | undefined;
+}
 
 export async function initTracking() {
   // noinspection JSUnusedGlobalSymbols
@@ -77,35 +82,38 @@ export async function startTrackingCycle() {
   }, 5 * 60 * 1000);
 }
 
-export async function trackFunction(message: Message, type: 'buy' | 'sell') {
+export async function trackCommand(message: Message, type: 'buy' | 'sell'): Promise<void> {
+  if (!(message.isPrivate)) {
+    await message.reply('Please send me a private message to have me track an item price for you.');
+    return;
+  }
+
+  const replyPlaceHolder = await message.reply(
+    `Setting up for price tracking, one moment, ${message.sender}...`
+  );
+
+  const {reply, itemData, regionName} = await trackCommandLogic(message, type);
+
+  await replyPlaceHolder.edit(reply);
+  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+}
+
+async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> {
+  const messageIdentifier = message.channel.id + message.id;
 
   const maxEntries = 3;
   const timeLimit = 6 * 60 * 60 * 1000;
 
-  const replyPlaceHolder = await message.reply(
-    `Setting up for price tracking. One moment please, ${message.sender}...`
-  );
-
-  if (!(message.isPrivate)) {
-    const isNotPrivateReply = 'Please send me a private message to have me track an item price for you.';
-    await replyPlaceHolder.edit(isNotPrivateReply);
-    return;
-  }
-
-  const messageIdentifier = message.channel.id + message.id;
+  let itemData: ISDEObject;
+  let regionName = '';
+  let reply = '';
 
   const messageData = parseMessage(message.content);
 
-  let itemData: ISDEObject;
-  let regionName;
-
   if (!(messageData.item && messageData.item.length)) {
-    const noItemReply = 'You need to give me an item to track.';
-    await replyPlaceHolder.edit(noItemReply);
-    return;
+    reply += 'You need to give me an item to track.';
+    return {reply, itemData: undefined, regionName};
   }
-
-  let reply = '';
 
   itemData = items.filter((_): boolean | void => {
     if (_.name.en) {
@@ -121,9 +129,8 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   }
 
   if (!itemData) {
-    const reply1 = `I don't know what you mean with "${messageData.item}" 😟`;
-    await replyPlaceHolder.edit(reply1);
-    return;
+    reply += `I don't know what you mean with "${messageData.item}" 😟`;
+    return {reply, itemData: undefined, regionName};
   }
 
   let regionId: number | void = 10000002;
@@ -131,9 +138,9 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   if (messageData.region) {
     regionId = guessUserRegionInput(messageData.region);
     if (!regionId) {
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat('The Force')}`;
-      reply += newLine(2);
       regionId = 10000002;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
+      reply += newLine(2);
     }
   }
 
@@ -147,33 +154,26 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
     changeLimit = 0.01;
   }
 
-  const x: ITrackingEntryInstance[] = await trackingEntry.findAll();
-  const dupEntries = x.filter((_) => {
-    return _.sender_id === message.author.id;
-  });
+  const trackingEntries: ITrackingEntryInstance[] = await trackingEntry.findAll();
+  const dupEntries = trackingEntries.filter((_) => _.sender_id === message.author.id);
   if (dupEntries.length + 1 > maxEntries) {
-    const reply1 = `You've reached the maximum of ${makeBold(maxEntries)} tracking entries.`;
-    await replyPlaceHolder.edit(reply1);
-    return;
+    reply += `You've reached the maximum of ${makeBold(maxEntries)} tracking entries.`;
+    return {reply, itemData, regionName};
   }
 
-  const itemDup = dupEntries.filter((_): boolean | void => {
-    if (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type) {
-      return true;
-    }
-  });
+  const itemDup = dupEntries.filter((_) =>
+    (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type)
+  );
   if (itemDup.length !== 0) {
-    const reply1 = `I am already tracking ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)} for you.`;
-    await replyPlaceHolder.edit(reply1);
-    return;
+    reply += `I am already tracking ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)} for you.`;
+    return {reply, itemData, regionName};
   }
 
   const originalOrder = await getCheapestOrder(type, itemData.itemID, regionId);
 
   if (!originalOrder) {
-    const reply1 = `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
-    await replyPlaceHolder.edit(reply1);
-    return;
+    reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
+    return {reply, itemData, regionName};
   }
 
   const originalPrice = originalOrder.price;
@@ -200,9 +200,7 @@ export async function trackFunction(message: Message, type: 'buy' | 'sell') {
   };
 
   await trackingEntry.create(entry);
-  await replyPlaceHolder.edit(reply);
-
-  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  return {reply, itemData, regionName};
 }
 
 export async function clearTracking(message: Message) {
@@ -224,9 +222,9 @@ function droppedRose(amount: number) {
   return 'rose';
 }
 
-/*
- * The main tracking cycle, it will fetch prices for all items in the TrackingEntries array and send messages
- * */
+/**
+ * The main tracking cycle, it will fetch prices for all items in the TrackingEntries array and send messages.
+ */
 async function performTrackingCycle() {
 
   const trackingEntries: ITrackingEntryInstance[] = await trackingEntry.findAll();
@@ -239,9 +237,8 @@ async function performTrackingCycle() {
     let currentOrder: IMarketData | undefined;
 
     // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
-    const duplicateEntry = entriesDone.filter((_) => {
-        return _.item_id === entry.item_id && _.region_id === entry.region_id && _.current_price;
-      }
+    const duplicateEntry = entriesDone.filter((_) =>
+      (_.item_id === entry.item_id && _.region_id === entry.region_id && _.current_price)
     )[0];
 
     if (duplicateEntry && duplicateEntry.current_order) {

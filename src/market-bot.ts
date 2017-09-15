@@ -2,12 +2,12 @@ import { logger } from 'winston-pnp-logger';
 
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
-import { buyOrdersFunction } from './commands/buy-orders';
+import { buyOrdersCommand } from './commands/buy-orders';
 import { dataFunction } from './commands/data';
 import { infoFunction } from './commands/info';
 import { priceFunction } from './commands/price';
-import { sellOrdersFunction } from './commands/sell-orders';
-import { clearTracking, initTracking, startTrackingCycle, trackFunction } from './commands/track';
+import { sellOrdersCommand } from './commands/sell-orders';
+import { clearTracking, initTracking, startTrackingCycle, trackCommand } from './commands/track';
 import { fetchCitadelData } from './helpers/api';
 import { startLogger } from './helpers/command-logger';
 import { loadItems } from './helpers/items-loader';
@@ -49,7 +49,7 @@ export const limitCommands = [
   'limit', 'l', 'max'
 ];
 export const sellTrackingCommands = [
-  'track-sell-orders', 'tso'
+  'track-sell-orders', 'tso', 'track'
 ];
 export const buyTrackingCommands = [
   'track-buy-orders', 'tbo'
@@ -146,19 +146,19 @@ async function processMessage(message: Message): Promise<void> {
       await dataFunction(message);
       break;
     case sellOrdersCommandRegex.test(message.content):
-      await sellOrdersFunction(message);
+      await sellOrdersCommand(message);
       break;
     case buyOrdersCommandRegex.test(message.content):
-      await buyOrdersFunction(message);
+      await buyOrdersCommand(message);
       break;
     case infoCommandRegex.test(message.content):
       await infoFunction(message);
       break;
     case sellTrackingCommandRegex.test(message.content):
-      await trackFunction(message, 'sell');
+      await trackCommand(message, 'sell');
       break;
     case buyTrackingCommandRegex.test(message.content):
-      await trackFunction(message, 'buy');
+      await trackCommand(message, 'buy');
       break;
     case clearTrackingCommandRegex.test(message.content):
       await clearTracking(message);

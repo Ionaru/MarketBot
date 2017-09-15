@@ -26,16 +26,12 @@ export async function priceFunction(message: Message) {
     return await replyPlaceholder.edit(reply);
   }
 
-  itemData = items.filter((_): boolean | void => {
-    if (_.name.en) {
-      return _.name.en.toUpperCase() === messageData.item.toUpperCase();
-    }
-  })[0];
+  itemData = items.filter((_) => (_.name.en && _.name.en.toUpperCase() === messageData.item.toUpperCase()))[0];
   if (!itemData) {
     itemData = guessUserItemInput(messageData.item);
     if (itemData) {
       reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
-      reply += newLine();
+      reply += newLine(2);
     } else {
       reply = `I don't know what item you mean with "${messageData.item}" 😟`;
       return await replyPlaceholder.edit(reply);
@@ -47,13 +43,11 @@ export async function priceFunction(message: Message) {
   if (messageData.region) {
     regionId = guessUserRegionInput(messageData.region);
     if (!regionId) {
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat('The Forge')}`;
-      reply += newLine();
       regionId = 10000002;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
+      reply += newLine(2);
     }
   }
-
-  reply += newLine();
 
   regionName = regionList[regionId];
 
