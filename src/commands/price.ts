@@ -1,9 +1,8 @@
 import { Message } from '../chat-service/discord/message';
-import { fetchItemPrice } from '../helpers/api';
+import { fetchPriceData } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
-import { items } from '../helpers/items-loader';
+import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { regionList } from '../regions';
@@ -18,24 +17,23 @@ export async function priceFunction(message: Message) {
   );
 
   let reply = '';
-  let itemData;
-  let regionName;
+  let regionName = '';
 
   if (!(messageData.item && messageData.item.length)) {
     reply = 'You need to give me an item to search for.';
     return await replyPlaceholder.edit(reply);
   }
 
-  itemData = items.filter((_) => (_.name.en && _.name.en.toUpperCase() === messageData.item.toUpperCase()))[0];
+  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
+
   if (!itemData) {
-    itemData = guessUserItemInput(messageData.item);
-    if (itemData) {
-      reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
-      reply += newLine(2);
-    } else {
-      reply = `I don't know what item you mean with "${messageData.item}" 😟`;
-      return await replyPlaceholder.edit(reply);
-    }
+    reply += `I don't know what you mean with "${messageData.item}" 😟`;
+    return {reply, itemData: undefined, regionName};
+  }
+
+  if (guess) {
+    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;
@@ -53,7 +51,7 @@ export async function priceFunction(message: Message) {
 
   const itemId = itemData.itemID;
 
-  const json = await fetchItemPrice(itemId, regionId);
+  const json = await fetchPriceData(itemId, regionId);
 
   if (!(json && json.length)) {
     reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;

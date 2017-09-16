@@ -6,7 +6,7 @@ import { sortArrayByObjectProperty } from './arrays';
 
 const ccpHost = 'https://esi.tech.ccp.is/';
 
-export async function fetchItemPrice(itemId: number, regionId: number) {
+export async function fetchPriceData(itemId: number, regionId: number) {
   const host = 'https://api.eve-central.com/api/marketstat/json';
   const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
 

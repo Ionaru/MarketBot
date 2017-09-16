@@ -24,12 +24,19 @@ export const shortcuts: IShortcuts = {
   vni: 'Vexor Navy Issue'
 };
 
-export function guessUserItemInput(itemString: string): ISDEObject {
+export interface IGuessReturn {
+  itemData: ISDEObject;
+  guess: boolean;
+}
+
+export function guessUserItemInput(itemString: string): IGuessReturn {
 
   itemString = escapeStringRegexp(itemString);
 
   let regex: RegExp;
-  let possibilities: ISDEObject[] = [];
+  let guess = false;
+  let itemData: ISDEObject;
+  const possibilities: ISDEObject[] = [];
 
   const itemWords = itemString.split(' ');
 
@@ -74,12 +81,13 @@ export function guessUserItemInput(itemString: string): ISDEObject {
   if (!possibilities.length) {
     // Use Fuse to search (slow but fuzzy).
     possibilities.push(fuse.search(itemString)[0] as ISDEObject);
+    guess = true;
   }
 
-  // Sort by word length, shortest is usually the correct one.
-  possibilities = sortArrayByObjectPropertyLength(possibilities, 'name', 'en');
-  return possibilities[0];
+  // Sort by word length and select first itemData, shortest is usually the correct one.
+  itemData = sortArrayByObjectPropertyLength(possibilities, 'name', 'en')[0];
 
+  return {itemData, guess};
 }
 
 export function guessUserRegionInput(regionString: string): number | void {

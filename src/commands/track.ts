@@ -7,7 +7,7 @@ import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
+import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { items } from '../helpers/items-loader';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
@@ -104,7 +104,6 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   const maxEntries = 3;
   const timeLimit = 6 * 60 * 60 * 1000;
 
-  let itemData: ISDEObject;
   let regionName = '';
   let reply = '';
 
@@ -115,22 +114,16 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  itemData = items.filter((_): boolean | void => {
-    if (_.name.en) {
-      return _.name.en.toUpperCase() === messageData.item.toUpperCase();
-    }
-  })[0];
-  if (!itemData) {
-    itemData = guessUserItemInput(messageData.item);
-    if (itemData) {
-      reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
-      reply += newLine(2);
-    }
-  }
+  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
 
   if (!itemData) {
     reply += `I don't know what you mean with "${messageData.item}" 😟`;
     return {reply, itemData: undefined, regionName};
+  }
+
+  if (guess) {
+    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;

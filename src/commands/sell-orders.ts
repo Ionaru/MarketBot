@@ -4,8 +4,7 @@ import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { guessUserItemInput, guessUserRegionInput } from '../helpers/guessers';
-import { items } from '../helpers/items-loader';
+import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { regionList } from '../regions';
@@ -35,7 +34,6 @@ export async function sellOrdersCommand(message: Message) {
 
 async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> {
 
-  let itemData: ISDEObject;
   let regionName = '';
   let reply = '';
 
@@ -44,16 +42,16 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  itemData = items.filter((_) => (_.name.en && _.name.en.toUpperCase() === messageData.item.toUpperCase()))[0];
+  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
+
   if (!itemData) {
-    itemData = guessUserItemInput(messageData.item);
-    if (itemData) {
-      reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
-      reply += newLine(2);
-    } else {
-      reply += `I don't know what you mean with "${messageData.item}" 😟`;
-      return {reply, itemData: undefined, regionName};
-    }
+    reply += `I don't know what you mean with "${messageData.item}" 😟`;
+    return {reply, itemData: undefined, regionName};
+  }
+
+  if (guess) {
+    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;
