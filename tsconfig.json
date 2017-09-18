@@ -11,7 +11,10 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "lib": ["es6", "dom"],
+    "lib": [
+      "es6",
+      "dom"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
@@ -21,6 +24,10 @@
     ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/**/*.spec.ts"
+  ],
+  "include": [
+    "src/**/*.ts"
   ]
 }
