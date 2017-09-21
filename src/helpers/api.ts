@@ -11,14 +11,14 @@ export async function fetchPriceData(itemId: number, regionId: number) {
   const url = `${host}marketstat/json?typeid=${itemId}&regionlimit=${regionId}`;
 
   logger.debug(url);
-  const priceResponse: Response | undefined = await fetch(url).catch(async (errorResponse) => {
+  const priceResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
-    return await fetchPriceDataBackup(itemId, regionId);
+    return fetchPriceDataBackup(itemId, regionId);
   });
   if (priceResponse) {
-    return await priceResponse.json().catch(async (error) => {
+    return await priceResponse.json().catch((error) => {
       logger.error('Unable to parse JSON:', error);
-      return await fetchPriceDataBackup(itemId, regionId);
+      return fetchPriceDataBackup(itemId, regionId);
     });
   }
 }
