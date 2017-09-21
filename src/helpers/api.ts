@@ -7,8 +7,26 @@ import { sortArrayByObjectProperty } from './arrays';
 const ccpHost = 'https://esi.tech.ccp.is/';
 
 export async function fetchPriceData(itemId: number, regionId: number) {
-  const host = 'https://api.eve-central.com/api/marketstat/json';
-  const url = `${host}?typeid=${itemId}&regionlimit=${regionId}`;
+  const host = 'https://api.eve-central.com/api/';
+  const url = `${host}marketstat/json?typeid=${itemId}&regionlimit=${regionId}`;
+
+  logger.debug(url);
+  const priceResponse: Response | undefined = await fetch(url).catch(async (errorResponse) => {
+    logger.error('Request failed:', url, errorResponse);
+    return await fetchPriceDataBackup(itemId, regionId);
+  });
+  if (priceResponse) {
+    return await priceResponse.json().catch(async (error) => {
+      logger.error('Unable to parse JSON:', error);
+      return await fetchPriceDataBackup(itemId, regionId);
+    });
+  }
+}
+
+export async function fetchPriceDataBackup(itemId: number, regionId: number) {
+  logger.warn('Unable to fetch from EVE-Central, using backup: EVEMarketer');
+  const host = 'https://api.evemarketer.com/ec/';
+  const url = `${host}marketstat/json?typeid=${itemId}&regionlimit=${regionId}`;
 
   logger.debug(url);
   const priceResponse: Response | undefined = await fetch(url).catch(async (errorResponse) => {
@@ -16,7 +34,8 @@ export async function fetchPriceData(itemId: number, regionId: number) {
     return undefined;
   });
   if (priceResponse) {
-    return await priceResponse.json().catch(() => {
+    return await priceResponse.json().catch((error) => {
+      logger.error('Unable to parse JSON:', error);
       return {};
     });
   }
@@ -33,7 +52,8 @@ export async function fetchMarketData(itemId: number, regionId: number): Promise
   });
   if (marketResponse) {
     if (marketResponse.ok) {
-      return await marketResponse.json().catch(() => {
+      return await marketResponse.json().catch((error) => {
+        logger.error('Unable to parse JSON:', error);
         return [];
       });
     } else {
@@ -71,7 +91,8 @@ export async function fetchCitadelData(): Promise<ICitadelData> {
 
   if (citadelResponse) {
     if (citadelResponse.ok) {
-      return await citadelResponse.json().catch(() => {
+      return await citadelResponse.json().catch((error) => {
+        logger.error('Unable to parse JSON:', error);
         return {};
       });
     } else {
@@ -95,7 +116,8 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 
   if (namesResponse) {
     if (namesResponse.ok) {
-      return await namesResponse.json().catch(() => {
+      return await namesResponse.json().catch((error) => {
+        logger.error('Unable to parse JSON:', error);
         return [];
       });
     } else {

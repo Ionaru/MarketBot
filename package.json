@@ -10,10 +10,11 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "lint": "tslint --project tsconfig.json --type-check -c tslint.json \"src/**/*.ts\"",
+    "lint": "tslint --project tsconfig.json --type-check -c tslint.json && tslint -c tslint.json src/**/*.spec.ts",
     "start": "npm run build && node dist/index.js",
     "start:ts": "node  --require ts-node/register src/index.ts",
-    "test": "mocha --require ts-node/register src/**/*.spec.ts"
+    "test": "npm run lint && npm run unit",
+    "unit": "mocha --require ts-node/register src/**/*.spec.ts"
   },
   "dependencies": {
     "countdown": "^2.6.0",
@@ -22,26 +23,22 @@
     "fuse.js": "^3.1.0",
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.10.0",
-    "mkdirp": "^0.5.1",
-    "request": "^2.81.0",
-    "sequelize": "^4.8.4",
+    "sequelize": "^4.10.0",
     "sqlite3": "^3.1.11",
     "typescript": "^2.5.2",
-    "winston-pnp-logger": "^1.0.0"
+    "winston-pnp-logger": "^1.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/countdown": "0.0.5",
     "@types/escape-string-regexp": "0.0.31",
     "@types/js-yaml": "^3.9.1",
-    "@types/mkdirp": "^0.5.1",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.28",
-    "@types/request": "^2.0.3",
     "@types/sequelize": "^4.0.73",
-    "@types/sinon": "^2.3.4",
+    "@types/sinon": "^2.3.5",
     "@types/sqlite3": "^3.1.1",
-    "@types/winston": "^2.3.5",
+    "@types/winston": "^2.3.6",
     "chai": "^4.1.2",
     "mocha": "^3.5.3",
     "sinon": "^3.3.0",
