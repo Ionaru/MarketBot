@@ -18,7 +18,6 @@ import { ICitadelData } from './typings';
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 
 export let client: Client | undefined;
-export let token: string;
 
 export let citadels: ICitadelData;
 
@@ -70,7 +69,7 @@ export const regionCommandRegex = createCommandRegex(regionCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
-  logger.info('Bot has awoken, loading items');
+  logger.info('Starting bot activation');
   loadItems(readTypeIDs(typeIDsPath));
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
@@ -93,21 +92,23 @@ export async function activate() {
 
   logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
 
-  token = readToken(tokenPath);
-
   await startLogger();
 
   await initTracking();
 
-  client = new Client(token);
+  client = new Client(readToken(tokenPath));
 
+  logger.info(`Logging in...`);
   client.login();
   client.emitter.once('ready', () => {
-    announceReady();
+    if (client) {
+      logger.info(`Logged in as ${client.name}`);
+      finishActivation();
+    }
   });
 }
 
-function announceReady() {
+function finishActivation() {
   startTrackingCycle().then();
 
   if (client) {
@@ -116,7 +117,7 @@ function announceReady() {
         handleError(message, error);
       });
     });
-    logger.info(`I am ${client.name}, now online!`);
+    logger.info(`Activation complete, ready for messages!`);
   }
 }
 

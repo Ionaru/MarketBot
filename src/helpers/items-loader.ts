@@ -19,7 +19,7 @@ export let fuseOptions = {
 export let items: ISDEObject[];
 
 export function loadItems(typeIDs: ITypeIDs): void {
-  logger.info('typeIDs loaded, starting parse cycle');
+  logger.info('Starting parsing of typeIDs');
   items = parseTypeIDs(typeIDs);
   logger.info(`Parsing complete, ${items.length} items loaded into memory`);
   fuse = new Fuse(items, fuseOptions);

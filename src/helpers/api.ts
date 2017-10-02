@@ -84,6 +84,7 @@ export async function fetchCitadelData(): Promise<ICitadelData> {
   const path = `api/citadel/all`;
   const url = host + path;
 
+  logger.debug(url);
   const citadelResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
