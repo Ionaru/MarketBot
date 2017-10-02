@@ -7,7 +7,7 @@ import { dataFunction } from './commands/data';
 import { infoFunction } from './commands/info';
 import { priceFunction } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
-import { clearTracking, initTracking, startTrackingCycle, trackCommand } from './commands/track';
+import { clearTracking, initTracking, performTrackingCycle, startTrackingCycle, trackCommand } from './commands/track';
 import { fetchCitadelData } from './helpers/api';
 import { startLogger } from './helpers/command-logger';
 import { loadItems } from './helpers/items-loader';
@@ -109,7 +109,9 @@ export async function activate() {
 }
 
 function finishActivation() {
-  startTrackingCycle().then();
+  performTrackingCycle().then(() => {
+    startTrackingCycle();
+  });
 
   if (client) {
     client.emitter.on('message', (message: Message) => {

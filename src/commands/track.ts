@@ -2,6 +2,7 @@ import * as countdown from 'countdown';
 import SequelizeStatic = require('sequelize');
 import { logger } from 'winston-pnp-logger';
 import Instance = SequelizeStatic.Instance;
+import Timer = NodeJS.Timer;
 
 import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
@@ -16,6 +17,7 @@ import { regionList } from '../regions';
 import { IMarketData, ISDEObject } from '../typings';
 
 export let trackingEntry: any;
+let trackingCycle: Timer | undefined;
 
 export interface ITrackingEntryAttr {
   item_id: number;
@@ -33,8 +35,8 @@ export interface ITrackingEntryAttr {
 }
 
 /* tslint:disable:no-empty-interface */
-export interface ITrackingEntryInstance extends Instance<ITrackingEntryAttr>, ITrackingEntryAttr {
-}
+export interface ITrackingEntryInstance extends Instance<ITrackingEntryAttr>, ITrackingEntryAttr {}
+
 /* tslint:enable:no-unused-variable */
 
 interface ITrackCommandLogicReturn {
@@ -75,11 +77,17 @@ export async function initTracking() {
   }).sync();
 }
 
-export async function startTrackingCycle() {
-  await performTrackingCycle();
-  setInterval(async () => {
-    await performTrackingCycle();
-  }, 5 * 60 * 1000);
+export function startTrackingCycle() {
+  trackingCycle = setInterval(() => {
+    performTrackingCycle().then();
+  }, 5000);
+}
+
+export function stopTrackingCycle() {
+  if (trackingCycle) {
+    clearInterval(trackingCycle);
+    trackingCycle = undefined;
+  }
 }
 
 export async function trackCommand(message: Message, type: 'buy' | 'sell'): Promise<void> {
@@ -193,6 +201,9 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   };
 
   await trackingEntry.create(entry);
+  if (!trackingCycle) {
+    startTrackingCycle();
+  }
   return {reply, itemData, regionName};
 }
 
@@ -218,9 +229,14 @@ function droppedRose(amount: number) {
 /**
  * The main tracking cycle, it will fetch prices for all items in the TrackingEntries array and send messages.
  */
-async function performTrackingCycle() {
+export async function performTrackingCycle() {
 
   const trackingEntries: ITrackingEntryInstance[] = await trackingEntry.findAll();
+
+  if (!trackingEntries.length) {
+    stopTrackingCycle();
+    return;
+  }
 
   const entriesDone: ITrackingEntryInstance[] = [];
 
