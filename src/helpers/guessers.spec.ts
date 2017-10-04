@@ -3,7 +3,6 @@ import * as Fuse from 'fuse.js';
 import { assert as sAssert, SinonSpy, SinonStub, spy, stub } from 'sinon';
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
-import { typeIDsPath } from '../market-bot';
 import { guessUserItemInput } from './guessers';
 import { loadItems } from './items-loader';
 import { readTypeIDs } from './readers';
@@ -17,7 +16,7 @@ describe('Guess user item input', function(this: any) {
       announceSelf: false
     });
     const loggerStub: SinonStub = stub(logger, 'info');
-    loadItems(readTypeIDs(typeIDsPath));
+    loadItems(readTypeIDs('data/typeIDs_test.yaml'));
     loggerStub.restore();
   });
 
