@@ -1,9 +1,11 @@
 # Discord MarketBot for EVE Online
+[![Build Status](https://travis-ci.org/Ionaru/MarketBot.svg?branch=master)](https://travis-ci.org/Ionaru/MarketBot)
+[![Trading is serious business](https://img.shields.io/badge/Trading-is%20serious%20business-2F849E.svg)]()
 
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
 
-It uses a combination of the [EVE-Central API](https://eve-central.com/home/develop.html), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
+It uses a combination of data from [EVE-Central](https://eve-central.com/home/develop.html), [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
 
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
