@@ -1,6 +1,6 @@
 # Discord MarketBot for EVE Online
 [![Build Status](https://travis-ci.org/Ionaru/MarketBot.svg?branch=master)](https://travis-ci.org/Ionaru/MarketBot)
-[![Trading is serious business](https://img.shields.io/badge/Trading-is%20serious%20business-2F849E.svg)]()
+![Trading is serious business](https://img.shields.io/badge/trading-is%20serious%20business-2F849E.svg "Spaceships are as well!")
 
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
