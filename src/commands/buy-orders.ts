@@ -51,7 +51,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
   }
 
   if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en as string)}`;
     reply += newLine(2);
   }
 
@@ -80,7 +80,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
   let buyOrders: IMarketData[] = marketData.filter((_) => _.is_buy_order === true);
 
   if (!(buyOrders && buyOrders.length)) {
-    reply += `It seems nobody is buying ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
+    reply += `It seems nobody is buying ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
   }
 
@@ -101,7 +101,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
   }
 
   const orderWord = pluralize('order', 'orders', messageData.limit);
-  reply += `The highest ${itemFormat(itemData.name.en)} buy ${orderWord} in ${regionFormat(regionName)}:`;
+  reply += `The highest ${itemFormat(itemData.name.en as string)} buy ${orderWord} in ${regionFormat(regionName)}:`;
   reply += newLine(2);
 
   for (const order of buyOrders) {

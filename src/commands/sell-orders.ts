@@ -50,7 +50,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   }
 
   if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en as string)}`;
     reply += newLine(2);
   }
 
@@ -78,7 +78,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   let sellOrders: IMarketData[] = marketData.filter((_) => _.is_buy_order === false);
 
   if (!(sellOrders && sellOrders.length)) {
-    reply += `I couldn't find any sell orders for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
+    reply += `I couldn't find any sell orders for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
   }
 
@@ -97,7 +97,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   }
 
   const orderWord = pluralize('order', 'orders', messageData.limit);
-  reply += `The cheapest ${itemFormat(itemData.name.en)} sell ${orderWord} in ${regionFormat(regionName)}:`;
+  reply += `The cheapest ${itemFormat(itemData.name.en as string)} sell ${orderWord} in ${regionFormat(regionName)}:`;
   reply += newLine(2);
 
   for (const order of sellOrders) {

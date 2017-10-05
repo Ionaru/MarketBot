@@ -124,7 +124,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
 
   const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
 
-  if (!itemData) {
+  if (!itemData || !itemData.name.en) {
     reply += `I don't know what you mean with "${messageData.item}" 😟`;
     return {reply, itemData: undefined, regionName};
   }
@@ -306,7 +306,7 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketData, e
   const droppedRoseWord = droppedRose(currentOrder.price - entry.tracking_price);
   const changeText = makeCode(`${formatNumber(change)} ISK`);
 
-  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en;
+  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en as string;
   const regionName = regionList[entry.region_id];
 
   let reply = `Attention, change detected in ${makeBold(entry.tracking_type)} price `;
@@ -323,7 +323,7 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketData, e
 
 async function sendExpiredMessage(senderId: string, channelId: string, entry: ITrackingEntryAttr) {
 
-  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en;
+  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en as string;
   const regionName = regionList[entry.region_id];
 
   let reply = `Tracking of the ${makeBold(entry.tracking_type)} price `;

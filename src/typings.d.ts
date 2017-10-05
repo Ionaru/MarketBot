@@ -22,12 +22,12 @@ export interface ISDEObject {
   iconID: number;
   marketGroupID: number;
   name: {
-    de: string;
-    en: string;
-    fr: string;
-    ja: string;
-    ru: string;
-    zh: string;
+    de?: string;
+    en?: string;
+    fr?: string;
+    ja?: string;
+    ru?: string;
+    zh?: string;
   };
   portionSize: 1;
   published: boolean;

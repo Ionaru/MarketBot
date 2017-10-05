@@ -92,10 +92,8 @@ export function guessUserItemInput(itemString: string): IGuessReturn {
 
 export function guessUserRegionInput(regionString: string): number | void {
   for (const key in regionList) {
-    if (regionList.hasOwnProperty(key)) {
-      if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1) {
-        return Number(key);
-      }
+    if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1) {
+      return Number(key);
     }
   }
 }

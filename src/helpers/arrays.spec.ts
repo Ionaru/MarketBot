@@ -56,5 +56,25 @@ describe('Array sorting', () => {
         {value: 4}
       ]);
     });
+
+    it('should reverse sort the array if two properties are equal', () => {
+      const unsortedArrayWithEqualValue = [
+        {value: 2},
+        {value: 3},
+        {value: 2},
+        {value: 4},
+        {value: 1}
+      ];
+
+      const sortedArray = sortArrayByObjectProperty(unsortedArrayWithEqualValue, 'value', true);
+
+      assert.deepEqual(sortedArray, [
+        {value: 4},
+        {value: 3},
+        {value: 2},
+        {value: 2},
+        {value: 1}
+      ]);
+    });
   });
 });

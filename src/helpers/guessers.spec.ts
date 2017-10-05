@@ -3,7 +3,8 @@ import * as Fuse from 'fuse.js';
 import { assert as sAssert, SinonSpy, SinonStub, spy, stub } from 'sinon';
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
-import { guessUserItemInput } from './guessers';
+import { regionList } from '../regions';
+import { guessUserItemInput, guessUserRegionInput } from './guessers';
 import { loadItems } from './items-loader';
 import { readTypeIDs } from './readers';
 
@@ -129,6 +130,36 @@ describe('Guess user item input', function(this: any) {
       assert.equal(result.itemData.name.en, itemNameT2);
       assert.isFalse(result.guess);
       sAssert.notCalled(fuseSearchFunction);
+    });
+  });
+});
+
+describe('Guess user region input', function(this: any) {
+  describe('guessUserRegionInput()', () => {
+
+    const regionName = 'Scalding Pass';
+
+    it('should correctly return a correctly spelled region', () => {
+      const result = guessUserRegionInput(regionName);
+      assert.isNumber(result);
+      assert.equal(regionList[Number(result)], regionName);
+    });
+
+    it('should correctly return a region when just the start is given', () => {
+      const result = guessUserRegionInput(regionName.substring(0, 4));
+      assert.isNumber(result);
+      assert.equal(regionList[Number(result)], regionName);
+    });
+
+    it('should correctly return a region when just the end is given', () => {
+      const result = guessUserRegionInput(regionName.substring(4, regionName.length));
+      assert.isNumber(result);
+      assert.equal(regionList[Number(result)], regionName);
+    });
+
+    it('It should return nothing when given a horribly misspelled region', () => {
+      const result = guessUserRegionInput('/////////');
+      assert.isUndefined(result);
     });
   });
 });

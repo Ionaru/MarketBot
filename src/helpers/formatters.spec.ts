@@ -41,87 +41,92 @@ describe('Formatting functions', () => {
   });
 
   describe('formatNumber()', () => {
-    let amount: number | string;
 
     it('should output xx,xxx.xx by default', () => {
-      amount = 50000;
       const result = formatNumber(50000);
       assert.isString(result);
       assert.equal(result, '50,000.00');
     });
 
+    it('should support negative numbers', () => {
+      const result = formatNumber(-50000);
+      assert.isString(result);
+      assert.equal(result, '-50,000.00');
+    });
+
+    it('should properly format smaller numbers', () => {
+      const result = formatNumber(500);
+      assert.isString(result);
+      assert.equal(result, '500.00');
+    });
+
     it('should accept a string as input', () => {
-      amount = 50000;
       const result = formatNumber('50000');
       assert.isString(result);
       assert.equal(result, '50,000.00');
     });
 
+    it('should return 0.00 when input is not a number', () => {
+      const result = formatNumber('not_a_number');
+      assert.isString(result);
+      assert.equal(result, '0.00');
+    });
+
     it('should accept different amount of decimals', () => {
-      amount = 50000;
       const result = formatNumber(50000, 6);
       assert.isString(result);
       assert.equal(result, '50,000.000000');
     });
 
     it('should accept zero decimals', () => {
-      amount = 50000;
       const result = formatNumber(50000, 0);
       assert.isString(result);
       assert.equal(result, '50,000');
     });
 
     it('should correctly round amounts up', () => {
-      amount = 50000;
       const result = formatNumber(49999.50, 0);
       assert.isString(result);
       assert.equal(result, '50,000');
     });
 
     it('should correctly round amounts down', () => {
-      amount = 50000;
       const result = formatNumber(49999.49, 0);
       assert.isString(result);
       assert.equal(result, '49,999');
     });
 
     it('should not change the number when rounding', () => {
-      amount = 50000;
       const result = formatNumber(49999.00, 0);
       assert.isString(result);
       assert.equal(result, '49,999');
     });
 
     it('should accept different delimiters', () => {
-      amount = 50000;
       const result = formatNumber(50000, 2, ',', 'X');
       assert.isString(result);
       assert.equal(result, '50X000,00');
     });
 
     it('should accept different decimal marks', () => {
-      amount = 50000;
       const result = formatNumber(50000, 2, 'X');
       assert.isString(result);
       assert.equal(result, '50,000X00');
     });
 
     it('should be able to have an empty string as delimiter', () => {
-      amount = 50000;
       const result = formatNumber(50000, 2, ',', '');
       assert.isString(result);
       assert.equal(result, '50000,00');
     });
 
     it('should be able to have an empty string as both decimal mark and delimiter', () => {
-      amount = 50000;
       const result = formatNumber(50000, 2, '', '');
       assert.isString(result);
       assert.equal(result, '5000000');
     });
 
     it('should be able to handle the same character as decimal mark and delimiter', () => {
-      amount = 50000;
       const result = formatNumber(50000, 2, 'X', 'X');
       assert.isString(result);
       assert.equal(result, '50X000X00');

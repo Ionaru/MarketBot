@@ -32,7 +32,7 @@ export async function priceFunction(message: Message) {
   }
 
   if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
+    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en as string)}`;
     reply += newLine(2);
   }
 
@@ -76,11 +76,11 @@ export async function priceFunction(message: Message) {
   }
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
-    reply += `I couldn't find any price information for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}, sorry.`;
+    reply += `I couldn't find any price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}, sorry.`;
     return await replyPlaceholder.edit(reply);
   }
 
-  reply += `Price information for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}:` + newLine(2);
+  reply += `Price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}:` + newLine(2);
 
   if (sellPrice !== 'unknown') {
     reply += `- Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();

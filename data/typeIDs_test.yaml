@@ -7,3 +7,7 @@
 28576:
     name:
         en: Mining Laser Upgrade II
+
+# Item without names
+00001:
+    name: {}
