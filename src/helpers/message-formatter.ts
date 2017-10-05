@@ -28,7 +28,7 @@ export function makeURL(text: string | number): string {
   return `${makeUrlStartTag}${text}${makeUrlEndTag}`;
 }
 
-export function makeUserLink(text: string | number): string {
+export function makeUserLink(text: string): string {
   return `${makeUserLinkStartTag}${text}${makeUserLinkEndTag}`;
 }
 
