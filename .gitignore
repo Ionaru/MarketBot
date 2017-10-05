@@ -8,6 +8,8 @@ npm-debug.log*
 node_modules/
 
 # Build files
+.nyc_output/
+coverage/
 dist/
 
 # Sensitive application files
