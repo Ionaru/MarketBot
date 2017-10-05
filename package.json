@@ -44,7 +44,7 @@
     "@types/js-yaml": "^3.9.1",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.32",
-    "@types/sequelize": "^4.0.75",
+    "@types/sequelize": "^4.0.76",
     "@types/sinon": "^2.3.5",
     "@types/sqlite3": "^3.1.1",
     "@types/winston": "^2.3.6",
