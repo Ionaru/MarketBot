@@ -1,16 +1,28 @@
 export function formatNumber(amount: number | string, decimals = 2, decimalMark = '.', delimiter = ','): string {
+
+  let amountNumber = Number(amount);
+
+  if (isNaN(amountNumber)) {
+    amountNumber = 0;
+  }
+
+  let negativeMarker = '';
+
+  if (amountNumber < 0) {
+    negativeMarker = '-';
+  }
+
+  const absoluteNumber = Math.abs(amountNumber).toFixed(decimals);
+
   let i: any;
   let j: any;
-  let n: any;
-  let s: any;
-  n = Number(amount);
-  s = n < 0 ? '-' : '';
-  i = parseInt(n = Math.abs(+n || 0).toFixed(decimals), 10) + '';
+
+  i = parseInt(absoluteNumber, 10) + '';
   const digits = i.length;
   j = (j = digits) > 3 ? j % 3 : 0;
-  return s + (j ? i.substr(0, j) + delimiter : '') +
+  return negativeMarker + (j ? i.substr(0, j) + delimiter : '') +
     i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + delimiter) +
-    (decimals ? decimalMark + Math.abs(n - i).toFixed(decimals).slice(2) : '');
+    (decimals ? decimalMark + Math.abs(Number(absoluteNumber) - i).toFixed(decimals).slice(2) : '');
 }
 
 export function pluralize(singular: string, plural: string, amount: number): string {
