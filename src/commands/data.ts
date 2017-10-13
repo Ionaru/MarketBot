@@ -49,11 +49,12 @@ export async function dataFunction(message: Message) {
   reply += makeBold('Command counts');
   reply += newLine();
 
-  let userWord = pluralize('user', 'users', userCount);
+  const userWord = pluralize('user', 'users', userCount);
+  const commandsWord = pluralize('command', 'commands', commandCount);
   const channelWord = pluralize('channel', 'channels', channelCount);
-  let serverWord = pluralize('server', 'servers', serverCount);
+  const serverWord = pluralize('server', 'servers', serverCount);
 
-  reply += `I have processed ${makeCode(commandCount + ' commands')} in total, ` +
+  reply += `I have processed ${makeCode(commandCount)} ${commandsWord} in total, ` +
     `issued by ${makeCode(userCount)} ${userWord} in ${makeCode(channelCount)} ${channelWord} ` +
     `on ${makeCode(serverCount)} ${serverWord}.`;
   reply += newLine();
@@ -68,16 +69,17 @@ export async function dataFunction(message: Message) {
   reply += makeBold('Price tracking');
   reply += newLine();
   const priceWord = pluralize('price', 'prices', trackingCount);
-  userWord = pluralize('user', 'users', trackingUsers);
-  reply += `I am currently tracking ${makeCode(trackingCount)} item ${priceWord} for ${makeCode(trackingUsers)} unique ${userWord}.`;
+  const trackingUsersWord = pluralize('user', 'users', trackingUsers);
+  reply += `I am currently tracking ${makeCode(trackingCount)} item ${priceWord} for ` +
+    `for ${makeCode(trackingUsers)} unique ${trackingUsersWord}.`;
 
   if (client) {
     reply += newLine(2);
     reply += makeBold('Bot status');
     reply += newLine();
     const currentServerCount = client.serverCount;
-    serverWord = pluralize('server', 'servers', currentServerCount);
-    reply += `I am currently online on ${makeCode(currentServerCount)} ${serverWord}.`;
+    const currentServerWord = pluralize('server', 'servers', currentServerCount);
+    reply += `I am currently online on ${makeCode(currentServerCount)} ${currentServerWord}.`;
     reply += newLine();
     const upTime = countdown(client.upTime) as countdown.Timespan;
     reply += `I've been online for ${makeCode(upTime.toString())}.`;
