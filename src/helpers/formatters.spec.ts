@@ -54,6 +54,18 @@ describe('Formatting functions', () => {
       assert.equal(result, '-50,000.00');
     });
 
+    it('should properly format a number with different digits in it', () => {
+      const result = formatNumber(1234567890);
+      assert.isString(result);
+      assert.equal(result, '1,234,567,890.00');
+    });
+
+    it('should properly format larger numbers', () => {
+      const result = formatNumber(5000000000);
+      assert.isString(result);
+      assert.equal(result, '5,000,000,000.00');
+    });
+
     it('should properly format smaller numbers', () => {
       const result = formatNumber(500);
       assert.isString(result);

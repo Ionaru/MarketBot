@@ -1,4 +1,4 @@
-export function formatNumber(amount: number | string, decimals = 2, decimalMark = '.', delimiter = ','): string {
+export function formatNumber(amount: number | string, decimalAmount = 2, decimalMark = '.', delimiter = ','): string {
 
   let amountNumber = Number(amount);
 
@@ -7,22 +7,46 @@ export function formatNumber(amount: number | string, decimals = 2, decimalMark 
   }
 
   let negativeMarker = '';
-
   if (amountNumber < 0) {
     negativeMarker = '-';
   }
 
-  const absoluteNumber = Math.abs(amountNumber).toFixed(decimals);
+  const absoluteAmountString = Math.abs(amountNumber).toFixed(decimalAmount);
 
-  let i: any;
-  let j: any;
+  const integerString = parseInt(absoluteAmountString, 10).toString();
 
-  i = parseInt(absoluteNumber, 10) + '';
-  const digits = i.length;
-  j = (j = digits) > 3 ? j % 3 : 0;
-  return negativeMarker + (j ? i.substr(0, j) + delimiter : '') +
-    i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + delimiter) +
-    (decimals ? decimalMark + Math.abs(Number(absoluteNumber) - i).toFixed(decimals).slice(2) : '');
+  const digits = integerString.length;
+
+  let characterAmountAtFront = 0;
+  if (digits > 3) {
+    characterAmountAtFront = digits % 3; // Determine amount of left-over characters at the front.
+  }
+
+  let firstDigits = '';
+  if (characterAmountAtFront) {
+    firstDigits = integerString.substr(0, characterAmountAtFront);
+    firstDigits += delimiter;
+  }
+
+  let middleText = '';
+  let charCounter = 0;
+  const middleCharacters = integerString.substr(characterAmountAtFront);
+  for (const char of middleCharacters) {
+    // Skip the first delimiter because it's either added with the firstDigits or not needed.
+    if (charCounter && charCounter % 3 === 0) {
+      middleText += delimiter;
+    }
+    middleText += char;
+    charCounter++;
+  }
+
+  let decimalText = '';
+  if (decimalAmount) {
+    const decimalNumbers = Number(absoluteAmountString) - parseInt(absoluteAmountString, 10);
+    decimalText = decimalMark + decimalNumbers.toFixed(decimalAmount).slice(2); // slice first 2 characters from 0.XXX
+  }
+
+  return negativeMarker + firstDigits + middleText + decimalText;
 }
 
 export function pluralize(singular: string, plural: string, amount: number): string {
