@@ -1,12 +1,9 @@
 import * as Discord from 'discord.js';
-// import * as PrettyError from 'pretty-error';
 import { logger } from 'winston-pnp-logger';
 
 import { makeCode, makeURL, makeUserLink, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
 import { maxMessageLength } from './misc';
-
-// const pe = new PrettyError();
 
 export class Message {
 
@@ -101,10 +98,13 @@ export class Message {
       `${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.` +
       newLine(2) +
       `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`
-    ).then().catch(async (error: Response) => {
-      logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'!`);
-      const errorMessage = await error.text().catch(() => 'Unknown error.');
-      logger.error(errorMessage);
+    ).then().catch(async (error: Discord.DiscordAPIError) => {
+      logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'`);
+      if (error.stack) {
+        logger.error(error.stack.toString());
+      } else {
+        logger.error(error.toString());
+      }
     });
   }
 
