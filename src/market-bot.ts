@@ -16,6 +16,7 @@ import { createCommandRegex } from './helpers/regex';
 import { ICitadelData } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
+export const botName = 'MarketBot';
 
 export let client: Client | undefined;
 

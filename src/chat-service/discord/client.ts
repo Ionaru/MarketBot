@@ -20,6 +20,7 @@ export class Client {
   private credentials: string;
   private _emitter: EventEmitter;
   private _name: string;
+  private _id: string;
 
   constructor(credentials: string) {
     this.credentials = credentials;
@@ -28,6 +29,7 @@ export class Client {
 
     this.client.on('ready', () => {
       this._name = this.client.user.username;
+      this._id = this.client.user.id;
       this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
       this.onReady();
     });
@@ -86,12 +88,25 @@ export class Client {
     }
   }
 
+  public getNickname(message: Message): string | undefined {
+    const guild = message.guild;
+    if (guild) {
+      return guild.member(this.client.user).nickname;
+    }
+
+    return undefined;
+  }
+
   get emitter(): EventEmitter {
     return this._emitter;
   }
 
   get name(): string {
     return this._name;
+  }
+
+  get id(): string {
+    return this._id;
   }
 
   get serverCount(): number {

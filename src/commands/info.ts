@@ -2,9 +2,11 @@ import { Message } from '../chat-service/discord/message';
 import { logCommand } from '../helpers/command-logger';
 import { makeBold, makeCode, makeItalics, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 import {
+  botName,
   buyOrdersCommands,
   buyTrackingCommands,
   clearTrackingCommands,
+  client,
   commandPrefix,
   creator,
   dataCommands,
@@ -29,7 +31,18 @@ export async function infoFunction(message: Message) {
   const buyTrackingCommand = commandPrefix + buyTrackingCommands[0];
   const clearTrackingCommand = commandPrefix + clearTrackingCommands[0];
 
-  let reply = makeBold('Greetings, I am MarketBot!');
+  let reply = makeBold(`Greetings, I am ${botName}!`);
+
+  if (client) {
+    const name = client.getNickname(message) || client.name;
+
+    if (name !== botName) {
+      reply += newLine();
+      reply += `You may know me as ${makeBold(name)} in this channel.`;
+    }
+  }
+
+  reply += newLine();
   reply += newLine();
   reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market, `;
   reply += `all my data currently comes from EVE-Central, stop.hammerti.me.uk, the EVE Swagger Interface `;

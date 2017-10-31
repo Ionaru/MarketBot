@@ -61,6 +61,15 @@ export class Message {
     return this._channel;
   }
 
+  get guild(): Discord.Guild | undefined {
+    if (this._message.channel.type === 'text') {
+      const channel = this._message.channel as Discord.TextChannel;
+      return channel.guild;
+    }
+
+    return undefined;
+  }
+
   get author(): { id: string, name: string } {
     return this._author;
   }
