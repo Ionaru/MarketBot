@@ -80,7 +80,7 @@ export async function initTracking() {
 export function startTrackingCycle() {
   trackingCycle = setInterval(() => {
     performTrackingCycle().then();
-  }, 5000);
+  }, 5 * 60 * 1000);
 }
 
 export function stopTrackingCycle() {
