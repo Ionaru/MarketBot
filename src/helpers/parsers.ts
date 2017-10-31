@@ -53,12 +53,10 @@ export function parseMessage(message: string): IParsedMessage {
 export function parseTypeIDs(typeIDs: ITypeIDs): ISDEObject[] {
   const itemsArray = [];
 
-  for (const key in typeIDs) {
-    if (typeIDs.hasOwnProperty(key)) {
-      const value: ISDEObject = typeIDs[key];
+  for (const key of Object.keys(typeIDs)) {
+      const value: ISDEObject = typeIDs[Number(key)];
       value.itemID = Number(key);
       itemsArray.push(value);
-    }
   }
 
   return itemsArray;

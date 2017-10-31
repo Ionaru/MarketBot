@@ -13,9 +13,11 @@ describe('Guess user item input', function(this: any) {
   before(function(this: any) {
     this.timeout(60000);
 
-    new WinstonPnPLogger({
-      announceSelf: false
-    });
+    if (!logger) {
+      new WinstonPnPLogger({
+        announceSelf: false
+      });
+    }
     const loggerStub: SinonStub = stub(logger, 'info');
     loadItems(readTypeIDs('data/typeIDs_test.yaml'));
     loggerStub.restore();
@@ -35,7 +37,7 @@ describe('Guess user item input', function(this: any) {
 
     const itemName = 'Mackinaw';
 
-    it('It should correctly return a correctly spelled item', () => {
+    it('should correctly return a correctly spelled item', () => {
       const result = guessUserItemInput(itemName);
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
@@ -43,7 +45,7 @@ describe('Guess user item input', function(this: any) {
       sAssert.notCalled(fuseSearchFunction);
     });
 
-    it('It should correctly return an item with just the start typed', () => {
+    it('should correctly return an item with just the start typed', () => {
       const result = guessUserItemInput(itemName.substring(0, 4));
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
@@ -51,7 +53,7 @@ describe('Guess user item input', function(this: any) {
       sAssert.notCalled(fuseSearchFunction);
     });
 
-    it('It should correctly return an item with just the end typed', () => {
+    it('should correctly return an item with just the end typed', () => {
       const result = guessUserItemInput(itemName.substring(4, itemName.length));
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
@@ -59,7 +61,7 @@ describe('Guess user item input', function(this: any) {
       sAssert.notCalled(fuseSearchFunction);
     });
 
-    it('It should correctly return an item with just the middle typed', () => {
+    it('should correctly return an item with just the middle typed', () => {
       const result = guessUserItemInput(itemName.substring(1, itemName.length - 1));
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
@@ -82,7 +84,7 @@ describe('Guess user item input', function(this: any) {
 
     const itemName = 'Mackinaw';
 
-    it('It should correctly return a misspelled item', () => {
+    it('should correctly return a misspelled item', () => {
       const result = guessUserItemInput('Backinbaw');
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
@@ -90,7 +92,7 @@ describe('Guess user item input', function(this: any) {
       sAssert.calledOnce(fuseSearchFunction);
     });
 
-    it('It should return nothing when given a horribly misspelled item', () => {
+    it('should return nothing when given a horribly misspelled item', () => {
       const result = guessUserItemInput('/////////');
       assert.isObject(result);
       assert.isUndefined(result.itemData);
@@ -116,7 +118,7 @@ describe('Guess user item input', function(this: any) {
     const shortcut = 'mlu';
     const shortcutT2 = 'mlu II';
 
-    it('It should resolve a shortcut to an item', () => {
+    it('should resolve a shortcut to an item', () => {
       const result = guessUserItemInput(shortcut);
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
@@ -124,7 +126,7 @@ describe('Guess user item input', function(this: any) {
       sAssert.notCalled(fuseSearchFunction);
     });
 
-    it('It should be able to resolve t2 versions of shortcuts', () => {
+    it('should be able to resolve t2 versions of shortcuts', () => {
       const result = guessUserItemInput(shortcutT2);
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemNameT2);
@@ -157,7 +159,7 @@ describe('Guess user region input', function(this: any) {
       assert.equal(regionList[Number(result)], regionName);
     });
 
-    it('It should return nothing when given a horribly misspelled region', () => {
+    it('should return nothing when given a horribly misspelled region', () => {
       const result = guessUserRegionInput('/////////');
       assert.isUndefined(result);
     });

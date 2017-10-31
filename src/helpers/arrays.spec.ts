@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { sortArrayByObjectProperty } from './arrays';
+import { sortArrayByObjectProperty, sortArrayByObjectSubPropertyLength } from './arrays';
 
 describe('Array sorting', () => {
 
@@ -74,6 +74,84 @@ describe('Array sorting', () => {
         {value: 2},
         {value: 2},
         {value: 1}
+      ]);
+    });
+  });
+
+  describe('sortArrayByObjectPropertyLength()', () => {
+    const unsortedArray = [
+      {value: {subValue: '12345'}},
+      {value: {subValue: '12'}},
+      {value: {subValue: '1'}},
+      {value: {subValue: '123'}},
+      {value: {subValue: '1234'}}
+    ];
+
+    it('should sort the array by the object property length', () => {
+      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArray, 'value', 'subValue');
+
+      assert.deepEqual(sortedArray, [
+        {value: {subValue: '1'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '123'}},
+        {value: {subValue: '1234'}},
+        {value: {subValue: '12345'}}
+      ]);
+    });
+
+    it('should reverse sort the array by the object property length', () => {
+      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArray, 'value', 'subValue', true);
+
+      assert.deepEqual(sortedArray, [
+        {value: {subValue: '12345'}},
+        {value: {subValue: '1234'}},
+        {value: {subValue: '123'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '1'}}
+      ]);
+    });
+
+    it('should sort the array by the object property length with equal length values', () => {
+      const unsortedArrayWithEqualValues = [
+        {value: {subValue: '12345'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '1'}},
+        {value: {subValue: '123'}},
+        {value: {subValue: '1234'}},
+        {value: {subValue: '12'}}
+      ];
+
+      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArrayWithEqualValues, 'value', 'subValue');
+
+      assert.deepEqual(sortedArray, [
+        {value: {subValue: '1'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '123'}},
+        {value: {subValue: '1234'}},
+        {value: {subValue: '12345'}}
+      ]);
+    });
+
+    it('should reverse sort the array by the object property length with equal length values', () => {
+      const unsortedArrayWithEqualValues = [
+        {value: {subValue: '12345'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '1'}},
+        {value: {subValue: '123'}},
+        {value: {subValue: '1234'}},
+        {value: {subValue: '12'}}
+      ];
+
+      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArrayWithEqualValues, 'value', 'subValue', true);
+
+      assert.deepEqual(sortedArray, [
+        {value: {subValue: '12345'}},
+        {value: {subValue: '1234'}},
+        {value: {subValue: '123'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '12'}},
+        {value: {subValue: '1'}}
       ]);
     });
   });

@@ -1,7 +1,7 @@
 import escapeStringRegexp = require('escape-string-regexp');
 import { regionList } from '../regions';
 import { ISDEObject } from '../typings';
-import { sortArrayByObjectPropertyLength } from './arrays';
+import { sortArrayByObjectSubPropertyLength } from './arrays';
 import { fuse, items } from './items-loader';
 
 interface IShortcuts {
@@ -85,7 +85,7 @@ export function guessUserItemInput(itemString: string): IGuessReturn {
   }
 
   // Sort by word length and select first itemData, shortest is usually the correct one.
-  itemData = sortArrayByObjectPropertyLength(possibilities, 'name', 'en')[0];
+  itemData = sortArrayByObjectSubPropertyLength(possibilities, 'name', 'en')[0];
 
   return {itemData, guess};
 }

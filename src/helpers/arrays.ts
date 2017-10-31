@@ -1,9 +1,9 @@
-export function sortArrayByObjectPropertyLength(array: any[], p1: string, p2: string, inverse = false): any[] {
+export function sortArrayByObjectSubPropertyLength(array: any[], property: string, subProperty: string, inverse = false): any[] {
   function compare(a: any, b: any) {
-    if (a[p1][p2].length < b[p1][p2].length) {
+    if (a[property][subProperty].length < b[property][subProperty].length) {
       return inverse ? 1 : -1;
     }
-    if (a[p1][p2].length > b[p1][p2].length) {
+    if (a[property][subProperty].length > b[property][subProperty].length) {
       return inverse ? -1 : 1;
     }
     return 0;
