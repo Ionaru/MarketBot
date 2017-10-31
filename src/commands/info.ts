@@ -42,11 +42,12 @@ export async function infoFunction(message: Message) {
     }
   }
 
+  reply += newLine(2);
+  reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market and provide you with accurate `;
+  reply += `price information.`;
   reply += newLine();
-  reply += newLine();
-  reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market, `;
-  reply += `all my data currently comes from EVE-Central, stop.hammerti.me.uk, the EVE Swagger Interface `;
-  reply += `and the Static Data Export provided by CCP.`;
+  reply += `The data I use comes from the EVE Swagger Interface and the Static Data Export provided by CCP, as well as `;
+  reply += `the EVE-Central, EVEMarketer and stop.hammerti.me.uk APIs created by some amazing third-party developers.`;
   reply += newLine(2);
   reply += `${makeBold('Commands')}`;
   reply += newLine();
