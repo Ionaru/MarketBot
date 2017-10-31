@@ -16,7 +16,7 @@ export async function fetchPriceData(itemId: number, regionId: number) {
     return fetchPriceDataBackup(itemId, regionId);
   });
   if (priceResponse) {
-    return await priceResponse.json().catch((error) => {
+    return priceResponse.json().catch((error) => {
       logger.error('Unable to parse JSON:', error);
       return fetchPriceDataBackup(itemId, regionId);
     });
@@ -34,7 +34,7 @@ export async function fetchPriceDataBackup(itemId: number, regionId: number) {
     return undefined;
   });
   if (priceResponse) {
-    return await priceResponse.json().catch((error) => {
+    return priceResponse.json().catch((error) => {
       logger.error('Unable to parse JSON:', error);
       return {};
     });
@@ -52,7 +52,7 @@ export async function fetchMarketData(itemId: number, regionId: number): Promise
   });
   if (marketResponse) {
     if (marketResponse.ok) {
-      return await marketResponse.json().catch((error) => {
+      return marketResponse.json().catch((error) => {
         logger.error('Unable to parse JSON:', error);
         return [];
       });
@@ -92,7 +92,7 @@ export async function fetchCitadelData(): Promise<ICitadelData> {
 
   if (citadelResponse) {
     if (citadelResponse.ok) {
-      return await citadelResponse.json().catch((error) => {
+      return citadelResponse.json().catch((error) => {
         logger.error('Unable to parse JSON:', error);
         return {};
       });
@@ -117,7 +117,7 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 
   if (namesResponse) {
     if (namesResponse.ok) {
-      return await namesResponse.json().catch((error) => {
+      return namesResponse.json().catch((error) => {
         logger.error('Unable to parse JSON:', error);
         return [];
       });

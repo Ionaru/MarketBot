@@ -21,7 +21,7 @@ export async function priceFunction(message: Message) {
 
   if (!(messageData.item && messageData.item.length)) {
     reply = 'You need to give me an item to search for.';
-    return await replyPlaceholder.edit(reply);
+    return replyPlaceholder.edit(reply);
   }
 
   const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
@@ -55,7 +55,7 @@ export async function priceFunction(message: Message) {
 
   if (!(json && json.length)) {
     reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
-    return await replyPlaceholder.edit(reply);
+    return replyPlaceholder.edit(reply);
   }
 
   const sellData: IPriceData = json[0].sell;
@@ -77,7 +77,7 @@ export async function priceFunction(message: Message) {
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
     reply += `I couldn't find any price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}, sorry.`;
-    return await replyPlaceholder.edit(reply);
+    return replyPlaceholder.edit(reply);
   }
 
   reply += `Price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}:` + newLine(2);
