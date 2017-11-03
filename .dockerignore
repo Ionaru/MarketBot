@@ -1,0 +1,14 @@
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Node/Npm files
+npm-debug.log*
+node_modules/
+
+# Build files
+.nyc_output/
+coverage/
+dist/
+logs/

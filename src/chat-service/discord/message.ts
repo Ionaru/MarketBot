@@ -90,11 +90,11 @@ export class Message {
     return this._channel.type === 'dm';
   }
 
-  public async reply(message: string): Promise<Message> {
+  public async reply(message: string, options = {}): Promise<Message> {
     if (message.length > maxMessageLength) {
       throw new Error('MaxMessageLengthReached');
     }
-    const sent: any = await this._message.channel.send(message);
+    const sent: any = await this._message.channel.send(message, options);
     return new Message(sent[0] || sent);
   }
 
