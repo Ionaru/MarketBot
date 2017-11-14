@@ -1,7 +1,7 @@
 import 'isomorphic-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { ICitadelData, IMarketData, INamesData } from '../typings';
+import { ICitadelData, IHistoryData, IMarketData, INamesData } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
 const ccpHost = 'https://esi.tech.ccp.is/';
@@ -126,4 +126,26 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
     }
   }
   return [];
+}
+
+export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[] | undefined> {
+  const path = `v1/markets/${regionId}/history/?type_id=${itemId}`;
+  const url = ccpHost + path;
+
+  logger.debug(url);
+  const historyResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+    logger.error('Request failed:', url, errorResponse);
+    return undefined;
+  });
+  if (historyResponse) {
+    if (historyResponse.ok) {
+      return historyResponse.json().catch((error) => {
+        logger.error('Unable to parse JSON:', error);
+        return undefined;
+      });
+    } else {
+      logger.error('Request not OK:', url, historyResponse);
+    }
+  }
+  return undefined;
 }

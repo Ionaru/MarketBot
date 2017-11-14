@@ -4,6 +4,7 @@ import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { buyOrdersCommand } from './commands/buy-orders';
 import { dataFunction } from './commands/data';
+import { historyFunction } from './commands/history';
 import { infoFunction } from './commands/info';
 import { priceFunction } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
@@ -29,6 +30,9 @@ export const commandPrefix = '/';
 
 export const priceCommands = [
   'price', 'p', 'value'
+];
+export const historyCommands = [
+  'history', 'h'
 ];
 export const dataCommands = [
   'data', 'd'
@@ -59,6 +63,7 @@ export const clearTrackingCommands = [
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
+export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const dataCommandRegex = createCommandRegex(dataCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
@@ -166,6 +171,9 @@ async function processMessage(message: Message): Promise<void> {
       break;
     case clearTrackingCommandRegex.test(message.content):
       await clearTracking(message);
+      break;
+    case historyCommandRegex.test(message.content):
+      await historyFunction(message);
       break;
     case priceCommandRegex.test(message.content):
       await priceFunction(message);

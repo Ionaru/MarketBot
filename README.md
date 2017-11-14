@@ -80,14 +80,20 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 
 ## To-Do & Ideas
 - [x] Search for best buy orders
-- [ ] Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate
+- [x] Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate
 - [x] Shortcuts for commonly used searches (e.g. PLEX)
 - [x] Price tracking
+- [x] /history command for seeing price history
 - [ ] Support for searches in Jita, Amarr & other trade hubs
+- [ ] Unlimited price tracking duration
+- [ ] Price tracking in public channels
+- [ ] Remove specific tracking entries from price tracking
+- [ ] /id command to get item ids (reverse too?)
+- [ ] Replace Sequelize by TypeORM
 
 ## Developer information
 Want to contribute? Awesome!
 Just follow these steps to get started:
 1. Fork this repository and clone the fork into a directory of your choice.
 2. Follow the Self-hosting steps to get a development version of the bot up and running
-5. Make your changes, test them and create a pull request.
+3. Make your changes, test them and create a pull request.
