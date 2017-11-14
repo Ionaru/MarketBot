@@ -40,7 +40,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   const timeFormat = d3.utcFormat('%a, %m-%d');
 
   const xScale = d3.scaleUtc().rangeRound([0, graphWidth]);
-  const xAxis = d3.axisBottom(xScale).tickFormat(timeFormat).tickSize(tickSize);
+  const xAxis = d3.axisBottom(xScale).tickFormat(timeFormat as any).tickSize(tickSize);
 
   const yScale = d3.scaleLinear().rangeRound([graphHeight, 0]);
   const yAxis = d3.axisLeft(yScale).tickSize(tickSize).tickPadding(tickPadding);
@@ -50,7 +50,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   function make_x_gridlines(height: number) {
     return d3.axisBottom(xScale)
       .ticks(data.length)
-      .tickFormat(timeFormat)
+      .tickFormat(timeFormat as any)
       .tickSize(-height);
   }
 

@@ -99,7 +99,7 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
     const parsedTime = parseTime(historyEntry.date) as Date;
     const dateText = d3.utcFormat('%a, %m-%d')(parsedTime);
 
-    historyText += `${dayName} (${dateText}): ${itemFormat(formatNumber(historyEntry.average)) + ` ISK`}`;
+    historyText += `${dateText}: ${formatNumber(historyEntry.average) + ` ISK`} (${dayName})`;
     daysAgo++;
   }
 
