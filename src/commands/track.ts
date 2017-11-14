@@ -1,4 +1,3 @@
-import * as countdown from 'countdown';
 import SequelizeStatic = require('sequelize');
 import { logger } from 'winston-pnp-logger';
 import Instance = SequelizeStatic.Instance;
@@ -110,7 +109,6 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   const messageIdentifier = message.channel.id + message.id;
 
   const maxEntries = 3;
-  const timeLimit = 6 * 60 * 60 * 1000;
 
   let regionName = '';
   let reply = '';
@@ -183,8 +181,6 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     `I'll warn you when the ${makeBold(type)} price changes ${makeCode(formatNumber(changeLimit) + ' ISK')}. ` +
     ` Right now the price is ${makeCode(formatNumber(originalPrice) + ' ISK')}`;
   reply += newLine(2);
-  const trackingTimeLimit = countdown(Date.now() + timeLimit) as countdown.Timespan;
-  reply += `Tracking will last ${makeCode(trackingTimeLimit.toString())}`;
 
   const entry: ITrackingEntryAttr = {
     channel_id: message.channel.id,
@@ -193,7 +189,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     message_data: messageIdentifier,
     region_id: regionId,
     sender_id: message.author.id,
-    tracking_duration: timeLimit,
+    tracking_duration: 0,
     tracking_limit: changeLimit,
     tracking_price: originalPrice,
     tracking_start: Date.now(),
@@ -286,13 +282,6 @@ export async function performTrackingCycle() {
       }
     }
 
-    // Remove tracking entry when the time since tracking start exceeds the max duration
-    if (Date.now() - entry.tracking_start > entry.tracking_duration) {
-      sendExpiredMessage(entry.sender_id, entry.channel_id, entry).then();
-      entry.destroy().then();
-      continue;
-    }
-
     entry.current_order = currentOrder;
     entriesDone.push(entry);
   }
@@ -318,17 +307,5 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketData, e
   reply += `There ${isWord} ${makeCode(currentOrder.volume_remain.toString())} ${itemWord} set at this price.`;
   if (client) {
     await client.sendToChannel(channelId, reply);
-  }
-}
-
-async function sendExpiredMessage(senderId: string, channelId: string, entry: ITrackingEntryAttr) {
-
-  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en as string;
-  const regionName = regionList[entry.region_id];
-
-  let reply = `Tracking of the ${makeBold(entry.tracking_type)} price `;
-  reply += `for ${itemFormat(itemName)} in ${regionFormat(regionName)} expired.`;
-  if (client) {
-    await client.sendToChannel(channelId, reply, senderId);
   }
 }

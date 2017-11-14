@@ -85,7 +85,7 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [x] Price tracking
 - [x] /history command for seeing price history
 - [ ] Support for searches in Jita, Amarr & other trade hubs
-- [ ] Unlimited price tracking duration
+- [x] Unlimited price tracking duration
 - [ ] Price tracking in public channels
 - [ ] Remove specific tracking entries from price tracking
 - [ ] /id command to get item ids (reverse too?)
