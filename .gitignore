@@ -7,14 +7,15 @@
 npm-debug.log*
 node_modules/
 
-# Build files
+# Build files & test artifacts
 .nyc_output/
 coverage/
 dist/
 
-# Sensitive application files
+# Local application files
 config/token.txt
 data/typeIDs.yaml
+data/*.png
 logs/
 
 # System files

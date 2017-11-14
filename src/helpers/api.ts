@@ -128,7 +128,7 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
   return [];
 }
 
-export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[]> {
+export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[] | undefined> {
   const path = `v1/markets/${regionId}/history/?type_id=${itemId}`;
   const url = ccpHost + path;
 
@@ -141,11 +141,11 @@ export async function fetchHistoryData(itemId: number, regionId: number): Promis
     if (historyResponse.ok) {
       return historyResponse.json().catch((error) => {
         logger.error('Unable to parse JSON:', error);
-        return [];
+        return undefined;
       });
     } else {
       logger.error('Request not OK:', url, historyResponse);
     }
   }
-  return [];
+  return undefined;
 }

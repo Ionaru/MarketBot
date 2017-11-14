@@ -123,4 +123,13 @@ export class Message {
     }
     await this._message.edit(message);
   }
+
+  public async remove(timeout?: number): Promise<boolean> {
+    try {
+      await this._message.delete(timeout);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
