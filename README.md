@@ -87,7 +87,7 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [ ] Support for searches in Jita, Amarr & other trade hubs
 - [x] Unlimited price tracking duration
 - [x] Price tracking in public channels
-- [ ] Remove specific tracking entries from price tracking
+- [x] Remove specific tracking entries from price tracking
 - [ ] /id command to get item ids (reverse too?)
 - [ ] Replace Sequelize by TypeORM
 
