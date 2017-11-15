@@ -27,8 +27,6 @@ export interface ITrackingEntryAttr {
   tracking_type: 'buy' | 'sell';
   tracking_limit: number;
   tracking_price: number;
-  tracking_start: number;
-  tracking_duration: number;
   current_price: number;
   current_order?: IMarketData;
 }
@@ -68,10 +66,8 @@ export async function initTracking() {
     message_data: SequelizeStatic.TEXT,
     region_id: SequelizeStatic.INTEGER,
     sender_id: SequelizeStatic.STRING,
-    tracking_duration: SequelizeStatic.INTEGER,
     tracking_limit: SequelizeStatic.DECIMAL,
     tracking_price: SequelizeStatic.DECIMAL,
-    tracking_start: SequelizeStatic.INTEGER,
     tracking_type: SequelizeStatic.STRING
   }).sync();
 }
@@ -183,10 +179,8 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     message_data: messageIdentifier,
     region_id: regionId,
     sender_id: message.author.id,
-    tracking_duration: 0,
     tracking_limit: changeLimit,
     tracking_price: originalPrice,
-    tracking_start: Date.now(),
     tracking_type: type
   };
 
