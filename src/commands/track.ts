@@ -90,11 +90,6 @@ export function stopTrackingCycle() {
 }
 
 export async function trackCommand(message: Message, type: 'buy' | 'sell'): Promise<void> {
-  if (!(message.isPrivate)) {
-    await message.reply('Please send me a private message to have me track an item price for you.');
-    return;
-  }
-
   const replyPlaceHolder = await message.reply(
     `Setting up for price tracking, one moment, ${message.sender}...`
   );
@@ -160,16 +155,15 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData, regionName};
   }
 
-  const itemDup = dupEntries.filter((_) =>
-    (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type)
+  const channelItemDup = dupEntries.filter((_) =>
+    (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type && _.channel_id === message.channel.id)
   );
-  if (itemDup.length !== 0) {
-    reply += `I am already tracking ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)} for you.`;
+  if (channelItemDup.length !== 0) {
+    reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name.en)} in this channel.`;
     return {reply, itemData, regionName};
   }
 
   const originalOrder = await getCheapestOrder(type, itemData.itemID, regionId);
-
   if (!originalOrder) {
     reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
@@ -203,15 +197,32 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   return {reply, itemData, regionName};
 }
 
-export async function clearTracking(message: Message) {
+export async function clearTracking(message: Message): Promise<void> {
+  let reply = `All entries cleared from this channel, ${message.sender}.`;
+
+  const messageData = parseMessage(message.content);
+  let itemId: number | undefined;
+  let itemData: IGuessReturn | undefined;
+  if (messageData.item && messageData.item.length) {
+    itemData = guessUserItemInput(messageData.item);
+    if (itemData.itemData && itemData.itemData.name.en) {
+      itemId = itemData.itemData.itemID;
+    }
+  }
+
   const trackingEntries: ITrackingEntryInstance[] = await trackingEntry.findAll();
   if (trackingEntries && trackingEntries.length) {
-    const personalEntries = trackingEntries.filter((_) => _.sender_id === message.author.id);
-    for (const entry of personalEntries) {
+    let entries = trackingEntries.filter((_) => _.channel_id === message.channel.id);
+    if (itemId && itemData && itemData.itemData && itemData.itemData.name.en) {
+      reply = `All entries for ${itemFormat(itemData.itemData.name.en)} cleared from this channel, ${message.sender}.`;
+      entries = entries.filter((_) => _.item_id === itemId);
+    }
+
+    for (const entry of entries) {
       await entry.destroy();
     }
   }
-  await message.reply(`Your tracking list is now empty, ${message.sender}.`);
+  await message.reply(reply);
   logCommand(`track-clear`, message, undefined, undefined);
 }
 
