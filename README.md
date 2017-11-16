@@ -92,6 +92,7 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [x] /id command to get item IDs (reverse too?)
 - [x] Replace Sequelize by TypeORM for Tracking entries
 - [ ] Replace Sequelize by TypeORM for Log entries
+- [ ] Make a place for command information, the /info command is too full
 
 ## Developer information
 Want to contribute? Awesome!
