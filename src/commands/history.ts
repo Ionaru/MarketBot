@@ -6,7 +6,7 @@ import { fetchHistoryData } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
 import { createLineGraph, exportGraphImage } from '../helpers/graph';
-import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { regionList } from '../regions';
@@ -44,16 +44,12 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
 
-  if (!itemData || !itemData.name.en) {
-    reply += `I don't know what you mean with "${messageData.item}" 😟`;
+  reply += getGuessHint({itemData, guess, id}, messageData.item);
+
+  if (!itemData) {
     return {reply, itemData: undefined, regionName};
-  }
-
-  if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
-    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;

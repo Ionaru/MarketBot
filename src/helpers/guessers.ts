@@ -3,6 +3,7 @@ import { regionList } from '../regions';
 import { ISDEObject } from '../typings';
 import { sortArrayByObjectSubPropertyLength } from './arrays';
 import { fuse, items } from './items-loader';
+import { itemFormat, newLine } from './message-formatter';
 
 interface IShortcuts {
   [shortcut: string]: string;
@@ -27,6 +28,7 @@ export const shortcuts: IShortcuts = {
 export interface IGuessReturn {
   itemData: ISDEObject;
   guess: boolean;
+  id: boolean;
 }
 
 export function guessUserItemInput(itemString: string): IGuessReturn {
@@ -39,6 +41,15 @@ export function guessUserItemInput(itemString: string): IGuessReturn {
   const possibilities: ISDEObject[] = [];
 
   const itemWords = itemString.split(' ');
+
+  // Check if the item is an ID
+  const possibleId = Number(itemWords[0]);
+  if (!isNaN(possibleId)) {
+    possibilities.push(...items.filter((_): boolean | void => _.itemID === possibleId));
+    if (possibilities.length) {
+      return {itemData: possibilities[0], guess: false, id: true};
+    }
+  }
 
   // Check if word is defined as a shortcut.
   regex = new RegExp(`^${itemWords[0]}`, 'i');
@@ -87,7 +98,25 @@ export function guessUserItemInput(itemString: string): IGuessReturn {
   // Sort by word length and select first itemData, shortest is usually the correct one.
   itemData = sortArrayByObjectSubPropertyLength(possibilities, 'name', 'en')[0];
 
-  return {itemData, guess};
+  return {itemData, guess, id: false};
+}
+
+export function getGuessHint(guessReturn: IGuessReturn, userInput: string): string {
+  let returnString = '';
+
+  if (!guessReturn.itemData) {
+    returnString += `I don't know what you mean with "${userInput}" 😟`;
+  } else if (guessReturn.guess) {
+    returnString += `"${userInput}" didn't directly match any item I know of, `;
+    returnString += `my best guess is ${itemFormat(guessReturn.itemData.name.en as string)}.`;
+    returnString += newLine(2);
+  } else if (guessReturn.id) {
+    returnString += `"${itemFormat(userInput)}" looks like an item ID, `;
+    returnString += `it's the ID for ${itemFormat(guessReturn.itemData.name.en as string)}.`;
+    returnString += newLine(2);
+  }
+
+  return returnString;
 }
 
 export function guessUserRegionInput(regionString: string): number | void {

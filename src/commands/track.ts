@@ -6,7 +6,7 @@ import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { items } from '../helpers/items-loader';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
@@ -106,16 +106,12 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
 
-  if (!itemData || !itemData.name.en) {
-    reply += `I don't know what you mean with "${messageData.item}" 😟`;
+  reply += getGuessHint({itemData, guess, id}, messageData.item);
+
+  if (!itemData) {
     return {reply, itemData: undefined, regionName};
-  }
-
-  if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en)}`;
-    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;
@@ -150,19 +146,19 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type && _.channel_id === message.channel.id)
   );
   if (channelItemDup.length !== 0) {
-    reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name.en)} in this channel.`;
+    reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name.en as string)} in this channel.`;
     return {reply, itemData, regionName};
   }
 
   const originalOrder = await getCheapestOrder(type, itemData.itemID, regionId);
   if (!originalOrder) {
-    reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}.`;
+    reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
   }
 
   const originalPrice = originalOrder.price;
 
-  reply += `Started ${makeBold(type)} price tracking for ${itemFormat(itemData.name.en)} in ${regionFormat(regionName)}, ` +
+  reply += `Started ${makeBold(type)} price tracking for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}, ` +
     `I'll warn you when the ${makeBold(type)} price changes ${makeCode(formatNumber(changeLimit) + ' ISK')}. ` +
     ` Right now the price is ${makeCode(formatNumber(originalPrice) + ' ISK')}`;
   reply += newLine(2);

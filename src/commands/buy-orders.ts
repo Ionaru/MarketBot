@@ -4,7 +4,7 @@ import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { citadels } from '../market-bot';
@@ -43,16 +43,12 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+
+  reply += getGuessHint({itemData, guess, id}, messageData.item);
 
   if (!itemData) {
-    reply += `I don't know what you mean with "${messageData.item}" 😟`;
     return {reply, itemData: undefined, regionName};
-  }
-
-  if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en as string)}`;
-    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;

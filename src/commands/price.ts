@@ -2,7 +2,7 @@ import { Message } from '../chat-service/discord/message';
 import { fetchPriceData } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { regionList } from '../regions';
@@ -24,16 +24,12 @@ export async function priceFunction(message: Message) {
     return replyPlaceholder.edit(reply);
   }
 
-  const {itemData, guess}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+
+  reply += getGuessHint({itemData, guess, id}, messageData.item);
 
   if (!itemData) {
-    reply += `I don't know what you mean with "${messageData.item}" 😟`;
     return {reply, itemData: undefined, regionName};
-  }
-
-  if (guess) {
-    reply += `"${messageData.item}" didn't directly match any item I know of, my best guess is ${itemFormat(itemData.name.en as string)}`;
-    reply += newLine(2);
   }
 
   let regionId: number | void = 10000002;
