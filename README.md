@@ -89,7 +89,8 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [x] Price tracking in public channels
 - [x] Remove specific tracking entries from price tracking
 - [ ] /id command to get item ids (reverse too?)
-- [ ] Replace Sequelize by TypeORM
+- [x] Replace Sequelize by TypeORM for Tracking entries
+- [ ] Replace Sequelize by TypeORM for Log entries
 
 ## Developer information
 Want to contribute? Awesome!

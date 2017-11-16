@@ -6,7 +6,7 @@ import { ILogEntryInstance, logCommand, logEntry } from '../helpers/command-logg
 import { pluralize } from '../helpers/formatters';
 import { itemFormat, makeBold, makeCode, newLine } from '../helpers/message-formatter';
 import { client, commandPrefix } from '../market-bot';
-import { trackingEntry } from './track';
+import { TrackingEntry } from './track';
 
 export async function dataFunction(message: Message) {
 
@@ -28,8 +28,10 @@ export async function dataFunction(message: Message) {
   const serverCount: number = await logEntry.aggregate('guild_id', 'count', {distinct: true});
   const channelCount: number = await logEntry.aggregate('channel_id', 'count', {distinct: true});
 
-  const trackingCount: number = await trackingEntry.aggregate('id', 'count');
-  const trackingUsers: number = await trackingEntry.aggregate('sender_id', 'count', {distinct: true});
+  const trackingCount = await TrackingEntry.count();
+  const trackingUsersResult = await TrackingEntry.getRepository().createQueryBuilder('tracking_entry')
+    .select('COUNT(DISTINCT(`sender_id`))', 'count').getRawOne() as {count: number};
+  const trackingUsers = trackingUsersResult.count;
 
   let reply = '';
 

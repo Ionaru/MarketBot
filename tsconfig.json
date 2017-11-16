@@ -3,6 +3,8 @@
     "baseUrl": "",
     "declaration": false,
     "strict": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
