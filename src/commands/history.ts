@@ -110,9 +110,9 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
     };
   });
 
-  const fileName = `data/${last20days[0].date}_${itemData.itemID}.png`;
+  const fileName = `data/${last20days[0].date}_${itemData.itemID}_${regionId}.png`;
   if (!fs.existsSync(fileName)) {
-    const graph = createLineGraph(data, `Price history for ${itemData.name.en}`);
+    const graph = createLineGraph(data, `Price history for ${itemData.name.en} in ${regionName}`);
     await exportGraphImage(graph, fileName);
   }
   return {reply, itemData, regionName, fileName};
