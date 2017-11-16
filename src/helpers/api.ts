@@ -1,7 +1,7 @@
 import 'isomorphic-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { ICitadelData, IHistoryData, IMarketData, INamesData } from '../typings';
+import { ICategory, ICitadelData, IGroup, IHistoryData, IMarketData, IMarketGroup, INamesData } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
 const ccpHost = 'https://esi.tech.ccp.is/';
@@ -129,22 +129,37 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[] | undefined> {
-  const path = `v1/markets/${regionId}/history/?type_id=${itemId}`;
+  return fetchESIData(`v1/markets/${regionId}/history/?type_id=${itemId}`) as Promise<IHistoryData[] | undefined>;
+}
+
+export async function fetchGroup(groupId: number): Promise<IGroup | undefined> {
+  return fetchESIData(`v1/universe/groups/${groupId}`) as Promise<IGroup | undefined>;
+}
+
+export async function fetchMarketGroup(groupId: number): Promise<IMarketGroup | undefined> {
+  return fetchESIData(`v1/markets/groups/${groupId}`) as Promise<IMarketGroup | undefined>;
+}
+
+export async function fetchCategory(categoryId: number): Promise<ICategory | undefined> {
+  return fetchESIData(`v1/universe/categories/${categoryId}`) as Promise<ICategory | undefined>;
+}
+
+async function fetchESIData(path: string): Promise<object | undefined> {
   const url = ccpHost + path;
 
   logger.debug(url);
-  const historyResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const groupResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
-  if (historyResponse) {
-    if (historyResponse.ok) {
-      return historyResponse.json().catch((error) => {
+  if (groupResponse) {
+    if (groupResponse.ok) {
+      return groupResponse.json().catch((error) => {
         logger.error('Unable to parse JSON:', error);
         return undefined;
       });
     } else {
-      logger.error('Request not OK:', url, historyResponse);
+      logger.error('Request not OK:', url, groupResponse);
     }
   }
   return undefined;

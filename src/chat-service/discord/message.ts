@@ -103,7 +103,7 @@ export class Message {
     logger.error(`Caught error @ ${time}` + newLine(), caughtError);
     logger.error(`Original message:`, this.content);
     this.reply(
-      `I'm sorry, it appears I have developed a fault, please let` +
+      `I'm sorry, it appears I have developed a fault, please let ` +
       `${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.` +
       newLine(2) +
       `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`

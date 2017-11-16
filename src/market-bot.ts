@@ -6,6 +6,7 @@ import { buyOrdersCommand } from './commands/buy-orders';
 import { dataFunction } from './commands/data';
 import { historyFunction } from './commands/history';
 import { infoFunction } from './commands/info';
+import { itemCommand } from './commands/item';
 import { priceFunction } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTracking, initTracking, performTrackingCycle, startTrackingCycle, trackCommand } from './commands/track';
@@ -49,6 +50,9 @@ export const infoCommands = [
 export const regionCommands = [
   'region', 'r'
 ];
+export const itemCommands = [
+  'item', 'id'
+];
 export const limitCommands = [
   'limit', 'l', 'max'
 ];
@@ -63,6 +67,7 @@ export const clearTrackingCommands = [
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
+export const itemCommandRegex = createCommandRegex(itemCommands, true);
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const dataCommandRegex = createCommandRegex(dataCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
@@ -153,6 +158,9 @@ async function processMessage(message: Message): Promise<void> {
   switch (true) {
     case dataCommandRegex.test(message.content):
       await dataFunction(message);
+      break;
+    case itemCommandRegex.test(message.content):
+      await itemCommand(message);
       break;
     case sellOrdersCommandRegex.test(message.content):
       await sellOrdersCommand(message);

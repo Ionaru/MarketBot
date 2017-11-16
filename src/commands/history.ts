@@ -28,7 +28,8 @@ export async function historyFunction(message: Message) {
 
   const {reply, itemData, regionName, fileName} = await historyCommandLogic(messageData);
 
-  await replyPlaceHolder.reply(reply, fileName ? {files: [fileName]} : undefined);
+  const replyOptions = fileName ? {files: [fileName]} : undefined;
+  await replyPlaceHolder.reply(reply, replyOptions);
   replyPlaceHolder.remove().then();
 
   logCommand('history', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));

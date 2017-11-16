@@ -70,6 +70,29 @@ export interface IHistoryData {
   lowest: number;
 }
 
+export interface IGroup {
+  group_id: number;
+  name: string;
+  published: boolean;
+  category_id: number;
+  types: number[];
+}
+
+export interface IMarketGroup {
+  market_group_id: number;
+  name: string;
+  description: boolean;
+  types: number[];
+  parent_group_id?: number;
+}
+
+export interface ICategory {
+  category_id: number;
+  name: string;
+  published: boolean;
+  types: number[];
+}
+
 export interface IPriceData {
   forQuery: {
     bid: boolean;
