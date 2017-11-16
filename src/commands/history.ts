@@ -73,12 +73,12 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
   }
 
   if (!historyData.length) {
-    reply = `I couldn't find any price history for ${itemFormat(itemData.name.en)}`;
+    reply = `I couldn't find any price history for ${itemFormat(itemData.name.en as string)}`;
     return {reply, itemData, regionName};
   }
 
   const last20days = historyData.slice(-20).reverse();
-  reply += `Price history for ${itemFormat(itemData.name.en)} from the last 20 days, newest to oldest:`;
+  reply += `Price history for ${itemFormat(itemData.name.en as string)} from the last 20 days, newest to oldest:`;
   reply += newLine();
 
   let historyText = '```';

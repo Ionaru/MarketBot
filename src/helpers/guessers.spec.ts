@@ -36,12 +36,23 @@ describe('Guess user item input', function(this: any) {
     });
 
     const itemName = 'Mackinaw';
+    const itemId = 22548;
 
     it('should correctly return a correctly spelled item', () => {
       const result = guessUserItemInput(itemName);
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
       assert.isFalse(result.guess);
+      assert.isFalse(result.id);
+      sAssert.notCalled(fuseSearchFunction);
+    });
+
+    it('should correctly return the correct item from an ID', () => {
+      const result = guessUserItemInput(itemId.toString());
+      assert.isObject(result);
+      assert.equal(result.itemData.name.en, itemName);
+      assert.isFalse(result.guess);
+      assert.isTrue(result.id);
       sAssert.notCalled(fuseSearchFunction);
     });
 
@@ -50,6 +61,7 @@ describe('Guess user item input', function(this: any) {
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
       assert.isFalse(result.guess);
+      assert.isFalse(result.id);
       sAssert.notCalled(fuseSearchFunction);
     });
 
@@ -58,6 +70,7 @@ describe('Guess user item input', function(this: any) {
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
       assert.isFalse(result.guess);
+      assert.isFalse(result.id);
       sAssert.notCalled(fuseSearchFunction);
     });
 
@@ -66,6 +79,7 @@ describe('Guess user item input', function(this: any) {
       assert.isObject(result);
       assert.equal(result.itemData.name.en, itemName);
       assert.isFalse(result.guess);
+      assert.isFalse(result.id);
       sAssert.notCalled(fuseSearchFunction);
     });
   });
@@ -97,6 +111,15 @@ describe('Guess user item input', function(this: any) {
       assert.isObject(result);
       assert.isUndefined(result.itemData);
       assert.isTrue(result.guess);
+      sAssert.calledOnce(fuseSearchFunction);
+    });
+
+    it('should attempt to guess an item when given a wrong item ID', () => {
+      const result = guessUserItemInput('123456');
+      assert.isObject(result);
+      assert.isUndefined(result.itemData);
+      assert.isTrue(result.guess);
+      assert.isFalse(result.id);
       sAssert.calledOnce(fuseSearchFunction);
     });
   });
@@ -140,9 +163,16 @@ describe('Guess user region input', function(this: any) {
   describe('guessUserRegionInput()', () => {
 
     const regionName = 'Scalding Pass';
+    const regionId = 10000008;
 
     it('should correctly return a correctly spelled region', () => {
       const result = guessUserRegionInput(regionName);
+      assert.isNumber(result);
+      assert.equal(regionList[Number(result)], regionName);
+    });
+
+    it('should correctly return a region by its ID', () => {
+      const result = guessUserRegionInput(regionId.toString());
       assert.isNumber(result);
       assert.equal(regionList[Number(result)], regionName);
     });
@@ -161,6 +191,11 @@ describe('Guess user region input', function(this: any) {
 
     it('should return nothing when given a horribly misspelled region', () => {
       const result = guessUserRegionInput('/////////');
+      assert.isUndefined(result);
+    });
+
+    it('should return nothing when given a wrong ID', () => {
+      const result = guessUserRegionInput('123456');
       assert.isUndefined(result);
     });
   });

@@ -121,7 +121,7 @@ export function getGuessHint(guessReturn: IGuessReturn, userInput: string): stri
 
 export function guessUserRegionInput(regionString: string): number | void {
   for (const key in regionList) {
-    if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1) {
+    if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1 || regionString === key) {
       return Number(key);
     }
   }
