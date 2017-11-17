@@ -1,4 +1,4 @@
-###### [Back to homepage](/marketbot)
+##### [Back to homepage](/MarketBot)
 
 #### Commands for MarketBot
 * `/price <item-name> /region <region-name>` - Fetch the lowest and average prices for an item, both buy and sell orders.
