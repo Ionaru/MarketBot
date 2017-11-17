@@ -90,9 +90,14 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [x] Remove specific tracking entries from price tracking
 - [x] Support item IDs in commands
 - [x] /id command to get item IDs (reverse too?)
-- [x] Replace Sequelize by TypeORM for Tracking entries
-- [ ] Replace Sequelize by TypeORM for Log entries
+- [x] Replace Sequelize with TypeORM for Tracking entries
+- [ ] Replace Sequelize with TypeORM for Log entries
 - [ ] Make a place for command information, the /info command is too full
+- [ ] % difference between lowest sell order and highest buy order
+- [ ] Show volume in price history
+- [ ] Show deviation between low and high in price history
+- [ ] Darker graphs to better match Discord colors
+- [ ] More information in price command output (low/high)
 
 ## Developer information
 Want to contribute? Awesome!
