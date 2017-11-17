@@ -13,12 +13,13 @@ It uses a combination of data from [EVE-Central](https://eve-central.com/home/de
 
 #### Commands this bot will respond to
 * `/price <item-name> /region <region-name>` - Fetch the lowest and average prices for an item, both buy and sell orders.
+* `/item <item-name>` - Show information about an item.
+* `/history <item-name> /region <region-name>` - Show history information and a graph showing the average price in the last 20 days.
 * `/sell <item-name> /region <region-name> /limit <limit-number>` - Fetch the cheapest market sell orders for an item.
-* `/buy <item-name> /region <region-name> /limit <limit-number>` - Fetch the highest market buy orders for an item.
 * `/data /limit <limit-number>` - Show a list of the top searched items.
 * `/info` - Print a message with usage information
 
-*`/region` and `/limit` are always optional.*
+See more commands on the [commands page](commands).
 
 #### Aliases for the above commands
 * `/price` `/p` `/value`
