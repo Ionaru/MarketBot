@@ -1,8 +1,36 @@
-##### [Back to homepage](/MarketBot)
+##### [MarketBot](/MarketBot) / [commands](/MarketBot/commands)
 
-#### Commands for MarketBot
-* `/price <item-name> /region <region-name>` - Fetch the lowest and average prices for an item, both buy and sell orders.
-* `/item <item-name>` - Show information about an item.
+##### Syntax information
+`<` and `>` mark a required section, the command will not work without this section.
+
+`[` and `]` are optional sections, you can leave those out and the command will use defaults.
+
+`[<` and `>]` mark a required section inside an optional section, this means if you include the optional section then you have to add the required section as well.
+
+`/command-name <required item name> [/optional-modifiers <required modifier options>]`
+
+## Commands for MarketBot
+
+### /price
+[More information](price)
+
+##### Description
+Fetch the lowest and average prices for an item, both buy and sell orders.
+
+##### Syntax
+`/price <item name> [/region <region name>]`
+
+
+### /item
+[More information](item)
+
+##### Description
+Show information about an item. 
+
+##### Syntax
+`/item <item name>`
+
+## Commands for MarketBot (old, slowly converting them all to the above style)
 * `/sell <item-name> /region <region-name> /limit <limit-number>` - Fetch the cheapest market sell orders for an item.
 * `/buy <item-name> /region <region-name> /limit <limit-number>` - Fetch the highest market buy orders for an item.
 * `/history <item-name> /region <region-name>` - Show history information and a graph showing the average price in the last 20 days.

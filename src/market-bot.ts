@@ -51,7 +51,7 @@ export const regionCommands = [
   'region', 'r'
 ];
 export const itemCommands = [
-  'item', 'id'
+  'item', 'id', 'lookup'
 ];
 export const limitCommands = [
   'limit', 'l', 'max'
