@@ -1,4 +1,4 @@
-#### [MarketBot](/MarketBot) > [commands](/MarketBot/commands) > [price](/MarketBot/commands/buy-orders)
+#### [MarketBot](/MarketBot) > [commands](/MarketBot/commands) > [buy-orders](/MarketBot/commands/buy-orders)
 
 ---
 
