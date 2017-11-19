@@ -1,4 +1,6 @@
-##### [MarketBot](/MarketBot) / [commands](/MarketBot/commands) / [item](/MarketBot/commands/item)
+#### [MarketBot](/MarketBot) > [commands](/MarketBot/commands) > [item](/MarketBot/commands/item)
+
+---
 
 ## /item
 ##### Description
@@ -16,7 +18,6 @@ Because all commands support item IDs as input, this command is also great to ge
 
 ##### Examples
 `/item mining laser upgrade II`
-
 `/lookup plex`
 
 ##### Result

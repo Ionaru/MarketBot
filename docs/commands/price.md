@@ -1,4 +1,6 @@
-##### [MarketBot](/MarketBot) / [commands](/MarketBot/commands) / [price](/MarketBot/commands/price)
+#### [MarketBot](/MarketBot) > [commands](/MarketBot/commands) > [price](/MarketBot/commands/price)
+
+---
 
 ## /price
 ##### Description
@@ -16,7 +18,6 @@ The default region is The Forge
 
 ##### Examples
 `/price mackinaw /region domain`
-
 `/value plex`
 
 ##### Result
