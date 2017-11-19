@@ -53,8 +53,17 @@ Show the highest buy orders for an item in a region.
 `/buy-orders <item-name> [/region <region-name>] [/limit <limit-number>]`
 
 
+## /history
+[More information](history)
+
+##### Description
+Show history information and a graph showing the average price in the last 20 days.
+
+##### Syntax
+`/history <item-name> /region <region-name>`
+
+
 # Commands for MarketBot (old, slowly converting them all to the above style)
-* `/history <item-name> /region <region-name>` - Show history information and a graph showing the average price in the last 20 days.
 * `/track-sell-order <item-name> /region <region-name> /limit <limit-number>` - This will enable sell price tracking for an item in a specific region I will notify you of changes in the item price. The limit is minimum the amount of ISK the price needs to change before a notification is sent.
 * `/track-buy-order <item-name> /region <region-name> /limit <limit-number>` - This will enable buy price tracking for an item in a specific region. I will notify you of changes in the item price. The limit is minimum the amount of ISK the price needs to change before a notification is sent.
 * `/track-clear [item-name]` - Clear all price tracking entries in a channel, optionally for a specific item.
