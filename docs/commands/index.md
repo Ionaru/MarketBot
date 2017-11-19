@@ -11,9 +11,9 @@
 
 `/command-name <required item name> [/optional-modifiers <required modifier options>]`
 
-## Commands for MarketBot
+# Commands for MarketBot
 
-### /price
+## /price
 [More information](price)
 
 ##### Description
@@ -23,7 +23,7 @@ Fetch the lowest and average prices for an item, both buy and sell orders.
 `/price <item name> [/region <region name>]`
 
 
-### /item
+## /item
 [More information](item)
 
 ##### Description
@@ -33,7 +33,7 @@ Show information about an item.
 `/item <item name>`
 
 
-### /sell-orders
+## /sell-orders
 [More information](sell-orders)
 
 ##### Description
@@ -43,7 +43,7 @@ Show the cheapest sell orders for an item in a region.
 `/sell-orders <item-name> [/region <region-name>] [/limit <limit-number>]`
 
 
-### /buy-orders
+## /buy-orders
 [More information](buy-orders)
 
 ##### Description
@@ -53,7 +53,7 @@ Show the highest buy orders for an item in a region.
 `/buy-orders <item-name> [/region <region-name>] [/limit <limit-number>]`
 
 
-## Commands for MarketBot (old, slowly converting them all to the above style)
+# Commands for MarketBot (old, slowly converting them all to the above style)
 * `/history <item-name> /region <region-name>` - Show history information and a graph showing the average price in the last 20 days.
 * `/track-sell-order <item-name> /region <region-name> /limit <limit-number>` - This will enable sell price tracking for an item in a specific region I will notify you of changes in the item price. The limit is minimum the amount of ISK the price needs to change before a notification is sent.
 * `/track-buy-order <item-name> /region <region-name> /limit <limit-number>` - This will enable buy price tracking for an item in a specific region. I will notify you of changes in the item price. The limit is minimum the amount of ISK the price needs to change before a notification is sent.
