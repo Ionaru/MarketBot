@@ -36,7 +36,7 @@ export const historyCommands = [
   'history', 'h'
 ];
 export const dataCommands = [
-  'data', 'd'
+  'data', 'd', 'stats'
 ];
 export const sellOrdersCommands = [
   'sell-orders', 'sell', 'so', 's'
