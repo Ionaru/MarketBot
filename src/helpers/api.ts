@@ -7,29 +7,11 @@ import { sortArrayByObjectProperty } from './arrays';
 const ccpHost = 'https://esi.tech.ccp.is/';
 
 export async function fetchPriceData(itemId: number, regionId: number) {
-  const host = 'https://api.eve-central.com/api/';
-  const url = `${host}marketstat/json?typeid=${itemId}&regionlimit=${regionId}`;
-
-  logger.debug(url);
-  const priceResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
-    logger.error('Request failed:', url, errorResponse);
-    return fetchPriceDataBackup(itemId, regionId);
-  });
-  if (priceResponse) {
-    return priceResponse.json().catch((error) => {
-      logger.error('Unable to parse JSON:', error);
-      return fetchPriceDataBackup(itemId, regionId);
-    });
-  }
-}
-
-export async function fetchPriceDataBackup(itemId: number, regionId: number) {
-  logger.warn('Unable to fetch from EVE-Central, using backup: EVEMarketer');
   const host = 'https://api.evemarketer.com/ec/';
   const url = `${host}marketstat/json?typeid=${itemId}&regionlimit=${regionId}`;
 
   logger.debug(url);
-  const priceResponse: Response | undefined = await fetch(url).catch(async (errorResponse) => {
+  const priceResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });

@@ -4,7 +4,7 @@
 
 ## /price
 ##### Description
-The /price command will fetch information from EVE-Central (using EVEMarketer as backup) and show the lowest and average prices for a certain item in a region. Prices for buy and sell orders are seperated.
+The /price command will fetch information from EVEMarketer and show the lowest and average prices for a certain item in a region. Prices for buy and sell orders are seperated.
 
 ##### Note
 The default region is The Forge

@@ -21,7 +21,7 @@ export async function infoFunction(message: Message) {
   reply += `price information.`;
   reply += newLine();
   reply += `The data I use comes from the EVE Swagger Interface and the Static Data Export provided by CCP, as well as `;
-  reply += `the EVE-Central, EVEMarketer and stop.hammerti.me.uk APIs created by some amazing third-party developers.`;
+  reply += `the EVEMarketer and stop.hammerti.me.uk APIs created by some amazing third-party developers.`;
   reply += newLine(2);
   reply += makeBold('Commands');
   reply += newLine();
