@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "countdown": "^2.6.0",
-    "d3": "^4.11.0",
+    "d3": "^4.12.0",
     "d3-node": "^1.1.1",
     "discord.js": "^11.2.1",
     "escape-string-regexp": "^1.0.5",
@@ -35,11 +35,11 @@
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.10.0",
     "puppeteer": "^0.13.0",
-    "sequelize": "^4.22.7",
+    "sequelize": "^4.22.11",
     "sqlite3": "^3.1.13",
-    "typeorm": "^0.1.2",
+    "typeorm": "^0.1.6",
     "typescript": "^2.6.1",
-    "winston-pnp-logger": "^1.0.1"
+    "winston-pnp-logger": "^1.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -49,7 +49,7 @@
     "@types/js-yaml": "^3.10.0",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
-    "@types/puppeteer": "^0.13.0",
+    "@types/puppeteer": "^0.13.2",
     "@types/sequelize": "^4.0.79",
     "@types/sinon": "^4.0.0",
     "@types/sqlite3": "^3.1.1",
