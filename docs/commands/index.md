@@ -83,7 +83,31 @@ Show some gathered statistics from the bot.
 `/data`
 
 
-# Commands for MarketBot (old, slowly converting them all to the above style)
-* `/track-sell-order <item-name> /region <region-name> /limit <limit-number>` - This will enable sell price tracking for an item in a specific region I will notify you of changes in the item price. The limit is minimum the amount of ISK the price needs to change before a notification is sent.
-* `/track-buy-order <item-name> /region <region-name> /limit <limit-number>` - This will enable buy price tracking for an item in a specific region. I will notify you of changes in the item price. The limit is minimum the amount of ISK the price needs to change before a notification is sent.
-* `/track-clear [item-name]` - Clear all price tracking entries in a channel, optionally for a specific item.
+## /track-sell-order
+[More information](track-sell-order)
+
+##### Description
+This will enable sell price tracking for an item in a specific region, you will get notifications of changes in the item price.
+
+##### Syntax
+`/track-sell-order <item-name> [/region <region-name>] [/limit <limit-number>]`
+
+
+## /track-buy-order
+[More information](track-buy-order)
+
+##### Description
+This will enable buy price tracking for an item in a specific region, you will get notifications of changes in the item price.
+
+##### Syntax
+`/track-buy-order <item-name> [/region <region-name>] [/limit <limit-number>]`
+
+
+## /track-clear
+[More information](track-clear)
+
+##### Description
+Clear all price tracking entries in a channel, optionally for a specific item.
+
+##### Syntax
+`/track-clear [item-name]`
