@@ -11,23 +11,8 @@ It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [sto
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
 
-#### Commands this bot will respond to
-* `/price <item-name> /region <region-name>` - Fetch the lowest and average prices for an item, both buy and sell orders.
-* `/sell <item-name> /region <region-name> /limit <limit-number>` - Fetch the cheapest market sell orders for an item.
-* `/buy <item-name> /region <region-name> /limit <limit-number>` - Fetch the highest market buy orders for an item.
-* `/data /limit <limit-number>` - Show a list of the top searched items.
-* `/info` - Print a message with usage information
-
-*`/region` and `/limit` are always optional.*
-
-#### Aliases for the above commands
-* `/price` `/p` `/value`
-* `/sell-orders` `/so` `/sell` `/s`
-* `/buy-orders` `/bo` `/buy` `/b`
-* `/data` `/d`
-* `/info` `/i` `/about` `/help`
-* `/region` `/r`
-* `/limit` `/l`
+#### Bot commands
+[Commands can be found on the MarketBot website](https://ionaru.github.io/MarketBot/commands/)
 
 ## Screenshots
 The bot in action
