@@ -16,12 +16,11 @@ The default region is The Forge and the default limit is 1.00 ISK.
 
 ##### Aliases
 * `/tso`
-* `/track`
 
 ##### Examples
 `/track-sell-order tritanium /region domain /limit 0.01`
 `/tso plex`
-`/track machariel /limit 7`
+`/tso machariel /limit 7`
 `/track-sell-order liquid ozone /region metropolis`
 
 ##### Result

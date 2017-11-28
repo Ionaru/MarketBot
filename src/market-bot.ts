@@ -57,7 +57,7 @@ export const limitCommands = [
   'limit', 'l', 'max'
 ];
 export const sellTrackingCommands = [
-  'track-sell-orders', 'tso', 'track'
+  'track-sell-orders', 'tso'
 ];
 export const buyTrackingCommands = [
   'track-buy-orders', 'tbo'
