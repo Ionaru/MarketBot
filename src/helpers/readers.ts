@@ -14,3 +14,7 @@ export function readToken(filePath: string): string {
   logger.info(`Reading token from '${path.join(process.cwd(), filePath)}'`);
   return fs.readFileSync(filePath).toString().trim();
 }
+
+export function readPackageVersion(): string {
+  return JSON.parse(fs.readFileSync('package.json').toString().trim()).version;
+}

@@ -13,11 +13,12 @@ import { clearTracking, initTracking, performTrackingCycle, startTrackingCycle, 
 import { fetchCitadelData } from './helpers/api';
 import { startLogger } from './helpers/command-logger';
 import { loadItems } from './helpers/items-loader';
-import { readToken, readTypeIDs } from './helpers/readers';
+import { readPackageVersion, readToken, readTypeIDs } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
 import { ICitadelData } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
+export let version: string;
 export const botName = 'MarketBot';
 
 export let client: Client | undefined;
@@ -81,6 +82,11 @@ export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
   logger.info('Starting bot activation');
+
+  version = readPackageVersion();
+
+  logger.info(`Bot version: ${version}`);
+
   loadItems(readTypeIDs(typeIDsPath));
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
@@ -90,7 +96,7 @@ export async function activate() {
     return {};
   });
 
-  // Schedule a refresh of the citadel list every 6 hours
+  // Schedule a refresh of the citadel list every 6 hours.
   setInterval(async () => {
     const newCitadels = await fetchCitadelData().catch(() => {
       return {};

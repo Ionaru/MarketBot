@@ -12,7 +12,7 @@ new WinstonPnPLogger({
   logDir: 'logs'
 });
 
-logger.debug('Running NodeJS ' + process.version);
+logger.info(`NodeJS version ${process.version}`);
 
 activate().then();
 

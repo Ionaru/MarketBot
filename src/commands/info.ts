@@ -1,7 +1,7 @@
 import { Message } from '../chat-service/discord/message';
 import { logCommand } from '../helpers/command-logger';
-import { makeBold, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
-import { botName, client, creator } from '../market-bot';
+import { makeBold, makeCode, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import { botName, client, creator, version } from '../market-bot';
 
 export async function infoFunction(message: Message) {
 
@@ -33,6 +33,10 @@ export async function infoFunction(message: Message) {
   reply += newLine();
   reply += `You can find information like source code, command aliases, self-hosting, logging and new features on `;
   reply += makeURL('https://ionaru.github.io/MarketBot/');
+  reply += newLine(2);
+  reply += makeBold('Version');
+  reply += newLine();
+  reply += `My current version is ${makeCode(version)}.`;
 
   await message.reply(reply);
   logCommand('info', message);
