@@ -15,7 +15,7 @@ import { clearTracking, performTrackingCycle, startTrackingCycle, trackCommand, 
 import { fetchCitadelData } from './helpers/api';
 import { LogEntry } from './helpers/command-logger';
 import { loadItems } from './helpers/items-loader';
-import { readPackageVersion, readToken, readTypeIDs } from './helpers/readers';
+import { readToken, readTypeIDs, readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
 import { ICitadelData } from './typings';
 
@@ -85,7 +85,7 @@ export const limitCommandRegex = createCommandRegex(limitCommands);
 export async function activate() {
   logger.info('Starting bot activation');
 
-  version = readPackageVersion();
+  version = readVersion();
 
   logger.info(`Bot version: ${version}`);
 

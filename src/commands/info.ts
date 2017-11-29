@@ -1,6 +1,6 @@
 import { Message } from '../chat-service/discord/message';
 import { logCommand } from '../helpers/command-logger';
-import { makeBold, makeCode, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import { makeBold, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 import { botName, client, creator, version } from '../market-bot';
 
 export async function infoFunction(message: Message) {
@@ -36,7 +36,8 @@ export async function infoFunction(message: Message) {
   reply += newLine(2);
   reply += makeBold('Version');
   reply += newLine();
-  reply += `My current version is ${makeCode(version)}.`;
+
+  reply += `My current version is ${version}.`;
 
   await message.reply(reply);
   logCommand('info', message);

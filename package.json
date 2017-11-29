@@ -32,6 +32,7 @@
     "discord.js": "^11.2.1",
     "escape-string-regexp": "^1.0.5",
     "fuse.js": "^3.2.0",
+    "git-rev-sync": "^1.9.1",
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.10.0",
     "puppeteer": "^0.13.0",
