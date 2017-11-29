@@ -1,68 +1,54 @@
-import SequelizeStatic = require('sequelize');
-import Instance = SequelizeStatic.Instance;
-import { Database } from 'sqlite3';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
 import { parseMessage } from './parsers';
 
-export let logEntry: any;
+// tslint:disable:variable-name
+@Entity('LogEntries')
+export class LogEntry extends BaseEntity {
 
-export interface ILogEntryAttr {
-  guild_id?: string;
-  guild_name?: string;
-  channel_id?: string;
-  channel_name?: string;
-  channel_type: string;
-  sender_name: string;
-  sender_id: string;
-  item_input?: string;
-  item_output?: string;
-  region_input?: string;
-  region_output?: string;
-  command_type?: string;
-  command_full?: string;
-}
+  @PrimaryGeneratedColumn()
+  public id: number;
 
-/* tslint:disable:no-empty-interface */
-export interface ILogEntryInstance extends Instance<ILogEntryAttr>, ILogEntryAttr {}
+  @Column({nullable: true})
+  public guild_id?: string;
 
-/* tslint:enable:no-unused-variable */
+  @Column({nullable: true})
+  public guild_name?: string;
 
-export async function startLogger(): Promise<void> {
-  new Database('botlog.db').close();
+  @Column({nullable: true})
+  public channel_id?: string;
 
-  // noinspection JSUnusedGlobalSymbols
-  const sequelizeDatabase = new SequelizeStatic('sqlite://botlog.db', {
-    dialect: 'sqlite',
-    logging: (str: string) => {
-      logger.debug(str);
-    }
-  });
+  @Column({nullable: true})
+  public channel_name?: string;
 
-  sequelizeDatabase
-    .authenticate()
-    .then(() => {
-      logger.info('Connection to logging database has been established successfully');
-    }, (err) => {
-      logger.error('Unable to connect to the database:', err);
-    });
+  @Column()
+  public channel_type: string;
 
-  logEntry = await sequelizeDatabase.define('LogEntry', {
-    channel_id: SequelizeStatic.STRING,
-    channel_name: SequelizeStatic.STRING,
-    channel_type: SequelizeStatic.STRING,
-    command_full: SequelizeStatic.TEXT,
-    command_type: SequelizeStatic.STRING,
-    guild_id: SequelizeStatic.STRING,
-    guild_name: SequelizeStatic.STRING,
-    item_input: SequelizeStatic.STRING,
-    item_output: SequelizeStatic.STRING,
-    region_input: SequelizeStatic.STRING,
-    region_output: SequelizeStatic.STRING,
-    sender_id: SequelizeStatic.STRING,
-    sender_name: SequelizeStatic.STRING
-  }).sync();
+  @Column()
+  public sender_name: string;
+
+  @Column()
+  public sender_id: string;
+
+  @Column({nullable: true})
+  public item_input?: string;
+
+  @Column({nullable: true})
+  public item_output?: string;
+
+  @Column({nullable: true})
+  public region_input?: string;
+
+  @Column({nullable: true})
+  public region_output?: string;
+
+  @Column()
+  public command_type: string;
+
+  @Column({type: 'text'})
+  public command_full: string;
 }
 
 export function logCommand(commandType: string, discordMessage: Message, outputItem?: string, outputRegion?: string) {
@@ -70,21 +56,19 @@ export function logCommand(commandType: string, discordMessage: Message, outputI
 
   const parsedMessage = parseMessage(discordMessage.content);
 
-  const logData: ILogEntryAttr = {
-    channel_id: discordMessage.channel.id,
-    channel_name: discordMessage.channel.name,
-    channel_type: discordMessage.channel.type,
-    command_full: discordMessage.content,
-    command_type: commandType,
-    guild_id: discordMessage.server.id,
-    guild_name: discordMessage.server.name,
-    item_input: parsedMessage.item,
-    item_output: outputItem,
-    region_input: parsedMessage.region,
-    region_output: outputRegion,
-    sender_id: discordMessage.author.id,
-    sender_name: discordMessage.author.name
-  };
-
-  logEntry.create(logData).then();
+  const newLogEntry = new LogEntry();
+  newLogEntry.channel_id = discordMessage.channel.id;
+  newLogEntry.channel_name = discordMessage.channel.name;
+  newLogEntry.channel_type = discordMessage.channel.type;
+  newLogEntry.command_full = discordMessage.content;
+  newLogEntry.command_type = commandType;
+  newLogEntry.guild_id = discordMessage.server.id;
+  newLogEntry.guild_name = discordMessage.server.name;
+  newLogEntry.item_input = parsedMessage.item;
+  newLogEntry.item_output = outputItem;
+  newLogEntry.region_input = parsedMessage.region;
+  newLogEntry.region_output = outputRegion;
+  newLogEntry.sender_id = discordMessage.author.id;
+  newLogEntry.sender_name = discordMessage.author.name;
+  newLogEntry.save().then();
 }

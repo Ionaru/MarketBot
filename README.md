@@ -76,7 +76,7 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [x] Support item IDs in commands
 - [x] /id command to get item IDs (reverse too?)
 - [x] Replace Sequelize with TypeORM for Tracking entries
-- [ ] Replace Sequelize with TypeORM for Log entries
+- [x] Replace Sequelize with TypeORM for Log entries
 - [x] Make a place for command information, the /info command is too full
 - [ ] % difference between lowest sell order and highest buy order
 - [ ] Show volume in price history

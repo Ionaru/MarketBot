@@ -1,5 +1,5 @@
 import Timer = NodeJS.Timer;
-import { BaseEntity, Column, createConnection, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
@@ -21,19 +21,19 @@ export class TrackingEntry extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({type: 'integer'})
+  @Column()
   public item_id: number;
 
   // noinspection TsLint
-  @Column({type: 'varchar'})
+  @Column()
   public channel_id: string;
 
   // noinspection TsLint
-  @Column({type: 'varchar'})
+  @Column()
   public sender_id: string;
 
   // noinspection TsLint
-  @Column({type: 'integer'})
+  @Column()
   public region_id: number;
 
   // noinspection TsLint
@@ -45,7 +45,7 @@ export class TrackingEntry extends BaseEntity {
   public tracking_price: number;
 
   // noinspection TsLint
-  @Column({type: 'varchar'})
+  @Column()
   public tracking_type: 'buy' | 'sell';
 }
 // tslint:enable:variable-name
@@ -56,17 +56,6 @@ interface ITrackCommandLogicReturn {
   reply: string;
   itemData: ISDEObject | undefined;
   regionName: string | undefined;
-}
-
-export async function initTracking() {
-  await createConnection({
-    database: 'tracking.db',
-    entities: [
-      TrackingEntry
-    ],
-    synchronize: true,
-    type: 'sqlite'
-  });
 }
 
 export function startTrackingCycle() {

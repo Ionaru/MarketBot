@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
 import { Client } from './chat-service/discord/client';
@@ -9,9 +11,9 @@ import { infoFunction } from './commands/info';
 import { itemCommand } from './commands/item';
 import { priceFunction } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
-import { clearTracking, initTracking, performTrackingCycle, startTrackingCycle, trackCommand } from './commands/track';
+import { clearTracking, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { fetchCitadelData } from './helpers/api';
-import { startLogger } from './helpers/command-logger';
+import { LogEntry } from './helpers/command-logger';
 import { loadItems } from './helpers/items-loader';
 import { readPackageVersion, readToken, readTypeIDs } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
@@ -109,9 +111,16 @@ export async function activate() {
 
   logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
 
-  await startLogger();
+  await createConnection({
+    database: 'botlog.db',
+    entities: [
+      LogEntry, TrackingEntry
+    ],
+    synchronize: true,
+    type: 'sqlite'
+  });
 
-  await initTracking();
+  logger.info(`Database connection created`);
 
   client = new Client(readToken(tokenPath));
 
