@@ -3,6 +3,7 @@ import { IParsedMessage, ISDEObject, ITypeIDs } from '../typings';
 
 export function parseMessage(message: string): IParsedMessage {
   const parsedMessage: IParsedMessage = {
+    content: message,
     item: '',
     limit: 0,
     region: ''

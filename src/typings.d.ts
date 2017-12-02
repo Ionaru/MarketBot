@@ -116,6 +116,7 @@ export interface IPriceData {
 }
 
 export interface IParsedMessage {
+  content: string;
   item: string;
   region: string;
   limit: number;

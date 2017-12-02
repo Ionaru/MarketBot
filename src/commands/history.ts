@@ -113,7 +113,14 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
   const fileName = `data/${last20days[0].date}_${itemData.itemID}_${regionId}.png`;
   if (!fs.existsSync(fileName)) {
     const graph = createLineGraph(data, `Price history for ${itemData.name.en} in ${regionName}`);
-    await exportGraphImage(graph, fileName);
+    try {
+      await exportGraphImage(graph, fileName);
+    } catch (error) {
+      reply += newLine();
+      const errorText = 'I was unable to make a graph, hopefully the data above is useful to you';
+      reply += Message.processError(error, messageData.content, errorText);
+      return {reply, itemData, regionName};
+    }
   }
   return {reply, itemData, regionName, fileName};
 }

@@ -7,6 +7,18 @@ import { maxMessageLength } from './misc';
 
 export class Message {
 
+  public static processError(caughtError: Error, command: string, errorText = `I'm sorry, it appears I have developed a fault`) {
+    const time = Date.now();
+    logger.error(`Caught error @ ${time}` + newLine(), caughtError);
+    logger.error(`Error triggered by command:`, command);
+    let text = `${errorText}.`;
+    text += newLine();
+    text += `Please let ${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
+    text += newLine(2);
+    text += `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`;
+    return text;
+  }
+
   private _message: Discord.Message;
   private _origin: string;
   private _sender: string;
@@ -99,15 +111,8 @@ export class Message {
   }
 
   public async sendError(caughtError: Error) {
-    const time = Date.now();
-    logger.error(`Caught error @ ${time}` + newLine(), caughtError);
-    logger.error(`Original message:`, this.content);
-    this.reply(
-      `I'm sorry, it appears I have developed a fault, please let ` +
-      `${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.` +
-      newLine(2) +
-      `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`
-    ).then().catch(async (error: Discord.DiscordAPIError) => {
+    this.reply(Message.processError(caughtError, this.content))
+      .then().catch(async (error: Discord.DiscordAPIError) => {
       logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'`);
       if (error.stack) {
         logger.error(error.stack.toString());
