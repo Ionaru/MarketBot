@@ -170,36 +170,37 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
 }
 
 async function processMessage(message: Message): Promise<void> {
+  const commandPart = message.content.split(' ')[0];
   switch (true) {
-    case dataCommandRegex.test(message.content):
-      await dataFunction(message);
+    case priceCommandRegex.test(commandPart):
+      await priceFunction(message);
       break;
-    case itemCommandRegex.test(message.content):
-      await itemCommand(message);
-      break;
-    case sellOrdersCommandRegex.test(message.content):
+    case sellOrdersCommandRegex.test(commandPart):
       await sellOrdersCommand(message);
       break;
-    case buyOrdersCommandRegex.test(message.content):
-      await buyOrdersCommand(message);
-      break;
-    case infoCommandRegex.test(message.content):
+    case infoCommandRegex.test(commandPart):
       await infoFunction(message);
       break;
-    case sellTrackingCommandRegex.test(message.content):
+    case buyOrdersCommandRegex.test(commandPart):
+      await buyOrdersCommand(message);
+      break;
+    case dataCommandRegex.test(commandPart):
+      await dataFunction(message);
+      break;
+    case sellTrackingCommandRegex.test(commandPart):
       await trackCommand(message, 'sell');
       break;
-    case buyTrackingCommandRegex.test(message.content):
-      await trackCommand(message, 'buy');
+    case itemCommandRegex.test(commandPart):
+      await itemCommand(message);
       break;
-    case clearTrackingCommandRegex.test(message.content):
-      await clearTracking(message);
-      break;
-    case historyCommandRegex.test(message.content):
+    case historyCommandRegex.test(commandPart):
       await historyFunction(message);
       break;
-    case priceCommandRegex.test(message.content):
-      await priceFunction(message);
+    case clearTrackingCommandRegex.test(commandPart):
+      await clearTracking(message);
+      break;
+    case buyTrackingCommandRegex.test(commandPart):
+      await trackCommand(message, 'buy');
       break;
   }
 }
