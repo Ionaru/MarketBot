@@ -126,7 +126,7 @@ export class Client {
   }
 
   private async onDisconnect(event: CloseEvent) {
-    logger.warn('Connection closed');
+    logger.warn('Connection closed unexpectedly');
     logger.warn('Code:', event.code);
     logger.warn('Reason:', event.reason);
     logger.warn('Attempting reconnect...');

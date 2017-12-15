@@ -19,7 +19,7 @@ interface IHistoryCommandLogicReturn {
   fileName?: string;
 }
 
-export async function historyFunction(message: Message) {
+export async function historyCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
   const replyPlaceHolder = await message.reply(
@@ -32,10 +32,10 @@ export async function historyFunction(message: Message) {
   await replyPlaceHolder.reply(reply, replyOptions);
   replyPlaceHolder.remove().then();
 
-  logCommand('history', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  logCommand('history', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined), transaction);
 }
 
-export async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistoryCommandLogicReturn> {
+async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistoryCommandLogicReturn> {
 
   let regionName = '';
   let reply = '';

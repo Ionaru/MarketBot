@@ -2,6 +2,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
+import { config } from './configurator';
 import { parseMessage } from './parsers';
 
 // tslint:disable:variable-name
@@ -51,24 +52,44 @@ export class LogEntry extends BaseEntity {
   public command_full: string;
 }
 
-export function logCommand(commandType: string, discordMessage: Message, outputItem?: string, outputRegion?: string) {
-  logger.debug(discordMessage.content);
+export function logCommand(commandType: string, message: Message, outputItem?: string, outputRegion?: string, transaction?: any) {
+  logger.debug(message.content);
 
-  const parsedMessage = parseMessage(discordMessage.content);
+  const parsedMessage = parseMessage(message.content);
 
   const newLogEntry = new LogEntry();
-  newLogEntry.channel_id = discordMessage.channel.id;
-  newLogEntry.channel_name = discordMessage.channel.name;
-  newLogEntry.channel_type = discordMessage.channel.type;
-  newLogEntry.command_full = discordMessage.content;
+  newLogEntry.channel_id = message.channel.id;
+  newLogEntry.channel_name = message.channel.name;
+  newLogEntry.channel_type = message.channel.type;
+  newLogEntry.command_full = message.content;
   newLogEntry.command_type = commandType;
-  newLogEntry.guild_id = discordMessage.server.id;
-  newLogEntry.guild_name = discordMessage.server.name;
+  newLogEntry.guild_id = message.server.id;
+  newLogEntry.guild_name = message.server.name;
   newLogEntry.item_input = parsedMessage.item;
   newLogEntry.item_output = outputItem;
   newLogEntry.region_input = parsedMessage.region;
   newLogEntry.region_output = outputRegion;
-  newLogEntry.sender_id = discordMessage.author.id;
-  newLogEntry.sender_name = discordMessage.author.name;
-  newLogEntry.save().then();
+  newLogEntry.sender_id = message.author.id;
+  newLogEntry.sender_name = message.author.name;
+
+  if (config.getProperty('elastic.enabled') === true && transaction) {
+    transaction.setTag('channel_id', newLogEntry.channel_id);
+    transaction.setTag('channel_name', newLogEntry.channel_name);
+    transaction.setTag('channel_type', newLogEntry.channel_type);
+    transaction.setTag('command_full', newLogEntry.command_full);
+    transaction.setTag('command_type', newLogEntry.command_type);
+    transaction.setTag('guild_id', newLogEntry.guild_id);
+    transaction.setTag('guild_name', newLogEntry.guild_name);
+    transaction.setTag('item_input', newLogEntry.item_input);
+    transaction.setTag('item_output', newLogEntry.item_output);
+    transaction.setTag('region_input', newLogEntry.region_input);
+    transaction.setTag('region_output', newLogEntry.region_output);
+    transaction.setTag('sender_id', newLogEntry.sender_id);
+    transaction.setTag('sender_name', newLogEntry.sender_name);
+    transaction.end();
+  }
+
+  if (config.getProperty('logging.enabled') === true) {
+    newLogEntry.save().then();
+  }
 }

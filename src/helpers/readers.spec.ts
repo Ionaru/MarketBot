@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { SinonStub, stub } from 'sinon';
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
-import { readToken, readTypeIDs } from './readers';
+import { readTypeIDs } from './readers';
 
 describe('Read files', function(this: any) {
 
@@ -35,18 +35,6 @@ describe('Read files', function(this: any) {
       const fileContents: any = readTypeIDs(testFile);
       assert.isObject(expectedContents);
       assert.deepEqual(fileContents, expectedContents);
-    });
-  });
-
-  describe('readToken()', function(this: any) {
-    const testFile = 'config/token_test.txt';
-
-    it('Should read a token from a file', () => {
-      const expectedContents: any = 'abc1234567890def';
-
-      const fileContents: any = readToken(testFile);
-      assert.isString(expectedContents);
-      assert.equal(fileContents, expectedContents);
     });
   });
 });

@@ -71,7 +71,7 @@ export function stopTrackingCycle() {
   }
 }
 
-export async function trackCommand(message: Message, type: 'buy' | 'sell'): Promise<void> {
+export async function trackCommand(message: Message, type: 'buy' | 'sell', transaction: any): Promise<void> {
   const replyPlaceHolder = await message.reply(
     `Setting up for price tracking, one moment, ${message.sender}...`
   );
@@ -79,7 +79,7 @@ export async function trackCommand(message: Message, type: 'buy' | 'sell'): Prom
   const {reply, itemData, regionName} = await trackCommandLogic(message, type);
 
   await replyPlaceHolder.edit(reply);
-  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined), transaction);
 }
 
 async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> {
@@ -168,7 +168,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   return {reply, itemData, regionName};
 }
 
-export async function clearTracking(message: Message): Promise<void> {
+export async function clearTrackingCommand(message: Message, transaction: any): Promise<void> {
   let reply = `All entries cleared from this channel, ${message.sender}.`;
 
   const messageData = parseMessage(message.content);
@@ -194,7 +194,7 @@ export async function clearTracking(message: Message): Promise<void> {
     }
   }
   await message.reply(reply);
-  logCommand(`track-clear`, message, undefined, undefined);
+  logCommand(`track-clear`, message, undefined, undefined, transaction);
 }
 
 function droppedRose(amount: number) {

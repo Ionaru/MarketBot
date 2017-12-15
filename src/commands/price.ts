@@ -6,22 +6,36 @@ import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } 
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { regionList } from '../regions';
-import { IPriceData } from '../typings';
+import { IParsedMessage, IPriceData, ISDEObject } from '../typings';
 
-export async function priceFunction(message: Message) {
+interface IPriceCommandLogicReturn {
+  reply: string;
+  itemData: ISDEObject | undefined;
+  regionName: string | undefined;
+}
 
+export async function priceCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
-  const replyPlaceholder = await message.reply(
+  const replyPlaceHolder = await message.reply(
     `Checking price, one moment, ${message.sender}...`
   );
+
+  const {reply, itemData, regionName} = await priceCommandLogic(messageData);
+
+  await replyPlaceHolder.edit(reply);
+
+  logCommand('price', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined), transaction);
+}
+
+async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCommandLogicReturn> {
 
   let reply = '';
   let regionName = '';
 
   if (!(messageData.item && messageData.item.length)) {
     reply = 'You need to give me an item to search for.';
-    return replyPlaceholder.edit(reply);
+    return {reply, itemData: undefined, regionName};
   }
 
   const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
@@ -51,7 +65,7 @@ export async function priceFunction(message: Message) {
 
   if (!(json && json.length)) {
     reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
-    return replyPlaceholder.edit(reply);
+    return {reply, itemData, regionName};
   }
 
   const sellData: IPriceData = json[0].sell;
@@ -73,7 +87,7 @@ export async function priceFunction(message: Message) {
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
     reply += `I couldn't find any price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}, sorry.`;
-    return replyPlaceholder.edit(reply);
+    return {reply, itemData, regionName};
   }
 
   reply += `Price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}:` + newLine(2);
@@ -93,6 +107,5 @@ export async function priceFunction(message: Message) {
     reply += '- Buying price data is unavailable' + newLine();
   }
 
-  await replyPlaceholder.edit(reply);
-  logCommand('price', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  return {reply, itemData, regionName};
 }

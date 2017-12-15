@@ -6,12 +6,12 @@ import { itemFormat, newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { IMarketGroup, IParsedMessage, ISDEObject } from '../typings';
 
-interface ItemCommandLogicReturn {
+interface IItemCommandLogicReturn {
   reply: string;
   itemData: ISDEObject | undefined;
 }
 
-export async function itemCommand(message: Message) {
+export async function itemCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
   messageData.limit = messageData.limit || 5;
@@ -26,10 +26,10 @@ export async function itemCommand(message: Message) {
   await replyPlaceHolder.reply(reply, replyOptions);
   replyPlaceHolder.remove().then();
 
-  logCommand('item', message, (itemData ? itemData.name.en : undefined), undefined);
+  logCommand('item', message, (itemData ? itemData.name.en : undefined), undefined, transaction);
 }
 
-async function itemCommandLogic(messageData: IParsedMessage): Promise<ItemCommandLogicReturn> {
+async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemCommandLogicReturn> {
 
   let reply = '';
 

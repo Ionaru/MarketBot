@@ -12,11 +12,6 @@ export function readTypeIDs(filePath: string): ITypeIDs {
   return jsyaml.load(fs.readFileSync(filePath).toString());
 }
 
-export function readToken(filePath: string): string {
-  logger.info(`Reading token from '${path.join(process.cwd(), filePath)}'`);
-  return fs.readFileSync(filePath).toString().trim();
-}
-
 export function readVersion(): string {
   let version = makeCode('unknown');
   try {

@@ -3,7 +3,7 @@ import { logCommand } from '../helpers/command-logger';
 import { makeBold, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 import { botName, client, creator, version } from '../market-bot';
 
-export async function infoFunction(message: Message) {
+export async function infoCommand(message: Message, transaction: any) {
 
   let reply = makeBold(`Greetings, I am ${botName}!`);
 
@@ -40,5 +40,5 @@ export async function infoFunction(message: Message) {
   reply += `My current version is ${version}.`;
 
   await message.reply(reply);
-  logCommand('info', message);
+  logCommand('info', message, undefined, undefined, transaction);
 }

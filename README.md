@@ -49,35 +49,22 @@ It is possible to self-host this bot, it requires NodeJS 8 or greater.
 1. Go to [https://discordapp.com/developers/applications/me](https://discordapp.com/developers/applications/me).
 2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
 3. Click on "Create a Bot User" and confirm.
-4. Click the link next to "Token" to reveal your bot token, you will need it later.
+4. Click the link next to "Token" to reveal your Discord Bot Token, you will need it later.
 5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot`
 6. Paste the link in your web browser and follow the steps on the Discord website.
 
 #### Step two: Installing the bot
-1. Clone this repository to a directory of your choice.
-2. Install [NodeJS](https://nodejs.org/en/download/current/).
+1. Install [NodeJS](https://nodejs.org/en/download/current/).
+2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
 3. Install dependencies with `npm install`.
-4. Go to the config folder, create a file named `token.txt` and place the Bot Token inside it.
+4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
 5. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
 6. Go back to the main folder and run `npm start`.
 
 Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you need any assistance.
 
 ## To-Do & Ideas
-- [x] Search for best buy orders
-- [x] Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate
-- [x] Shortcuts for commonly used searches (e.g. PLEX)
-- [x] Price tracking
-- [x] /history command for seeing price history
 - [ ] Support for searches in Jita, Amarr & other trade hubs
-- [x] Unlimited price tracking duration
-- [x] Price tracking in public channels
-- [x] Remove specific tracking entries from price tracking
-- [x] Support item IDs in commands
-- [x] /id command to get item IDs (reverse too?)
-- [x] Replace Sequelize with TypeORM for Tracking entries
-- [x] Replace Sequelize with TypeORM for Log entries
-- [x] Make a place for command information, the /info command is too full
 - [ ] % difference between lowest sell order and highest buy order
 - [ ] Show volume in price history
 - [ ] Show deviation between low and high in price history

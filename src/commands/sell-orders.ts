@@ -16,7 +16,7 @@ interface ISellOrdersCommandLogicReturn {
   regionName: string | undefined;
 }
 
-export async function sellOrdersCommand(message: Message) {
+export async function sellOrdersCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
   messageData.limit = messageData.limit || 5;
@@ -29,7 +29,7 @@ export async function sellOrdersCommand(message: Message) {
   const {reply, itemData, regionName} = await sellOrdersCommandLogic(messageData);
 
   await replyPlaceHolder.edit(reply);
-  logCommand('sell-orders', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  logCommand('sell-orders', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined), transaction);
 }
 
 async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> {

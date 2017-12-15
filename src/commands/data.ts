@@ -7,7 +7,7 @@ import { itemFormat, makeBold, makeCode, newLine } from '../helpers/message-form
 import { client, commandPrefix } from '../market-bot';
 import { TrackingEntry } from './track';
 
-export async function dataFunction(message: Message) {
+export async function dataCommand(message: Message, transaction: any) {
 
   const topItemOutput = await LogEntry.createQueryBuilder()
     .select('COUNT(`item_output`)', 'count')
@@ -99,5 +99,5 @@ export async function dataFunction(message: Message) {
   }
 
   await message.reply(reply);
-  logCommand('data', message);
+  logCommand('data', message, undefined, undefined, transaction);
 }

@@ -1,3 +1,4 @@
+import * as elastic from 'elastic-apm-node';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
@@ -5,17 +6,18 @@ import { logger } from 'winston-pnp-logger';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { buyOrdersCommand } from './commands/buy-orders';
-import { dataFunction } from './commands/data';
-import { historyFunction } from './commands/history';
-import { infoFunction } from './commands/info';
+import { dataCommand } from './commands/data';
+import { historyCommand } from './commands/history';
+import { infoCommand } from './commands/info';
 import { itemCommand } from './commands/item';
-import { priceFunction } from './commands/price';
+import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
-import { clearTracking, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
+import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { fetchCitadelData } from './helpers/api';
 import { LogEntry } from './helpers/command-logger';
+import { config } from './helpers/configurator';
 import { loadItems } from './helpers/items-loader';
-import { readToken, readTypeIDs, readVersion } from './helpers/readers';
+import { readTypeIDs, readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
 import { ICitadelData } from './typings';
 
@@ -27,7 +29,6 @@ export let client: Client | undefined;
 
 export let citadels: ICitadelData;
 
-export const tokenPath = 'config/token.txt';
 export const typeIDsPath = 'data/typeIDs.yaml';
 
 export const commandPrefix = '/';
@@ -112,7 +113,7 @@ export async function activate() {
   logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
 
   await createConnection({
-    database: 'botlog.db',
+    database: 'marketbot.db',
     entities: [
       LogEntry, TrackingEntry
     ],
@@ -122,16 +123,21 @@ export async function activate() {
 
   logger.info(`Database connection created`);
 
-  client = new Client(readToken(tokenPath));
+  const token = config.getProperty('discord.token');
+  if (token && typeof token === 'string') {
+    client = new Client(token);
 
-  logger.info(`Logging in...`);
-  client.login();
-  client.emitter.once('ready', () => {
-    if (client) {
-      logger.info(`Logged in as ${client.name}`);
-      finishActivation();
-    }
-  });
+    logger.info(`Logging in...`);
+    client.login();
+    client.emitter.once('ready', () => {
+      if (client) {
+        logger.info(`Logged in as ${client.name}`);
+        finishActivation();
+      }
+    });
+  } else {
+    logger.error(`Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`);
+  }
 }
 
 function finishActivation() {
@@ -141,7 +147,11 @@ function finishActivation() {
 
   if (client) {
     client.emitter.on('message', (message: Message) => {
-      processMessage(message).then().catch((error: Error) => {
+      let transaction: any;
+      if (config.getProperty('elastic.enabled') === true) {
+        transaction = elastic.startTransaction();
+      }
+      processMessage(message, transaction).then().catch((error: Error) => {
         handleError(message, error);
       });
     });
@@ -169,38 +179,38 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
   }
 }
 
-async function processMessage(message: Message): Promise<void> {
+async function processMessage(message: Message, transaction: any): Promise<void> {
   const commandPart = message.content.split(' ')[0];
   switch (true) {
     case priceCommandRegex.test(commandPart):
-      await priceFunction(message);
+      await priceCommand(message, transaction);
       break;
     case sellOrdersCommandRegex.test(commandPart):
-      await sellOrdersCommand(message);
+      await sellOrdersCommand(message, transaction);
       break;
     case infoCommandRegex.test(commandPart):
-      await infoFunction(message);
+      await infoCommand(message, transaction);
       break;
     case buyOrdersCommandRegex.test(commandPart):
-      await buyOrdersCommand(message);
+      await buyOrdersCommand(message, transaction);
       break;
     case dataCommandRegex.test(commandPart):
-      await dataFunction(message);
+      await dataCommand(message, transaction);
       break;
     case sellTrackingCommandRegex.test(commandPart):
-      await trackCommand(message, 'sell');
+      await trackCommand(message, 'sell', transaction);
       break;
     case itemCommandRegex.test(commandPart):
-      await itemCommand(message);
+      await itemCommand(message, transaction);
       break;
     case historyCommandRegex.test(commandPart):
-      await historyFunction(message);
+      await historyCommand(message, transaction);
       break;
     case clearTrackingCommandRegex.test(commandPart):
-      await clearTracking(message);
+      await clearTrackingCommand(message, transaction);
       break;
     case buyTrackingCommandRegex.test(commandPart):
-      await trackCommand(message, 'buy');
+      await trackCommand(message, 'buy', transaction);
       break;
   }
 }
