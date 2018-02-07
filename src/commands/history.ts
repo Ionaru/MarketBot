@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as fs from 'fs';
+import * as moment from 'moment';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';
@@ -78,7 +79,13 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     return {reply, itemData, regionName};
   }
 
-  const last20days = historyData.slice(-20).reverse();
+  const last20days = historyData.filter((_) => moment(_.date).isAfter(moment().startOf('day').subtract(21, 'days'))).reverse();
+
+  if (!last20days.length) {
+    reply = `There is no history data in the last 20 days for ${itemFormat(itemData.name.en as string)} in ${regionName}.`;
+    return {reply, itemData, regionName};
+  }
+
   reply += `Price history for ${itemFormat(itemData.name.en as string)} from the last 20 days, newest to oldest:`;
   reply += newLine();
 
@@ -86,18 +93,13 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
 
   const parseTime = d3.utcParse('%Y-%m-%d');
 
-  let daysAgo = 1;
   for (const historyEntry of last20days) {
     historyText += newLine();
-    let dayName = `${daysAgo} days ago`;
-    if (daysAgo === 1) {
-      dayName = `Yesterday`;
-    }
+    const dayName = moment(historyEntry.date).from(moment().startOf('day'));
     const parsedTime = parseTime(historyEntry.date) as Date;
     const dateText = d3.utcFormat('%a, %m-%d')(parsedTime);
 
     historyText += `${dateText}: ${formatNumber(historyEntry.average) + ` ISK`} (${dayName})`;
-    daysAgo++;
   }
 
   historyText += '```';
@@ -112,7 +114,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
 
   const fileName = `data/${last20days[0].date}_${itemData.itemID}_${regionId}.png`;
   if (!fs.existsSync(fileName)) {
-    const graph = createLineGraph(data, `Price history for ${itemData.name.en} in ${regionName}`);
+    const graph = createLineGraph(data, `Price history for ${itemData.name.en}`, regionName);
     try {
       await exportGraphImage(graph, fileName);
     } catch (error) {

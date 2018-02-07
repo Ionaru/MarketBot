@@ -7,7 +7,7 @@ interface IData {
   y: number;
 }
 
-export function createLineGraph(data: IData[], chartName = 'Line graph') {
+export function createLineGraph(data: IData[], chartName = 'Line graph', extraText = '') {
 
   const backgroundColor = '#36393e';
   const textColor = '#939597';
@@ -17,19 +17,24 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
     `background-color: ${backgroundColor}`,
     `color: ${textColor}`,
     'font-family: Helvetica, Arial, sans-serif',
-    'padding: 0',
     'position: absolute',
     'top: 0',
     'left: 0'
   ].join(';');
 
-  const _selector = '#chart';
-  const _container = `<div id="container" style="${graphStyles}"><h2>${chartName}</h2><div id="chart"></div></div>`;
-  const _style = '';
+  const selector = '#chart';
+
+  const container = `
+  <div id="container" style="${graphStyles}">
+    <h2 style="padding-left: 73px; display: inline-block;">${chartName}</h2>
+    <h2 style="padding-right: 73px; float: right;">${extraText}</h2>
+    <div id="chart"></div>
+  </div>
+  `;
+
   const d3n = new D3Node({
-    container: _container,
-    selector: _selector,
-    svgStyles: _style
+    container,
+    selector
   });
 
   const _margin = {top: 0, right: 75, bottom: 125, left: 75};
