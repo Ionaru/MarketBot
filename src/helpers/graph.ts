@@ -8,8 +8,23 @@ interface IData {
 }
 
 export function createLineGraph(data: IData[], chartName = 'Line graph') {
+
+  const backgroundColor = '#36393e';
+  const textColor = '#939597';
+  const lineColor = '#7289da';
+
+  const graphStyles = [
+    `background-color: ${backgroundColor}`,
+    `color: ${textColor}`,
+    'font-family: Helvetica, Arial, sans-serif',
+    'padding: 0',
+    'position: absolute',
+    'top: 0',
+    'left: 0'
+  ].join(';');
+
   const _selector = '#chart';
-  const _container = `<div id="container"><h2>${chartName}</h2><div id="chart"></div></div>`;
+  const _container = `<div id="container" style="${graphStyles}"><h2>${chartName}</h2><div id="chart"></div></div>`;
   const _style = '';
   const d3n = new D3Node({
     container: _container,
@@ -22,7 +37,6 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   const pageHeight = 600;
   const tickSize = 5;
   const tickPadding = 2;
-  const lineColor = 'steelblue';
   const lineWidth = 3;
 
   const graphWidth = (pageWidth - _margin.left) - _margin.right;
@@ -32,7 +46,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   d3n.height = pageHeight;
 
   const svg = d3n.createSVG(pageWidth, pageHeight)
-    .append('g').style('color', 'white').style('background-color', 'black')
+    .append('g')
     .attr('transform', `translate(${_margin.left}, ${_margin.top})`);
 
   const g = svg.append('g');
@@ -81,6 +95,15 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
     .call(yAxis)
     .call(make_y_gridlines(graphWidth));
 
+  g.selectAll('line')
+    .attr('stroke', textColor);
+
+  g.selectAll('text')
+    .attr('fill', textColor);
+
+  g.selectAll('path.domain')
+    .attr('stroke', textColor);
+
   g.append('path')
     .datum(data)
     .attr('fill', 'none')
@@ -91,20 +114,18 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   return d3n;
 }
 
-export async function exportGraphImage(graph: any, outputName: string) {
-
-  const html = graph.html();
-  const viewport = {width: graph.width, height: graph.height};
-
-  const type = 'png' as 'png';
-  const screenShotOptions = {viewport, type, path: outputName};
+export async function exportGraphImage(graph: any, path: string) {
 
   const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
   const page = await browser.newPage();
-  await page.setContent(html);
-  if (viewport) {
-    await page.setViewport(viewport);
-  }
+  await page.setContent(graph.html());
+
+  const viewport = {width: graph.width, height: graph.height};
+  await page.setViewport(viewport);
+
+  const type = 'png' as 'png';
+  const screenShotOptions = {viewport, type, path};
   await page.screenshot(screenShotOptions);
+
   browser.close().then();
 }
