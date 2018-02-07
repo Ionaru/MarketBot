@@ -22,7 +22,7 @@ export class Configurator {
   /**
    * Get a property from the config file
    * @param {string} property - The name of the property to fetch
-   * @return {boolean | number | string | null} - The value of the given config property
+   * @return {boolean | number | string | undefined} - The value of the given config property
    */
   public getProperty(property: string): boolean | number | string | undefined {
     const propertyParts = property.split('.');

@@ -19,8 +19,8 @@ export class Client {
   private client: Discord.Client;
   private credentials: string;
   private _emitter: EventEmitter;
-  private _name: string;
-  private _id: string;
+  private _name: string | undefined;
+  private _id: string | undefined;
 
   constructor(credentials: string) {
     this.credentials = credentials;
@@ -101,11 +101,11 @@ export class Client {
     return this._emitter;
   }
 
-  get name(): string {
+  get name(): string | undefined {
     return this._name;
   }
 
-  get id(): string {
+  get id(): string | undefined {
     return this._id;
   }
 

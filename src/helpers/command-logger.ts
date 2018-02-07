@@ -10,7 +10,7 @@ import { parseMessage } from './parsers';
 export class LogEntry extends BaseEntity {
 
   @PrimaryGeneratedColumn()
-  public id: number;
+  public id!: number;
 
   @Column({nullable: true})
   public guild_id?: string;
@@ -25,13 +25,13 @@ export class LogEntry extends BaseEntity {
   public channel_name?: string;
 
   @Column()
-  public channel_type: string;
+  public channel_type!: string;
 
   @Column()
-  public sender_name: string;
+  public sender_name!: string;
 
   @Column()
-  public sender_id: string;
+  public sender_id!: string;
 
   @Column({nullable: true})
   public item_input?: string;
@@ -46,10 +46,10 @@ export class LogEntry extends BaseEntity {
   public region_output?: string;
 
   @Column()
-  public command_type: string;
+  public command_type!: string;
 
   @Column({type: 'text'})
-  public command_full: string;
+  public command_full!: string;
 }
 
 export function logCommand(commandType: string, message: Message, outputItem?: string, outputRegion?: string, transaction?: any) {

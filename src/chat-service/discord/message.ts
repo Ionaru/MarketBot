@@ -23,7 +23,7 @@ export class Message {
   private _origin: string;
   private _sender: string;
   private _author: { id: string, name: string };
-  private _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' };
+  private _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' };
   private _server: { id: string | undefined, name: string | undefined };
   private _content: string;
   private _id: string;
@@ -69,7 +69,7 @@ export class Message {
     return this._server;
   }
 
-  get channel(): { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' } {
+  get channel(): { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' } {
     return this._channel;
   }
 

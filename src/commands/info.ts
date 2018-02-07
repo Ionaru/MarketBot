@@ -12,7 +12,7 @@ export async function infoCommand(message: Message, transaction: any) {
 
     if (name !== botName) {
       reply += newLine();
-      reply += `You may know me as ${makeBold(name)} in this channel.`;
+      reply += `You may know me as ${makeBold(name!)} in this channel.`;
     }
   }
 

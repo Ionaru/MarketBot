@@ -19,34 +19,34 @@ import { IMarketData, ISDEObject } from '../typings';
 export class TrackingEntry extends BaseEntity {
 
   @PrimaryGeneratedColumn()
-  public id: number;
+  public id!: number;
 
   @Column()
-  public item_id: number;
-
-  // noinspection TsLint
-  @Column()
-  public channel_id: string;
+  public item_id!: number;
 
   // noinspection TsLint
   @Column()
-  public sender_id: string;
+  public channel_id!: string;
 
   // noinspection TsLint
   @Column()
-  public region_id: number;
+  public sender_id!: string;
+
+  // noinspection TsLint
+  @Column()
+  public region_id!: number;
 
   // noinspection TsLint
   @Column({type: 'decimal'})
-  public tracking_limit: number;
+  public tracking_limit!: number;
 
   // noinspection TsLint
   @Column({type: 'decimal'})
-  public tracking_price: number;
+  public tracking_price!: number;
 
   // noinspection TsLint
   @Column()
-  public tracking_type: 'buy' | 'sell';
+  public tracking_type!: 'buy' | 'sell';
 }
 // tslint:enable:variable-name
 
