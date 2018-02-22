@@ -102,7 +102,7 @@ export class Message {
     return this._channel.type === 'dm';
   }
 
-  public async reply(message: string, options = {}): Promise<Message> {
+  public async reply(message: string, options: Discord.MessageOptions = {}): Promise<Message> {
     if (message.length > maxMessageLength) {
       throw new Error('MaxMessageLengthReached');
     }
@@ -122,11 +122,11 @@ export class Message {
     });
   }
 
-  public async edit(message: string): Promise<void> {
+  public async edit(message: string, options: Discord.MessageOptions = {}): Promise<void> {
     if (message.length > maxMessageLength) {
       throw new Error('MaxMessageLengthReached');
     }
-    await this._message.edit(message);
+    await this._message.edit(message, options);
   }
 
   public async remove(timeout?: number): Promise<boolean> {

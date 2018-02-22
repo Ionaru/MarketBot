@@ -107,8 +107,9 @@ export function getGuessHint(guessReturn: IGuessReturn, userInput: string): stri
   if (!guessReturn.itemData) {
     returnString += `I don't know what you mean with "${userInput}" 😟`;
   } else if (guessReturn.guess) {
-    returnString += `"${userInput}" didn't directly match any item I know of, `;
-    returnString += `my best guess is ${itemFormat(guessReturn.itemData.name.en as string)}.`;
+    returnString += `"${userInput}" didn't directly match any item I know of,`;
+    returnString += newLine();
+    returnString += `did you mean ${itemFormat(guessReturn.itemData.name.en as string)}?.`;
     returnString += newLine(2);
   } else if (guessReturn.id) {
     returnString += `"${itemFormat(userInput)}" looks like an item ID, `;

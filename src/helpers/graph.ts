@@ -37,22 +37,22 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
     selector
   });
 
-  const _margin = {top: 0, right: 75, bottom: 125, left: 75};
+  const margin = {top: 0, right: 75, bottom: 125, left: 75};
   const pageWidth = 1200;
   const pageHeight = 600;
   const tickSize = 5;
   const tickPadding = 2;
   const lineWidth = 3;
 
-  const graphWidth = (pageWidth - _margin.left) - _margin.right;
-  const graphHeight = (pageHeight - _margin.top) - _margin.bottom;
+  const graphWidth = (pageWidth - margin.left) - margin.right;
+  const graphHeight = (pageHeight - margin.top) - margin.bottom;
 
   d3n.width = pageWidth;
   d3n.height = pageHeight;
 
   const svg = d3n.createSVG(pageWidth, pageHeight)
     .append('g')
-    .attr('transform', `translate(${_margin.left}, ${_margin.top})`);
+    .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
   const g = svg.append('g');
 
@@ -82,7 +82,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
   const startDate = new Date(data[data.length - 1].x);
   const endDate = new Date(data[0].x);
   xScale.domain([startDate, endDate]);
-  yScale.domain(d3.extent(data, (d) => d.y) as any);
+  yScale.domain(d3.extent(data, (d: IData) => d.y) as any);
 
   g.append('g')
     .attr('transform', `translate(0, ${graphHeight})`)
