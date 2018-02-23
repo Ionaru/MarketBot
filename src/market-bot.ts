@@ -13,7 +13,7 @@ import { itemCommand } from './commands/item';
 import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
-import { fetchCitadelData } from './helpers/api';
+import { fetchCitadelData, fetchUniverseNames, getUniverseSystems } from './helpers/api';
 import { LogEntry } from './helpers/command-logger';
 import { config } from './helpers/configurator';
 import { loadItems } from './helpers/items-loader';
@@ -30,6 +30,8 @@ export let client: Client | undefined;
 export let citadels: ICitadelData;
 
 export const typeIDsPath = 'data/typeIDs.yaml';
+
+export const systemList: { [key: number]: string } = {};
 
 export const commandPrefix = '/';
 
@@ -53,6 +55,9 @@ export const infoCommands = [
 ];
 export const regionCommands = [
   'region', 'r'
+];
+export const systemCommands = [
+  'system'
 ];
 export const itemCommands = [
   'item', 'id', 'lookup'
@@ -81,6 +86,7 @@ export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands,
 export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
 export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
+export const systemCommandRegex = createCommandRegex(systemCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
@@ -91,6 +97,14 @@ export async function activate() {
   logger.info(`Bot version: ${version}`);
 
   loadItems(readTypeIDs(typeIDsPath));
+
+  const systems = await getUniverseSystems();
+  if (systems) {
+    const systemNames = await fetchUniverseNames(systems);
+    for (const system of systemNames) {
+      systemList[system.id] = system.name;
+    }
+  }
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 

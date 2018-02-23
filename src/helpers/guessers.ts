@@ -4,6 +4,7 @@ import { ISDEObject } from '../typings';
 import { sortArrayByObjectSubPropertyLength } from './arrays';
 import { fuse, items } from './items-loader';
 import { itemFormat, newLine } from './message-formatter';
+import { systemList } from '../market-bot';
 
 interface IShortcuts {
   [shortcut: string]: string;
@@ -123,6 +124,14 @@ export function getGuessHint(guessReturn: IGuessReturn, userInput: string): stri
 export function guessUserRegionInput(regionString: string): number | void {
   for (const key in regionList) {
     if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1 || regionString === key) {
+      return Number(key);
+    }
+  }
+}
+
+export function guessUserSystemInput(systemString: string): number | void {
+  for (const key in systemList) {
+    if (systemList[key].toUpperCase().indexOf(systemString.toUpperCase()) !== -1 || systemString === key) {
       return Number(key);
     }
   }

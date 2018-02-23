@@ -93,6 +93,11 @@ export interface ICategory {
   types: number[];
 }
 
+export interface IEVEMarketerData {
+  'buy': IPriceData;
+  'sell': IPriceData;
+}
+
 export interface IPriceData {
   forQuery: {
     bid: boolean;
@@ -120,7 +125,7 @@ export interface IParsedMessage {
   item: string;
   region: string;
   limit: number;
-  // system: string;
+  system: string;
 }
 
 export interface ICitadelData {

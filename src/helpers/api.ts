@@ -1,14 +1,16 @@
 import 'isomorphic-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { ICategory, ICitadelData, IGroup, IHistoryData, IMarketData, IMarketGroup, INamesData } from '../typings';
+import { ICategory, ICitadelData, IEVEMarketerData, IGroup, IHistoryData, IMarketData, IMarketGroup, INamesData } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
 const ccpHost = 'https://esi.tech.ccp.is/';
 
-export async function fetchPriceData(itemId: number, regionId: number) {
+export async function fetchPriceData(itemId: number, locationId: number): Promise<IEVEMarketerData[] | undefined> {
+  const locationType = locationId < 30000000 ? 'regionlimit' : 'usesystem';
+
   const host = 'https://api.evemarketer.com/ec/';
-  const url = `${host}marketstat/json?typeid=${itemId}&regionlimit=${regionId}`;
+  const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
 
   logger.debug(url);
   const priceResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
@@ -18,9 +20,10 @@ export async function fetchPriceData(itemId: number, regionId: number) {
   if (priceResponse) {
     return priceResponse.json().catch((error) => {
       logger.error('Unable to parse JSON:', error);
-      return {};
+      return [];
     });
   }
+  return [];
 }
 
 export async function fetchMarketData(itemId: number, regionId: number): Promise<IMarketData[]> {
@@ -39,7 +42,8 @@ export async function fetchMarketData(itemId: number, regionId: number): Promise
         return [];
       });
     } else {
-      logger.error('Request not OK:', url, marketResponse);
+      const text = await marketResponse.text();
+      logger.error('Request not OK:', url, marketResponse, text);
     }
   }
   return [];
@@ -79,13 +83,29 @@ export async function fetchCitadelData(): Promise<ICitadelData> {
         return {};
       });
     } else {
-      logger.error('Request not OK:', url, citadelResponse);
+      const text = await citadelResponse.text();
+      logger.error('Request not OK:', url, citadelResponse, text);
     }
   }
   return {};
 }
 
 export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
+
+  const names: INamesData[] = [];
+
+  while (true) {
+    const idsPart = ids.splice(0, 1000);
+    const namesPart = await _fetchUniverseNames(idsPart);
+    names.push(...namesPart);
+
+    if (idsPart.length < 1000) {
+      return names;
+    }
+  }
+}
+
+async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
   const path = 'v2/universe/names/';
   const url = ccpHost + path;
   const idData = JSON.stringify(ids);
@@ -104,10 +124,15 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
         return [];
       });
     } else {
-      logger.error('Request not OK:', url, namesResponse);
+      const text = await namesResponse.text();
+      logger.error('Request not OK:', url, namesResponse, text);
     }
   }
   return [];
+}
+
+export async function getUniverseSystems(): Promise<number[] | undefined> {
+  return fetchESIData(`v1/universe/systems`) as Promise<number[] | undefined>;
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[] | undefined> {
@@ -130,18 +155,19 @@ async function fetchESIData(path: string): Promise<object | undefined> {
   const url = ccpHost + path;
 
   logger.debug(url);
-  const groupResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const response: Response | undefined = await fetch(url).catch((errorResponse) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
-  if (groupResponse) {
-    if (groupResponse.ok) {
-      return groupResponse.json().catch((error) => {
+  if (response) {
+    if (response.ok) {
+      return response.json().catch((error) => {
         logger.error('Unable to parse JSON:', error);
         return undefined;
       });
     } else {
-      logger.error('Request not OK:', url, groupResponse);
+      const text = await response.text();
+      logger.error('Request not OK:', url, response, text);
     }
   }
   return undefined;

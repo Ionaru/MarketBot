@@ -3,16 +3,17 @@ import { Message } from '../chat-service/discord/message';
 import { fetchPriceData } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserItemInput, guessUserRegionInput, guessUserSystemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
+import { systemList } from '../market-bot';
 import { regionList } from '../regions';
 import { IParsedMessage, IPriceData, ISDEObject } from '../typings';
 
 interface IPriceCommandLogicReturn {
   reply: Discord.RichEmbed;
   itemData: ISDEObject | undefined;
-  regionName: string | undefined;
+  locationName: string | undefined;
 }
 
 export async function priceCommand(message: Message, transaction: any) {
@@ -22,22 +23,22 @@ export async function priceCommand(message: Message, transaction: any) {
     `Checking price, one moment, ${message.sender}...`
   );
 
-  const replyEmbed = new Discord.RichEmbed();
-
-  const {reply, itemData, regionName} = await priceCommandLogic(messageData, replyEmbed);
+  const {reply, itemData, locationName} = await priceCommandLogic(messageData);
 
   await replyPlaceHolder.edit('', {embed: reply});
 
-  logCommand('price', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined), transaction);
+  logCommand('price', message, (itemData ? itemData.name.en : undefined), (locationName ? locationName : undefined), transaction);
 }
 
-async function priceCommandLogic(messageData: IParsedMessage, reply: Discord.RichEmbed): Promise<IPriceCommandLogicReturn> {
+async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCommandLogicReturn> {
 
-  let regionName = '';
+  const reply = new Discord.RichEmbed();
+
+  let locationName = '';
 
   if (!(messageData.item && messageData.item.length)) {
     reply.addField('Error', 'You need to give me an item to search for.');
-    return {reply, itemData: undefined, regionName};
+    return {reply, itemData: undefined, locationName};
   }
 
   const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
@@ -48,28 +49,35 @@ async function priceCommandLogic(messageData: IParsedMessage, reply: Discord.Ric
   }
 
   if (!itemData) {
-    return {reply, itemData: undefined, regionName};
+    return {reply, itemData: undefined, locationName};
   }
 
-  let regionId: number | void = 10000002;
+  let locationId: number | void = 10000002;
+  locationName = regionList[locationId];
 
   if (messageData.region) {
-    regionId = guessUserRegionInput(messageData.region);
-    if (!regionId) {
-      regionId = 10000002;
-      reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`);
+    locationId = guessUserRegionInput(messageData.region);
+    if (!locationId) {
+      locationId = 10000002;
+      reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[locationId])}`);
     }
+    locationName = regionList[locationId];
   }
 
-  regionName = regionList[regionId];
+  if (messageData.system) {
+    locationId = guessUserSystemInput(messageData.system);
+    if (!locationId) {
+      locationId = 30000142;
+      reply.addField('Warning', `I don't know of the "${messageData.system}" system, defaulting to ${regionFormat(systemList[locationId])}`);
+    }
+    locationName = systemList[locationId];
+  }
 
-  const itemId = itemData.itemID;
-
-  const json = await fetchPriceData(itemId, regionId);
+  const json = await fetchPriceData(itemData.itemID, locationId);
 
   if (!(json && json.length)) {
     reply.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);
-    return {reply, itemData, regionName};
+    return {reply, itemData, locationName};
   }
 
   const sellData: IPriceData = json[0].sell;
@@ -91,13 +99,13 @@ async function priceCommandLogic(messageData: IParsedMessage, reply: Discord.Ric
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
     const itemName = itemFormat(itemData.name.en as string);
-    const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(regionName)}, sorry.`;
+    const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(locationName)}, sorry.`;
     reply.addField('No data', replyText);
-    return {reply, itemData, regionName};
+    return {reply, itemData, locationName};
   }
 
-  reply.setAuthor(itemData.name.en, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`);
-  reply.setDescription(`Price information for ${regionFormat(regionName)}`);
+  reply.setAuthor(itemData.name.en, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
+  reply.setDescription(`Price information for ${regionFormat(locationName)}`);
   reply.setThumbnail(`https://image.eveonline.com/Type/${itemData.itemID}_64.png`);
 
   let sellInfo = '';
@@ -118,5 +126,5 @@ async function priceCommandLogic(messageData: IParsedMessage, reply: Discord.Ric
   }
   reply.addField('Buy', buyInfo);
 
-  return {reply, itemData, regionName};
+  return {reply, itemData, locationName};
 }
