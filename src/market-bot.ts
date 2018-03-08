@@ -13,13 +13,14 @@ import { itemCommand } from './commands/item';
 import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
-import { fetchCitadelData, fetchUniverseNames, getUniverseSystems } from './helpers/api';
+import { fetchCitadelData, fetchUniverseRegions, fetchUniverseSystems, fetchUniverseTypes } from './helpers/api';
+import { cacheUniverse, validateCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
 import { config } from './helpers/configurator';
-import { loadItems } from './helpers/items-loader';
-import { readTypeIDs, readVersion } from './helpers/readers';
+import { createFuse } from './helpers/items-loader';
+import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
-import { ICitadelData } from './typings';
+import { ICitadelData, INamesData } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export let version: string;
@@ -29,9 +30,14 @@ export let client: Client | undefined;
 
 export let citadels: ICitadelData;
 
-export const typeIDsPath = 'data/typeIDs.yaml';
+export const dataFolder = 'data';
 
-export const systemList: { [key: number]: string } = {};
+export let items: INamesData[];
+export let systems: INamesData[];
+export let regions: INamesData[];
+
+export let itemsFuse: Fuse;
+export let regionsFuse: Fuse;
 
 export const commandPrefix = '/';
 
@@ -96,15 +102,11 @@ export async function activate() {
 
   logger.info(`Bot version: ${version}`);
 
-  loadItems(readTypeIDs(typeIDsPath));
-
-  const systems = await getUniverseSystems();
-  if (systems) {
-    const systemNames = await fetchUniverseNames(systems);
-    for (const system of systemNames) {
-      systemList[system.id] = system.name;
-    }
-  }
+  const cacheValid = await validateCache();
+  regions = await cacheUniverse(cacheValid, 'regions', fetchUniverseRegions);
+  systems = await cacheUniverse(cacheValid, 'systems', fetchUniverseSystems);
+  items = await cacheUniverse(cacheValid, 'items', fetchUniverseTypes);
+  itemsFuse = createFuse(items);
 
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 

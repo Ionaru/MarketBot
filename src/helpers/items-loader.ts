@@ -1,26 +1,16 @@
 import * as Fuse from 'fuse.js';
-import { logger } from 'winston-pnp-logger';
 
-import { ISDEObject, ITypeIDs } from '../typings';
-import { parseTypeIDs } from './parsers';
+import { INamesData } from '../typings';
 
-export let fuse: Fuse;
-export let fuseOptions = {
-  distance: 100,
-  keys: ['name.en'],
-  location: 0,
-  maxPatternLength: 128,
-  minMatchCharLength: 1,
-  shouldSort: true,
-  threshold: 0.6,
-  tokenize: true
-};
-
-export let items: ISDEObject[];
-
-export function loadItems(typeIDs: ITypeIDs): void {
-  logger.info('Starting parsing of typeIDs');
-  items = parseTypeIDs(typeIDs);
-  logger.info(`Parsing complete, ${items.length} items loaded into memory`);
-  fuse = new Fuse(items, fuseOptions);
+export function createFuse(possibilities: INamesData[]): Fuse {
+  return new Fuse(possibilities, {
+    distance: 100,
+    keys: ['name'],
+    location: 0,
+    maxPatternLength: 128,
+    minMatchCharLength: 1,
+    shouldSort: true,
+    threshold: 0.6,
+    tokenize: true
+  });
 }

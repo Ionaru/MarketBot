@@ -6,7 +6,7 @@
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
 
-It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
+It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), and the [EVE Swagger Interface](https://esi.tech.ccp.is/) provided by CCP.
 
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
@@ -58,8 +58,7 @@ It is possible to self-host this bot, it requires NodeJS 8 or greater.
 2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
 3. Install dependencies with `npm install`.
 4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
-5. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
-6. Go back to the main folder and run `npm start`.
+5. Go back to the main folder and run `npm start`.
 
 Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you need any assistance.
 

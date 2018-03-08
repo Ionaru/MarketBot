@@ -1,5 +1,5 @@
 import { commandPrefix, limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
-import { IParsedMessage, ISDEObject, ITypeIDs } from '../typings';
+import { IParsedMessage } from '../typings';
 
 export function parseMessage(message: string): IParsedMessage {
   const parsedMessage: IParsedMessage = {
@@ -60,16 +60,4 @@ export function parseMessage(message: string): IParsedMessage {
   }
 
   return parsedMessage;
-}
-
-export function parseTypeIDs(typeIDs: ITypeIDs): ISDEObject[] {
-  const itemsArray = [];
-
-  for (const key of Object.keys(typeIDs)) {
-      const value: ISDEObject = typeIDs[Number(key)];
-      value.itemID = Number(key);
-      itemsArray.push(value);
-  }
-
-  return itemsArray;
 }

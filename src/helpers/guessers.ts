@@ -1,10 +1,8 @@
 import escapeStringRegexp = require('escape-string-regexp');
-import { regionList } from '../regions';
-import { ISDEObject } from '../typings';
-import { sortArrayByObjectSubPropertyLength } from './arrays';
-import { fuse, items } from './items-loader';
+
+import { INamesData } from '../typings';
+import { sortArrayByObjectPropertyLength } from './arrays';
 import { itemFormat, newLine } from './message-formatter';
-import { systemList } from '../market-bot';
 
 interface IShortcuts {
   [shortcut: string]: string;
@@ -27,26 +25,30 @@ export const shortcuts: IShortcuts = {
 };
 
 export interface IGuessReturn {
-  itemData: ISDEObject;
+  itemData: INamesData;
   guess: boolean;
   id: boolean;
 }
 
-export function guessUserItemInput(itemString: string): IGuessReturn {
+export function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse): IGuessReturn {
 
   itemString = escapeStringRegexp(itemString);
 
   let regex: RegExp;
   let guess = false;
-  let itemData: ISDEObject;
-  const possibilities: ISDEObject[] = [];
+  let itemData: INamesData = {
+    category: '',
+    id: 0,
+    name: ''
+  };
+  const possibilities: INamesData[] = [];
 
   const itemWords = itemString.split(' ');
 
   // Check if the item is an ID
   const possibleId = Number(itemWords[0]);
   if (!isNaN(possibleId)) {
-    possibilities.push(...items.filter((_): boolean | void => _.itemID === possibleId));
+    possibilities.push(...possibilitiesList.filter((_): boolean | void => _.id === possibleId));
     if (possibilities.length) {
       return {itemData: possibilities[0], guess: false, id: true};
     }
@@ -65,39 +67,41 @@ export function guessUserItemInput(itemString: string): IGuessReturn {
 
   // Check in start of the words.
   regex = new RegExp(`^${itemString}`, 'i');
-  possibilities.push(...items.filter((_): RegExpMatchArray | null | void => {
-    if (_.name.en) {
-      return _.name.en.match(regex);
+  possibilities.push(...possibilitiesList.filter((_): RegExpMatchArray | null | void => {
+    if (_.name) {
+      return _.name.match(regex);
     }
   }));
 
   if (!possibilities.length) {
     // Check at end of the words.
     regex = new RegExp(`${itemString}$`, 'i');
-    possibilities.push(...items.filter((_): RegExpMatchArray | null | void => {
-      if (_.name.en) {
-        return _.name.en.match(regex);
+    possibilities.push(...possibilitiesList.filter((_): RegExpMatchArray | null | void => {
+      if (_.name) {
+        return _.name.match(regex);
       }
     }));
   }
 
   if (!possibilities.length) {
     // Check in middle of words.
-    possibilities.push(...items.filter((_): boolean | void => {
-      if (_.name.en) {
-        return _.name.en.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
+    possibilities.push(...possibilitiesList.filter((_): boolean | void => {
+      if (_.name) {
+        return _.name.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
       }
     }));
   }
 
-  if (!possibilities.length) {
+  if (!possibilities.length && fuse) {
     // Use Fuse to search (slow but fuzzy).
-    possibilities.push(fuse.search(itemString)[0] as ISDEObject);
+    possibilities.push(fuse.search(itemString)[0] as INamesData);
     guess = true;
   }
 
   // Sort by word length and select first itemData, shortest is usually the correct one.
-  itemData = sortArrayByObjectSubPropertyLength(possibilities, 'name', 'en')[0];
+  if (possibilities.length) {
+    itemData = sortArrayByObjectPropertyLength(possibilities, 'name')[0];
+  }
 
   return {itemData, guess, id: false};
 }
@@ -110,29 +114,13 @@ export function getGuessHint(guessReturn: IGuessReturn, userInput: string): stri
   } else if (guessReturn.guess) {
     returnString += `"${userInput}" didn't directly match any item I know of,`;
     returnString += newLine();
-    returnString += `did you mean ${itemFormat(guessReturn.itemData.name.en as string)}?.`;
+    returnString += `did you mean ${itemFormat(guessReturn.itemData.name)}?.`;
     returnString += newLine(2);
   } else if (guessReturn.id) {
     returnString += `"${itemFormat(userInput)}" looks like an item ID, `;
-    returnString += `it's the ID for ${itemFormat(guessReturn.itemData.name.en as string)}.`;
+    returnString += `it's the ID for ${itemFormat(guessReturn.itemData.name)}.`;
     returnString += newLine(2);
   }
 
   return returnString;
-}
-
-export function guessUserRegionInput(regionString: string): number | void {
-  for (const key in regionList) {
-    if (regionList[key].toUpperCase().indexOf(regionString.toUpperCase()) !== -1 || regionString === key) {
-      return Number(key);
-    }
-  }
-}
-
-export function guessUserSystemInput(systemString: string): number | void {
-  for (const key in systemList) {
-    if (systemList[key].toUpperCase().indexOf(systemString.toUpperCase()) !== -1 || systemString === key) {
-      return Number(key);
-    }
-  }
 }

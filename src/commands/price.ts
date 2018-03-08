@@ -3,16 +3,15 @@ import { Message } from '../chat-service/discord/message';
 import { fetchPriceData } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, guessUserSystemInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { systemList } from '../market-bot';
-import { regionList } from '../regions';
-import { IParsedMessage, IPriceData, ISDEObject } from '../typings';
+import { items, itemsFuse, regions, systems } from '../market-bot';
+import { INamesData, IParsedMessage, IPriceData } from '../typings';
 
 interface IPriceCommandLogicReturn {
   reply: Discord.RichEmbed;
-  itemData: ISDEObject | undefined;
+  itemData: INamesData | undefined;
   locationName: string | undefined;
 }
 
@@ -27,7 +26,7 @@ export async function priceCommand(message: Message, transaction: any) {
 
   await replyPlaceHolder.edit('', {embed: reply});
 
-  logCommand('price', message, (itemData ? itemData.name.en : undefined), (locationName ? locationName : undefined), transaction);
+  logCommand('price', message, (itemData ? itemData.name : undefined), (locationName ? locationName : undefined), transaction);
 }
 
 async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCommandLogicReturn> {
@@ -41,7 +40,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
     return {reply, itemData: undefined, locationName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
   const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
   if (guessHint) {
@@ -52,28 +51,28 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
     return {reply, itemData: undefined, locationName};
   }
 
-  let locationId: number | void = 10000002;
-  locationName = regionList[locationId];
+  const defaultLocation = regions.filter((_) => _.name === 'The Forge')[0];
+  let location = defaultLocation;
 
   if (messageData.region) {
-    locationId = guessUserRegionInput(messageData.region);
-    if (!locationId) {
-      locationId = 10000002;
-      reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[locationId])}`);
+    location = guessUserInput(messageData.region, regions).itemData;
+    if (!location.id) {
+      location = defaultLocation;
+      reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(location.name)}`);
     }
-    locationName = regionList[locationId];
   }
 
   if (messageData.system) {
-    locationId = guessUserSystemInput(messageData.system);
-    if (!locationId) {
-      locationId = 30000142;
-      reply.addField('Warning', `I don't know of the "${messageData.system}" system, defaulting to ${regionFormat(systemList[locationId])}`);
+    location = guessUserInput(messageData.system, systems).itemData;
+    if (!location.id) {
+      location = defaultLocation;
+      reply.addField('Warning', `I don't know of the "${messageData.system}" system, defaulting to ${regionFormat(location.name)}`);
     }
-    locationName = systemList[locationId];
   }
 
-  const json = await fetchPriceData(itemData.itemID, locationId);
+  locationName = location.name;
+
+  const json = await fetchPriceData(itemData.id, location.id);
 
   if (!(json && json.length)) {
     reply.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);
@@ -98,15 +97,15 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
   }
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
-    const itemName = itemFormat(itemData.name.en as string);
+    const itemName = itemFormat(itemData.name);
     const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(locationName)}, sorry.`;
     reply.addField('No data', replyText);
     return {reply, itemData, locationName};
   }
 
-  reply.setAuthor(itemData.name.en, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
+  reply.setAuthor(itemData.name, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
   reply.setDescription(`Price information for ${regionFormat(locationName)}`);
-  reply.setThumbnail(`https://image.eveonline.com/Type/${itemData.itemID}_64.png`);
+  reply.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 
   let sellInfo = '';
   if (sellPrice !== 'unknown') {

@@ -1,7 +1,10 @@
 import 'isomorphic-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { ICategory, ICitadelData, IEVEMarketerData, IGroup, IHistoryData, IMarketData, IMarketGroup, INamesData } from '../typings';
+import {
+  ICategory, ICitadelData, IEVEMarketerData, IGroup, IHistoryData, IMarketData, IMarketGroup, INamesData,
+  IServerStatus, ITypeData
+} from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
 const ccpHost = 'https://esi.tech.ccp.is/';
@@ -94,8 +97,10 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 
   const names: INamesData[] = [];
 
+  const idsCopy = ids.slice();
+
   while (true) {
-    const idsPart = ids.splice(0, 1000);
+    const idsPart = idsCopy.splice(0, 1000);
     const namesPart = await _fetchUniverseNames(idsPart);
     names.push(...namesPart);
 
@@ -131,8 +136,32 @@ async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
   return [];
 }
 
-export async function getUniverseSystems(): Promise<number[] | undefined> {
+export async function fetchUniverseTypes(): Promise<number[] | undefined> {
+
+  const types = [];
+  let page = 1;
+  while (true) {
+    const typeData = await fetchESIData(`v1/universe/types?page=${page}`) as number[] | undefined;
+    if (typeData) {
+      types.push(...typeData);
+      if (typeData.length < 1000) {
+        return types;
+      }
+      page++;
+    }
+  }
+}
+
+export async function fetchUniverseType(id: number): Promise<ITypeData | undefined> {
+  return fetchESIData(`v3/universe/types/${id}`) as Promise<ITypeData | undefined>;
+}
+
+export async function fetchUniverseSystems(): Promise<number[] | undefined> {
   return fetchESIData(`v1/universe/systems`) as Promise<number[] | undefined>;
+}
+
+export async function fetchUniverseRegions(): Promise<number[] | undefined> {
+  return fetchESIData(`v1/universe/regions`) as Promise<number[] | undefined>;
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[] | undefined> {
@@ -149,6 +178,10 @@ export async function fetchMarketGroup(groupId: number): Promise<IMarketGroup | 
 
 export async function fetchCategory(categoryId: number): Promise<ICategory | undefined> {
   return fetchESIData(`v1/universe/categories/${categoryId}`) as Promise<ICategory | undefined>;
+}
+
+export async function fetchServerStatus(): Promise<IServerStatus | undefined> {
+  return fetchESIData(`v1/status/`) as Promise<IServerStatus | undefined>;
 }
 
 async function fetchESIData(path: string): Promise<object | undefined> {

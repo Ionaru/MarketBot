@@ -4,37 +4,6 @@ export interface INamesData {
   name: string;
 }
 
-export interface ITypeIDs {
-  [index: number]: ISDEObject;
-}
-
-export interface ISDEObject {
-  basePrice: number;
-  description: {
-    de: string;
-    en: string;
-    fr: string;
-    ja: string;
-    ru: string;
-    zh: string;
-  };
-  groupID: number;
-  iconID: number;
-  marketGroupID: number;
-  name: {
-    de?: string;
-    en?: string;
-    fr?: string;
-    ja?: string;
-    ru?: string;
-    zh?: string;
-  };
-  portionSize: 1;
-  published: boolean;
-  volume: number;
-  itemID: number;
-}
-
 export interface IMarketData {
   order_id: number;
   type_id: number;
@@ -68,6 +37,34 @@ export interface IHistoryData {
 
   /** ?? */
   lowest: number;
+}
+
+export interface ITypeData {
+  type_id: number;
+  name: string;
+  description: string;
+  published: boolean;
+  group_id: number;
+  market_group_id?: number;
+  radius?: number;
+  volume?: number;
+  icon_id?: number;
+  capacity?: number;
+  portion_size?: number;
+  mass?: number;
+  graphic_id?: number;
+  dogma_attributes: IDogmaAttributes[];
+  dogma_effects: IDogmaEffects[];
+}
+
+interface IDogmaAttributes {
+  attribute_id: number;
+  value: number;
+}
+
+interface IDogmaEffects {
+  effect_id: number;
+  is_default: boolean;
 }
 
 export interface IGroup {
@@ -147,4 +144,10 @@ export interface ICitadelData {
     firstSeen: string;
     regionName: string;
   };
+}
+
+export interface IServerStatus {
+  start_time: Date;
+  players: number;
+  server_version: string;
 }

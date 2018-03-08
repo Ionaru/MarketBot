@@ -4,16 +4,15 @@ import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { citadels } from '../market-bot';
-import { regionList } from '../regions';
-import { IMarketData, INamesData, IParsedMessage, ISDEObject } from '../typings';
+import { citadels, items, itemsFuse, regions, regionsFuse } from '../market-bot';
+import { IMarketData, INamesData, IParsedMessage } from '../typings';
 
 interface IBuyOrdersCommandLogicReturn {
   reply: string;
-  itemData: ISDEObject | undefined;
+  itemData: INamesData | undefined;
   regionName: string | undefined;
 }
 
@@ -30,7 +29,7 @@ export async function buyOrdersCommand(message: Message, transaction: any) {
   const {reply, itemData, regionName} = await buyOrdersCommandLogic(messageData);
 
   await replyPlaceHolder.edit(reply);
-  logCommand('buy-orders', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined), transaction);
+  logCommand('buy-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
 async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyOrdersCommandLogicReturn> {
@@ -43,7 +42,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -51,22 +50,23 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
     return {reply, itemData: undefined, regionName};
   }
 
-  let regionId: number | void = 10000002;
+  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
+  let region = defaultRegion;
 
   if (messageData.region) {
-    regionId = guessUserRegionInput(messageData.region);
-    if (!regionId) {
-      regionId = 10000002;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
+    region = guessUserInput(messageData.region, regions, regionsFuse).itemData;
+    if (!region.id) {
+      region = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = regionList[regionId];
+  regionName = region.name;
 
-  const itemId = itemData.itemID;
+  const itemId = itemData.id;
 
-  const marketData = await fetchMarketData(itemId, regionId);
+  const marketData = await fetchMarketData(itemId, region.id);
 
   if (!marketData) {
     reply += 'My apologies, I was unable to fetch the required data from the web, please try again later.';
@@ -76,7 +76,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
   let buyOrders: IMarketData[] = marketData.filter((_) => _.is_buy_order === true);
 
   if (!(buyOrders && buyOrders.length)) {
-    reply += `It seems nobody is buying ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}.`;
+    reply += `It seems nobody is buying ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
   }
 
@@ -97,7 +97,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
   }
 
   const orderWord = pluralize('order', 'orders', messageData.limit);
-  reply += `The highest ${itemFormat(itemData.name.en as string)} buy ${orderWord} in ${regionFormat(regionName)}:`;
+  reply += `The highest ${itemFormat(itemData.name)} buy ${orderWord} in ${regionFormat(regionName)}:`;
   reply += newLine(2);
 
   for (const order of buyOrders) {

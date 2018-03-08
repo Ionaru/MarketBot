@@ -20,7 +20,7 @@ export async function infoCommand(message: Message, transaction: any) {
   reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market and provide you with accurate `;
   reply += `price information.`;
   reply += newLine();
-  reply += `The data I use comes from the EVE Swagger Interface and the Static Data Export provided by CCP, as well as `;
+  reply += `The data I use comes from the EVE Swagger Interface provided by CCP, as well as `;
   reply += `the EVEMarketer and stop.hammerti.me.uk APIs created by some amazing third-party developers.`;
   reply += newLine(2);
   reply += makeBold('Commands');

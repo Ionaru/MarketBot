@@ -4,13 +4,13 @@
 
 ## /price
 ##### Description
-The /price command will fetch information from EVEMarketer and show the lowest and average prices for a certain item in a region. Prices for buy and sell orders are seperated.
+The /price command will fetch information from EVEMarketer and show the lowest and average prices for a certain item in a region or system. Prices for buy and sell orders are separated.
 
 ##### Note
 The default region is The Forge
 
 ##### Syntax
-`/price <item name> [/region <region name>]`
+`/price <item name> [/region <region name>] [/system <region name>]`
 
 ##### Aliases
 * `/p`
@@ -18,6 +18,7 @@ The default region is The Forge
 
 ##### Examples
 `/price mackinaw /region domain`
+`/price mackinaw /system dodixie`
 `/value plex`
 
 ##### Result
