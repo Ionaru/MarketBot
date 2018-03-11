@@ -27,7 +27,7 @@ export let client: Client | undefined;
 
 export const dataFolder = 'data';
 
-export const commandPrefix = '.';
+export const commandPrefix = '/';
 
 export const priceCommands = [
   'price', 'p', 'value'

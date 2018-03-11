@@ -63,12 +63,12 @@ It is possible to self-host this bot, it requires NodeJS 8 or greater.
 Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you need any assistance.
 
 ## To-Do & Ideas
-- [ ] Support for searches in Jita, Amarr & other trade hubs
+- [x] Support for searches in Jita, Amarr & other trade hubs
 - [ ] % difference between lowest sell order and highest buy order
 - [ ] Show volume in price history
 - [ ] Show deviation between low and high in price history
-- [ ] Darker graphs to better match Discord colors
-- [ ] More information in price command output (low/high)
+- [x] Darker graphs to better match Discord colors
+- [x] More information in price command output (low/high)
 
 ## Developer information
 Want to contribute? Awesome!
