@@ -4,13 +4,13 @@ import * as moment from 'moment';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';
+import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
 import { createLineGraph, exportGraphImage } from '../helpers/graph';
 import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { items, itemsFuse, regions, regionsFuse } from '../market-bot';
 import { INamesData, IParsedMessage } from '../typings';
 
 interface IHistoryCommandLogicReturn {

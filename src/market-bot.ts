@@ -13,14 +13,11 @@ import { itemCommand } from './commands/item';
 import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
-import { fetchCitadelData, fetchUniverseRegions, fetchUniverseSystems, fetchUniverseTypes } from './helpers/api';
-import { cacheUniverse, validateCache } from './helpers/cache';
+import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
 import { config } from './helpers/configurator';
-import { createFuse } from './helpers/items-loader';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
-import { ICitadelData, INamesData } from './typings';
 
 export const creator = {name: 'Ionaru', id: '96746840958959616'};
 export let version: string;
@@ -28,18 +25,9 @@ export const botName = 'MarketBot';
 
 export let client: Client | undefined;
 
-export let citadels: ICitadelData;
-
 export const dataFolder = 'data';
 
-export let items: INamesData[];
-export let systems: INamesData[];
-export let regions: INamesData[];
-
-export let itemsFuse: Fuse;
-export let regionsFuse: Fuse;
-
-export const commandPrefix = '/';
+export const commandPrefix = '.';
 
 export const priceCommands = [
   'price', 'p', 'value'
@@ -102,31 +90,8 @@ export async function activate() {
 
   logger.info(`Bot version: ${version}`);
 
-  const cacheValid = await validateCache();
-  regions = await cacheUniverse(cacheValid, 'regions', fetchUniverseRegions);
-  systems = await cacheUniverse(cacheValid, 'systems', fetchUniverseSystems);
-  items = await cacheUniverse(cacheValid, 'items', fetchUniverseTypes);
-  itemsFuse = createFuse(items);
-
-  logger.info(`Fetching known citadels from stop.hammerti.me API`);
-
-  citadels = await fetchCitadelData().catch((error) => {
-    logger.error(error);
-    return {};
-  });
-
-  // Schedule a refresh of the citadel list every 6 hours.
-  setInterval(async () => {
-    const newCitadels = await fetchCitadelData().catch(() => {
-      return {};
-    });
-    if (Object.keys(newCitadels).length && newCitadels.toString() !== citadels.toString()) {
-      citadels = newCitadels;
-      logger.info('Citadel data updated');
-    }
-  }, 6 * 60 * 60 * 1000); // 6 hours
-
-  logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
+  await checkAndUpdateCache();
+  await checkAndUpdateCitadelCache();
 
   await createConnection({
     database: 'marketbot.db',

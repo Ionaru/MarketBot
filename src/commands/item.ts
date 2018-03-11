@@ -1,12 +1,12 @@
 import * as Discord from 'discord.js';
 import { Message } from '../chat-service/discord/message';
 import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
+import { items, itemsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
 import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { items, itemsFuse } from '../market-bot';
 import { IMarketGroup, INamesData, IParsedMessage, IPriceData } from '../typings';
 
 interface IItemCommandLogicReturn {
