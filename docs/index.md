@@ -1,7 +1,7 @@
 # Discord MarketBot for EVE Online
 [![Build Status](https://travis-ci.org/Ionaru/MarketBot.svg?branch=master)](https://travis-ci.org/Ionaru/MarketBot)
 [![codecov](https://codecov.io/gh/Ionaru/MarketBot/branch/master/graph/badge.svg)](https://codecov.io/gh/Ionaru/MarketBot)
-[![Trading is serious business](https://img.shields.io/badge/trading-is%20serious%20business-2F849E.svg "Spaceships are as well!")](https://www.eveonline.com/)
+[![Internet spaceships are serious business](https://img.shields.io/badge/internet%20spaceships-are%20serious%20business-2F849E.svg)](https://www.eveonline.com/)
 
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
@@ -17,11 +17,13 @@ It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [sto
 ## Screenshots
 The bot in action
 
-![Image of price command](https://cloud.githubusercontent.com/assets/3472373/25491154/668c3504-2b6f-11e7-8419-2ff21500e9b8.png)
+![Image of price command](https://user-images.githubusercontent.com/3472373/37924487-42f77698-3132-11e8-9df4-c316ee4457f5.png)
 
-![Image of sell command](https://cloud.githubusercontent.com/assets/3472373/25491068/2213ccc0-2b6f-11e7-8562-46dbf7587596.png)
+![Image of sell command](https://user-images.githubusercontent.com/3472373/37924510-560e97b6-3132-11e8-9fd3-54df753bbc1f.png)
 
-![Image of price command with wrong spelling](https://cloud.githubusercontent.com/assets/3472373/25491110/4227c17e-2b6f-11e7-8609-46ee6e5ad291.png)
+![Image of item command](https://user-images.githubusercontent.com/3472373/37924531-7113853a-3132-11e8-94ca-c920e356bbb1.png)
+
+![Image of history command](https://user-images.githubusercontent.com/3472373/37924569-8c5fa3a0-3132-11e8-9b56-e6bbbcee37bc.png)
 
 ## Logging
 This bot keeps records of issued commands, this data is used to monitor performance, usage and accuracy of the bot.
