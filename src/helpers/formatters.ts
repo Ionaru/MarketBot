@@ -1,5 +1,14 @@
 export function formatNumber(amount: number | string, decimalAmount = 2, decimalMark = '.', delimiter = ','): string {
 
+  if (decimalAmount === Infinity) {
+    // Set a dynamic number of decimal places, depending on the input.
+    decimalAmount = 0;
+    const numberParts = amount.toString().split('.');
+    if (numberParts[1]) {
+      decimalAmount = numberParts[1].length;
+    }
+  }
+
   let amountNumber = Number(amount);
 
   if (isNaN(amountNumber)) {

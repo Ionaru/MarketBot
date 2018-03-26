@@ -5,9 +5,9 @@ import { items, itemsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
 import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
-import { newLine } from '../helpers/message-formatter';
+import { makeCode, newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { IMarketGroup, INamesData, IParsedMessage, IPriceData } from '../typings';
+import { IMarketGroup, INamesData, IParsedMessage } from '../typings';
 
 interface IItemCommandLogicReturn {
   reply: Discord.RichEmbed;
@@ -78,7 +78,8 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
   }
 
   if (item && item.volume) {
-    itemInfo += `* Volume: ${item.volume}m³`;
+    const volume = formatNumber(item.volume, Infinity);
+    itemInfo += `* Volume: ${makeCode(volume + ' m³')}`;
     itemInfo += newLine();
   }
 
@@ -95,16 +96,24 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
         marketGroupId = marketGroup.parent_group_id ? marketGroup.parent_group_id : undefined;
       }
     }
-    marketInfo += `* Market location: ${marketGroups.join(' / ')}`;
+
+    marketInfo += `* Market location:`;
+    const indent = '    ';
+    let deepness = 1;
+    for (const marketGroup of marketGroups) {
+      marketInfo += newLine();
+      marketInfo += `${indent.repeat(deepness)}${marketGroup}`;
+      deepness++;
+    }
 
     const json = await fetchPriceData(itemData.id, 30000142);
     if (json && json.length) {
-      const sellData: IPriceData = json[0].sell;
-      const buyData: IPriceData = json[0].buy;
+      const sellData = formatNumber(json[0].sell.avg);
+      const buyData = formatNumber(json[0].buy.avg);
+      marketInfo += newLine(2);
+      marketInfo += `* Average Jita **sell** price: ${makeCode(sellData + ' ISK')}`;
       marketInfo += newLine();
-      marketInfo += `* Jita sell price: ${formatNumber(sellData.avg)} ISK`;
-      marketInfo += newLine();
-      marketInfo += `* Jita buy price: ${formatNumber(buyData.avg)} ISK`;
+      marketInfo += `* Average Jita **buy** price: ${makeCode(buyData + ' ISK')}`;
     }
 
     marketInfo += newLine();
