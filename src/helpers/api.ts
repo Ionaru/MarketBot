@@ -46,7 +46,7 @@ export async function fetchMarketData(itemId: number, regionId: number): Promise
       });
     } else {
       const text = await marketResponse.text();
-      logger.error('Request not OK:', url, marketResponse, text);
+      logger.error('Request not OK:', url, marketResponse.status, marketResponse.statusText, text);
     }
   }
   return [];
@@ -87,7 +87,7 @@ export async function fetchCitadelData(): Promise<ICitadelData> {
       });
     } else {
       const text = await citadelResponse.text();
-      logger.error('Request not OK:', url, citadelResponse, text);
+      logger.error('Request not OK:', url, citadelResponse.status, citadelResponse.statusText, text);
     }
   }
   return {};
@@ -130,7 +130,7 @@ async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
       });
     } else {
       const text = await namesResponse.text();
-      logger.error('Request not OK:', url, namesResponse, text);
+      logger.error('Request not OK:', url, namesResponse.status, namesResponse.statusText, text);
     }
   }
   return [];
@@ -200,7 +200,7 @@ async function fetchESIData(path: string): Promise<object | undefined> {
       });
     } else {
       const text = await response.text();
-      logger.error('Request not OK:', url, response, text);
+      logger.error('Request not OK:', url, response.status, response.statusText, text);
     }
   }
   return undefined;
