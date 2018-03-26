@@ -10,7 +10,7 @@ The /price command will fetch information from EVEMarketer and show the lowest a
 The default region is The Forge
 
 ##### Syntax
-`/price <item name> [/region <region name>] [/system <region name>]`
+`/price <item name> [/region <region name> OR /system <system name>]`
 
 ##### Aliases
 * `/p`
