@@ -1,4 +1,5 @@
-import escapeStringRegexp = require('escape-string-regexp');
+import * as escapeStringRegexp from 'escape-string-regexp';
+import * as Fuse from 'fuse.js';
 
 import { INamesData } from '../typings';
 import { sortArrayByObjectPropertyLength } from './arrays';
