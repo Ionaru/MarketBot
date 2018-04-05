@@ -1,17 +1,20 @@
+import * as Discord from 'discord.js';
 import { Message } from '../chat-service/discord/message';
-import { fetchCategory, fetchGroup, fetchMarketGroup } from '../helpers/api';
+import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
+import { items, itemsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
-import { getGuessHint, guessUserItemInput, IGuessReturn } from '../helpers/guessers';
-import { itemFormat, newLine } from '../helpers/message-formatter';
+import { formatNumber } from '../helpers/formatters';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
+import { makeCode, newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { IMarketGroup, IParsedMessage, ISDEObject } from '../typings';
+import { IMarketGroup, INamesData, IParsedMessage } from '../typings';
 
-interface ItemCommandLogicReturn {
-  reply: string;
-  itemData: ISDEObject | undefined;
+interface IItemCommandLogicReturn {
+  reply: Discord.RichEmbed;
+  itemData: INamesData | undefined;
 }
 
-export async function itemCommand(message: Message) {
+export async function itemCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
   messageData.limit = messageData.limit || 5;
@@ -22,55 +25,70 @@ export async function itemCommand(message: Message) {
 
   const {reply, itemData} = await itemCommandLogic(messageData);
 
-  const replyOptions = itemData ? {files: [`https://image.eveonline.com/Type/${itemData.itemID}_64.png`]} : undefined;
-  await replyPlaceHolder.reply(reply, replyOptions);
+  await replyPlaceHolder.reply('', {embed: reply});
   replyPlaceHolder.remove().then();
 
-  logCommand('item', message, (itemData ? itemData.name.en : undefined), undefined);
+  logCommand('item', message, (itemData ? itemData.name : undefined), undefined, transaction);
 }
 
-async function itemCommandLogic(messageData: IParsedMessage): Promise<ItemCommandLogicReturn> {
+async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemCommandLogicReturn> {
 
-  let reply = '';
+  const reply = new Discord.RichEmbed();
 
   if (!(messageData.item && messageData.item.length)) {
-    reply += 'You need to give me an item to search for.';
+    reply.addField('Error', 'You need to give me an item to search for.');
     return {reply, itemData: undefined};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
-  reply += getGuessHint({itemData, guess, id}, messageData.item);
+  const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
+  if (guessHint) {
+    reply.addField('Warning', guessHint);
+  }
 
   if (!itemData) {
     return {reply, itemData: undefined};
   }
 
-  reply += `Information about ${itemFormat(itemData.name.en as string)}:`;
-  reply += '```';
-  reply += `> ID: ${itemData.itemID}`;
-  reply += newLine();
-  reply += `> Name: ${itemData.name.en}`;
-  reply += newLine();
-  if (itemData.groupID) {
-    const group = await fetchGroup(itemData.groupID);
-    if (group !== undefined) {
-      reply += `> Group: ${group.name}`;
-      reply += newLine();
+  reply.setAuthor(itemData.name, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`);
+  reply.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
+
+  const item = await fetchUniverseType(itemData.id);
+
+  let itemInfo = '';
+  itemInfo += `* ID: ${itemData.id}`;
+  itemInfo += newLine();
+  itemInfo += `* Name: ${itemData.name}`;
+  itemInfo += newLine();
+  if (item && item.group_id) {
+    const group = await fetchGroup(item.group_id);
+    if (group) {
+      itemInfo += `* Group: ${group.name}`;
+      itemInfo += newLine();
 
       if (group.category_id) {
         const category = await fetchCategory(group.category_id);
         if (category) {
-          reply += `> Category: ${category.name}`;
-          reply += newLine();
+          itemInfo += `* Category: ${category.name}`;
+          itemInfo += newLine();
         }
       }
     }
   }
 
-  if (itemData.marketGroupID) {
+  if (item && item.volume) {
+    const volume = formatNumber(item.volume, Infinity);
+    itemInfo += `* Volume: ${makeCode(volume + ' m³')}`;
+    itemInfo += newLine();
+  }
+
+  reply.addField('Item info', itemInfo);
+
+  let marketInfo = '';
+  if (item && item.market_group_id) {
     const marketGroups = [];
-    let marketGroupId: number | undefined = itemData.marketGroupID;
+    let marketGroupId: number | undefined = item.market_group_id;
     while (marketGroupId !== undefined) {
       const marketGroup: IMarketGroup | undefined = await fetchMarketGroup(marketGroupId);
       if (marketGroup) {
@@ -78,15 +96,32 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<ItemComman
         marketGroupId = marketGroup.parent_group_id ? marketGroup.parent_group_id : undefined;
       }
     }
-    reply += `> Market location: ${marketGroups.join(' > ')}`;
-    reply += newLine();
 
+    marketInfo += `* Market location:`;
+    const indent = '    ';
+    let deepness = 1;
+    for (const marketGroup of marketGroups) {
+      marketInfo += newLine();
+      marketInfo += `${indent.repeat(deepness)}${marketGroup}`;
+      deepness++;
+    }
+
+    const json = await fetchPriceData(itemData.id, 30000142);
+    if (json && json.length) {
+      const sellData = formatNumber(json[0].sell.avg);
+      const buyData = formatNumber(json[0].buy.avg);
+      marketInfo += newLine(2);
+      marketInfo += `* Average Jita **sell** price: ${makeCode(sellData + ' ISK')}`;
+      marketInfo += newLine();
+      marketInfo += `* Average Jita **buy** price: ${makeCode(buyData + ' ISK')}`;
+    }
+
+    marketInfo += newLine();
   }
-  if (itemData.volume) {
-    reply += `> Volume: ${itemData.volume}m³`;
-    reply += newLine();
+
+  if (marketInfo) {
+    reply.addField('Market info', marketInfo);
   }
-  reply += '```';
 
   return {reply, itemData};
 }

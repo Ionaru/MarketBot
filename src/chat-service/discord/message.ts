@@ -23,7 +23,7 @@ export class Message {
   private _origin: string;
   private _sender: string;
   private _author: { id: string, name: string };
-  private _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' };
+  private _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' };
   private _server: { id: string | undefined, name: string | undefined };
   private _content: string;
   private _id: string;
@@ -69,7 +69,7 @@ export class Message {
     return this._server;
   }
 
-  get channel(): { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' } {
+  get channel(): { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' } {
     return this._channel;
   }
 
@@ -102,7 +102,7 @@ export class Message {
     return this._channel.type === 'dm';
   }
 
-  public async reply(message: string, options = {}): Promise<Message> {
+  public async reply(message: string, options: Discord.MessageOptions = {}): Promise<Message> {
     if (message.length > maxMessageLength) {
       throw new Error('MaxMessageLengthReached');
     }
@@ -122,11 +122,11 @@ export class Message {
     });
   }
 
-  public async edit(message: string): Promise<void> {
+  public async edit(message: string, options: Discord.MessageOptions = {}): Promise<void> {
     if (message.length > maxMessageLength) {
       throw new Error('MaxMessageLengthReached');
     }
-    await this._message.edit(message);
+    await this._message.edit(message, options);
   }
 
   public async remove(timeout?: number): Promise<boolean> {

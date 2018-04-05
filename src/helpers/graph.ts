@@ -7,33 +7,52 @@ interface IData {
   y: number;
 }
 
-export function createLineGraph(data: IData[], chartName = 'Line graph') {
-  const _selector = '#chart';
-  const _container = `<div id="container"><h2>${chartName}</h2><div id="chart"></div></div>`;
-  const _style = '';
+export function createLineGraph(data: IData[], chartName = 'Line graph', extraText = '') {
+
+  const backgroundColor = '#36393e';
+  const textColor = '#939597';
+  const lineColor = '#7289da';
+
+  const graphStyles = [
+    `background-color: ${backgroundColor}`,
+    `color: ${textColor}`,
+    'font-family: Helvetica, Arial, sans-serif',
+    'position: absolute',
+    'top: 0',
+    'left: 0'
+  ].join(';');
+
+  const selector = '#chart';
+
+  const container = `
+  <div id="container" style="${graphStyles}">
+    <h2 style="padding-left: 73px; display: inline-block;">${chartName}</h2>
+    <h2 style="padding-right: 73px; float: right;">${extraText}</h2>
+    <div id="chart"></div>
+  </div>
+  `;
+
   const d3n = new D3Node({
-    container: _container,
-    selector: _selector,
-    svgStyles: _style
+    container,
+    selector
   });
 
-  const _margin = {top: 0, right: 75, bottom: 125, left: 75};
+  const margin = {top: 0, right: 75, bottom: 125, left: 75};
   const pageWidth = 1200;
   const pageHeight = 600;
   const tickSize = 5;
   const tickPadding = 2;
-  const lineColor = 'steelblue';
   const lineWidth = 3;
 
-  const graphWidth = (pageWidth - _margin.left) - _margin.right;
-  const graphHeight = (pageHeight - _margin.top) - _margin.bottom;
+  const graphWidth = (pageWidth - margin.left) - margin.right;
+  const graphHeight = (pageHeight - margin.top) - margin.bottom;
 
   d3n.width = pageWidth;
   d3n.height = pageHeight;
 
   const svg = d3n.createSVG(pageWidth, pageHeight)
-    .append('g').style('color', 'white').style('background-color', 'black')
-    .attr('transform', `translate(${_margin.left}, ${_margin.top})`);
+    .append('g')
+    .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
   const g = svg.append('g');
 
@@ -63,7 +82,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   const startDate = new Date(data[data.length - 1].x);
   const endDate = new Date(data[0].x);
   xScale.domain([startDate, endDate]);
-  yScale.domain(d3.extent(data, (d) => d.y) as any);
+  yScale.domain(d3.extent(data, (d: IData) => d.y) as any);
 
   g.append('g')
     .attr('transform', `translate(0, ${graphHeight})`)
@@ -81,6 +100,15 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
     .call(yAxis)
     .call(make_y_gridlines(graphWidth));
 
+  g.selectAll('line')
+    .attr('stroke', textColor);
+
+  g.selectAll('text')
+    .attr('fill', textColor);
+
+  g.selectAll('path.domain')
+    .attr('stroke', textColor);
+
   g.append('path')
     .datum(data)
     .attr('fill', 'none')
@@ -91,20 +119,18 @@ export function createLineGraph(data: IData[], chartName = 'Line graph') {
   return d3n;
 }
 
-export async function exportGraphImage(graph: any, outputName: string) {
-
-  const html = graph.html();
-  const viewport = {width: graph.width, height: graph.height};
-
-  const type = 'png' as 'png';
-  const screenShotOptions = {viewport, type, path: outputName};
+export async function exportGraphImage(graph: any, path: string) {
 
   const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
   const page = await browser.newPage();
-  await page.setContent(html);
-  if (viewport) {
-    await page.setViewport(viewport);
-  }
+  await page.setContent(graph.html());
+
+  const viewport = {width: graph.width, height: graph.height};
+  await page.setViewport(viewport);
+
+  const type = 'png' as 'png';
+  const screenShotOptions = {viewport, type, path};
   await page.screenshot(screenShotOptions);
+
   browser.close().then();
 }

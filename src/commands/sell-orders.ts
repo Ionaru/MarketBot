@@ -2,21 +2,21 @@ import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
+import { items, regions, regionsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { regionList } from '../regions';
-import { IMarketData, INamesData, IParsedMessage, ISDEObject } from '../typings';
+import { IMarketData, INamesData, IParsedMessage } from '../typings';
 
 interface ISellOrdersCommandLogicReturn {
   reply: string;
-  itemData: ISDEObject | undefined;
+  itemData: INamesData | undefined;
   regionName: string | undefined;
 }
 
-export async function sellOrdersCommand(message: Message) {
+export async function sellOrdersCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
   messageData.limit = messageData.limit || 5;
@@ -29,7 +29,7 @@ export async function sellOrdersCommand(message: Message) {
   const {reply, itemData, regionName} = await sellOrdersCommandLogic(messageData);
 
   await replyPlaceHolder.edit(reply);
-  logCommand('sell-orders', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  logCommand('sell-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
 async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> {
@@ -42,7 +42,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -50,21 +50,23 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  let regionId: number | void = 10000002;
+  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
+  let region = defaultRegion;
+
   if (messageData.region) {
-    regionId = guessUserRegionInput(messageData.region);
-    if (!regionId) {
-      regionId = 10000002;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
+    region = guessUserInput(messageData.region, regions, regionsFuse).itemData;
+    if (!region.id) {
+      region = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = regionList[regionId];
+  regionName = region.name;
 
-  const itemId = itemData.itemID;
+  const itemId = itemData.id;
 
-  const marketData = await fetchMarketData(itemId, regionId);
+  const marketData = await fetchMarketData(itemId, region.id);
 
   if (!marketData) {
     reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
@@ -74,7 +76,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   let sellOrders: IMarketData[] = marketData.filter((_) => _.is_buy_order === false);
 
   if (!(sellOrders && sellOrders.length)) {
-    reply += `I couldn't find any sell orders for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}.`;
+    reply += `I couldn't find any sell orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
   }
 
@@ -93,7 +95,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   }
 
   const orderWord = pluralize('order', 'orders', messageData.limit);
-  reply += `The cheapest ${itemFormat(itemData.name.en as string)} sell ${orderWord} in ${regionFormat(regionName)}:`;
+  reply += `The cheapest ${itemFormat(itemData.name)} sell ${orderWord} in ${regionFormat(regionName)}:`;
   reply += newLine(2);
 
   for (const order of sellOrders) {

@@ -13,9 +13,11 @@ coverage/
 dist/
 
 # Local application files
-config/token.txt
+config/marketbot.ini
 data/typeIDs.yaml
 data/*.png
+data/*.json
+data/*.txt
 logs/
 
 # System files

@@ -1,12 +1,12 @@
 # Discord MarketBot for EVE Online
 [![Build Status](https://travis-ci.org/Ionaru/MarketBot.svg?branch=master)](https://travis-ci.org/Ionaru/MarketBot)
 [![codecov](https://codecov.io/gh/Ionaru/MarketBot/branch/master/graph/badge.svg)](https://codecov.io/gh/Ionaru/MarketBot)
-[![Trading is serious business](https://img.shields.io/badge/trading-is%20serious%20business-2F849E.svg "Spaceships are as well!")](https://www.eveonline.com/)
+[![Internet spaceships are serious business](https://img.shields.io/badge/internet%20spaceships-are%20serious%20business-2F849E.svg)](https://www.eveonline.com/)
 
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
 
-It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), the [EVE Swagger Interface](https://esi.tech.ccp.is/) and the [Static Data Export](https://developers.eveonline.com/resource/resources) provided by CCP.
+It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), and the [EVE Swagger Interface](https://esi.tech.ccp.is/) provided by CCP.
 
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
@@ -17,11 +17,13 @@ It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [sto
 ## Screenshots
 The bot in action
 
-![Image of price command](https://cloud.githubusercontent.com/assets/3472373/25491154/668c3504-2b6f-11e7-8419-2ff21500e9b8.png)
+![Image of price command](https://user-images.githubusercontent.com/3472373/37924487-42f77698-3132-11e8-9df4-c316ee4457f5.png)
 
-![Image of sell command](https://cloud.githubusercontent.com/assets/3472373/25491068/2213ccc0-2b6f-11e7-8562-46dbf7587596.png)
+![Image of sell command](https://user-images.githubusercontent.com/3472373/37924510-560e97b6-3132-11e8-9fd3-54df753bbc1f.png)
 
-![Image of price command with wrong spelling](https://cloud.githubusercontent.com/assets/3472373/25491110/4227c17e-2b6f-11e7-8609-46ee6e5ad291.png)
+![Image of item command](https://user-images.githubusercontent.com/3472373/37924531-7113853a-3132-11e8-94ca-c920e356bbb1.png)
+
+![Image of history command](https://user-images.githubusercontent.com/3472373/37924569-8c5fa3a0-3132-11e8-9b56-e6bbbcee37bc.png)
 
 ## Logging
 This bot keeps records of issued commands, this data is used to monitor performance, usage and accuracy of the bot.
@@ -49,40 +51,26 @@ It is possible to self-host this bot, it requires NodeJS 8 or greater.
 1. Go to [https://discordapp.com/developers/applications/me](https://discordapp.com/developers/applications/me).
 2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
 3. Click on "Create a Bot User" and confirm.
-4. Click the link next to "Token" to reveal your bot token, you will need it later.
+4. Click the link next to "Token" to reveal your Discord Bot Token, you will need it later.
 5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot`
 6. Paste the link in your web browser and follow the steps on the Discord website.
 
 #### Step two: Installing the bot
-1. Clone this repository to a directory of your choice.
-2. Install [NodeJS](https://nodejs.org/en/download/current/).
+1. Install [NodeJS](https://nodejs.org/en/download/current/).
+2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
 3. Install dependencies with `npm install`.
-4. Go to the config folder, create a file named `token.txt` and place the Bot Token inside it.
-5. Download the Static Data Export from [https://developers.eveonline.com/resource/resources](https://developers.eveonline.com/resource/resources) and place `typeIDs.yaml` in the `data` folder.
-6. Go back to the main folder and run `npm start`.
+4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
+5. Go back to the main folder and run `npm start`.
 
 Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you need any assistance.
 
 ## To-Do & Ideas
-- [x] Search for best buy orders
-- [x] Better/Faster fuzzy word search, at the moment it's slow and sometimes inaccurate
-- [x] Shortcuts for commonly used searches (e.g. PLEX)
-- [x] Price tracking
-- [x] /history command for seeing price history
-- [ ] Support for searches in Jita, Amarr & other trade hubs
-- [x] Unlimited price tracking duration
-- [x] Price tracking in public channels
-- [x] Remove specific tracking entries from price tracking
-- [x] Support item IDs in commands
-- [x] /id command to get item IDs (reverse too?)
-- [x] Replace Sequelize with TypeORM for Tracking entries
-- [ ] Replace Sequelize with TypeORM for Log entries
-- [x] Make a place for command information, the /info command is too full
+- [x] Support for searches in Jita, Amarr & other trade hubs
 - [ ] % difference between lowest sell order and highest buy order
 - [ ] Show volume in price history
 - [ ] Show deviation between low and high in price history
-- [ ] Darker graphs to better match Discord colors
-- [ ] More information in price command output (low/high)
+- [x] Darker graphs to better match Discord colors
+- [x] More information in price command output (low/high)
 
 ## Developer information
 Want to contribute? Awesome!

@@ -3,7 +3,7 @@ import { logCommand } from '../helpers/command-logger';
 import { makeBold, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
 import { botName, client, creator, version } from '../market-bot';
 
-export async function infoFunction(message: Message) {
+export async function infoCommand(message: Message, transaction: any) {
 
   let reply = makeBold(`Greetings, I am ${botName}!`);
 
@@ -12,7 +12,7 @@ export async function infoFunction(message: Message) {
 
     if (name !== botName) {
       reply += newLine();
-      reply += `You may know me as ${makeBold(name)} in this channel.`;
+      reply += `You may know me as ${makeBold(name!)} in this channel.`;
     }
   }
 
@@ -20,7 +20,7 @@ export async function infoFunction(message: Message) {
   reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market and provide you with accurate `;
   reply += `price information.`;
   reply += newLine();
-  reply += `The data I use comes from the EVE Swagger Interface and the Static Data Export provided by CCP, as well as `;
+  reply += `The data I use comes from the EVE Swagger Interface provided by CCP, as well as `;
   reply += `the EVEMarketer and stop.hammerti.me.uk APIs created by some amazing third-party developers.`;
   reply += newLine(2);
   reply += makeBold('Commands');
@@ -40,5 +40,5 @@ export async function infoFunction(message: Message) {
   reply += `My current version is ${version}.`;
 
   await message.reply(reply);
-  logCommand('info', message);
+  logCommand('info', message, undefined, undefined, transaction);
 }

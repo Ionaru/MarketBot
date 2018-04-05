@@ -1,1 +1,1 @@
-In this folder, create a file with the name `token.txt`, and add the Discord bot token inside it.
+Create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`, you can configure the bot through this file.

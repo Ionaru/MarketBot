@@ -1,12 +1,13 @@
-import { commandPrefix, limitCommandRegex, regionCommandRegex } from '../market-bot';
-import { IParsedMessage, ISDEObject, ITypeIDs } from '../typings';
+import { commandPrefix, limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
+import { IParsedMessage } from '../typings';
 
 export function parseMessage(message: string): IParsedMessage {
   const parsedMessage: IParsedMessage = {
     content: message,
     item: '',
     limit: 0,
-    region: ''
+    region: '',
+    system: ''
   };
 
   // Remove double spaces because that confuses the input guessing system
@@ -38,6 +39,16 @@ export function parseMessage(message: string): IParsedMessage {
     parsedMessage.region = sep1;
   }
 
+  // Search for the system text
+  const systemMatch = messageText.match(systemCommandRegex);
+  if (systemMatch && systemMatch.index) {
+    let sep1 = messageText.substring(systemMatch.index + systemMatch[0].length).trim();
+    if (sep1.indexOf(commandPrefix) !== -1) {
+      sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
+    }
+    parsedMessage.system = sep1;
+  }
+
   // Search for the limit text
   const limitMatch = messageText.match(limitCommandRegex);
   if (limitMatch && limitMatch.index) {
@@ -49,16 +60,4 @@ export function parseMessage(message: string): IParsedMessage {
   }
 
   return parsedMessage;
-}
-
-export function parseTypeIDs(typeIDs: ITypeIDs): ISDEObject[] {
-  const itemsArray = [];
-
-  for (const key of Object.keys(typeIDs)) {
-      const value: ISDEObject = typeIDs[Number(key)];
-      value.itemID = Number(key);
-      itemsArray.push(value);
-  }
-
-  return itemsArray;
 }

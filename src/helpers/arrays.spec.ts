@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { sortArrayByObjectProperty, sortArrayByObjectSubPropertyLength } from './arrays';
+import { sortArrayByObjectProperty, sortArrayByObjectPropertyLength } from './arrays';
 
 describe('Array sorting', () => {
 
@@ -80,78 +80,78 @@ describe('Array sorting', () => {
 
   describe('sortArrayByObjectPropertyLength()', () => {
     const unsortedArray = [
-      {value: {subValue: '12345'}},
-      {value: {subValue: '12'}},
-      {value: {subValue: '1'}},
-      {value: {subValue: '123'}},
-      {value: {subValue: '1234'}}
+      {value: '12345'},
+      {value: '12'},
+      {value: '1'},
+      {value: '123'},
+      {value: '1234'}
     ];
 
     it('should sort the array by the object property length', () => {
-      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArray, 'value', 'subValue');
+      const sortedArray = sortArrayByObjectPropertyLength(unsortedArray, 'value');
 
       assert.deepEqual(sortedArray, [
-        {value: {subValue: '1'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '123'}},
-        {value: {subValue: '1234'}},
-        {value: {subValue: '12345'}}
+        {value: '1'},
+        {value: '12'},
+        {value: '123'},
+        {value: '1234'},
+        {value: '12345'}
       ]);
     });
 
     it('should reverse sort the array by the object property length', () => {
-      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArray, 'value', 'subValue', true);
+      const sortedArray = sortArrayByObjectPropertyLength(unsortedArray, 'value', true);
 
       assert.deepEqual(sortedArray, [
-        {value: {subValue: '12345'}},
-        {value: {subValue: '1234'}},
-        {value: {subValue: '123'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '1'}}
+        {value: '12345'},
+        {value: '1234'},
+        {value: '123'},
+        {value: '12'},
+        {value: '1'}
       ]);
     });
 
     it('should sort the array by the object property length with equal length values', () => {
       const unsortedArrayWithEqualValues = [
-        {value: {subValue: '12345'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '1'}},
-        {value: {subValue: '123'}},
-        {value: {subValue: '1234'}},
-        {value: {subValue: '12'}}
+        {value: '12345'},
+        {value: '12'},
+        {value: '1'},
+        {value: '123'},
+        {value: '1234'},
+        {value: '12'}
       ];
 
-      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArrayWithEqualValues, 'value', 'subValue');
+      const sortedArray = sortArrayByObjectPropertyLength(unsortedArrayWithEqualValues, 'value');
 
       assert.deepEqual(sortedArray, [
-        {value: {subValue: '1'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '123'}},
-        {value: {subValue: '1234'}},
-        {value: {subValue: '12345'}}
+        {value: '1'},
+        {value: '12'},
+        {value: '12'},
+        {value: '123'},
+        {value: '1234'},
+        {value: '12345'}
       ]);
     });
 
     it('should reverse sort the array by the object property length with equal length values', () => {
       const unsortedArrayWithEqualValues = [
-        {value: {subValue: '12345'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '1'}},
-        {value: {subValue: '123'}},
-        {value: {subValue: '1234'}},
-        {value: {subValue: '12'}}
+        {value: '12345'},
+        {value: '12'},
+        {value:  '1'},
+        {value: '123'},
+        {value: '1234'},
+        {value: '12'}
       ];
 
-      const sortedArray = sortArrayByObjectSubPropertyLength(unsortedArrayWithEqualValues, 'value', 'subValue', true);
+      const sortedArray = sortArrayByObjectPropertyLength(unsortedArrayWithEqualValues, 'value', true);
 
       assert.deepEqual(sortedArray, [
-        {value: {subValue: '12345'}},
-        {value: {subValue: '1234'}},
-        {value: {subValue: '123'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '12'}},
-        {value: {subValue: '1'}}
+        {value: '12345'},
+        {value: '1234'},
+        {value: '123'},
+        {value: '12'},
+        {value: '12'},
+        {value: '1'}
       ]);
     });
   });

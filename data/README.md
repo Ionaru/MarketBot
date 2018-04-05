@@ -1,1 +1,1 @@
-In this folder, the `typeIDs.yaml` file from CCP's Static Data Export should be placed.
+The bot will place data caches in this folder.

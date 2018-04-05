@@ -8,19 +8,19 @@ import { maxMessageLength } from './misc';
 
 export class Client {
 
-  private static onError(error: any) {
-    logger.error(error.toString());
+  private static onError(error: Error) {
+    logger.error('Discord:', error.message);
   }
 
   private static onWarning(warning: string) {
-    logger.warn(warning);
+    logger.warn('Discord:', warning);
   }
 
   private client: Discord.Client;
   private credentials: string;
   private _emitter: EventEmitter;
-  private _name: string;
-  private _id: string;
+  private _name: string | undefined;
+  private _id: string | undefined;
 
   constructor(credentials: string) {
     this.credentials = credentials;
@@ -47,12 +47,12 @@ export class Client {
     });
 
     this.client.on('disconnect', (event: CloseEvent) => {
-      this.onDisconnect(event).then();
+      this.onDisconnect(event);
     });
   }
 
   public login() {
-    this.client.login(this.credentials);
+    this.client.login(this.credentials).then();
   }
 
   public async disconnect() {
@@ -101,11 +101,11 @@ export class Client {
     return this._emitter;
   }
 
-  get name(): string {
+  get name(): string | undefined {
     return this._name;
   }
 
-  get id(): string {
+  get id(): string | undefined {
     return this._id;
   }
 
@@ -125,12 +125,12 @@ export class Client {
     this._emitter.emit('message', new Message(message));
   }
 
-  private async onDisconnect(event: CloseEvent) {
-    logger.warn('Connection closed');
+  private onDisconnect(event: CloseEvent) {
+    logger.warn('Connection closed unexpectedly');
     logger.warn('Code:', event.code);
     logger.warn('Reason:', event.reason);
     logger.warn('Attempting reconnect...');
-    await this.reconnect();
+    this.reconnect().then();
   }
 
   private onReady() {

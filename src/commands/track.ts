@@ -4,49 +4,48 @@ import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
+import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
-import { items } from '../helpers/items-loader';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
-import { regionList } from '../regions';
-import { IMarketData, ISDEObject } from '../typings';
+import { IMarketData, INamesData } from '../typings';
 
 // tslint:disable:variable-name
 @Entity('TrackingEntries')
 export class TrackingEntry extends BaseEntity {
 
   @PrimaryGeneratedColumn()
-  public id: number;
+  public id!: number;
 
   @Column()
-  public item_id: number;
-
-  // noinspection TsLint
-  @Column()
-  public channel_id: string;
+  public item_id!: number;
 
   // noinspection TsLint
   @Column()
-  public sender_id: string;
+  public channel_id!: string;
 
   // noinspection TsLint
   @Column()
-  public region_id: number;
+  public sender_id!: string;
+
+  // noinspection TsLint
+  @Column()
+  public region_id!: number;
 
   // noinspection TsLint
   @Column({type: 'decimal'})
-  public tracking_limit: number;
+  public tracking_limit!: number;
 
   // noinspection TsLint
   @Column({type: 'decimal'})
-  public tracking_price: number;
+  public tracking_price!: number;
 
   // noinspection TsLint
   @Column()
-  public tracking_type: 'buy' | 'sell';
+  public tracking_type!: 'buy' | 'sell';
 }
 // tslint:enable:variable-name
 
@@ -54,11 +53,12 @@ let trackingCycle: Timer | undefined;
 
 interface ITrackCommandLogicReturn {
   reply: string;
-  itemData: ISDEObject | undefined;
+  itemData: INamesData | undefined;
   regionName: string | undefined;
 }
 
 export function startTrackingCycle() {
+  logger.debug('Scheduled tracking cycle');
   trackingCycle = setInterval(() => {
     performTrackingCycle().then();
   }, 5 * 60 * 1000);
@@ -66,12 +66,13 @@ export function startTrackingCycle() {
 
 export function stopTrackingCycle() {
   if (trackingCycle !== undefined) {
+    logger.debug('Stopping tracking cycle');
     clearInterval(trackingCycle);
     trackingCycle = undefined;
   }
 }
 
-export async function trackCommand(message: Message, type: 'buy' | 'sell'): Promise<void> {
+export async function trackCommand(message: Message, type: 'buy' | 'sell', transaction: any): Promise<void> {
   const replyPlaceHolder = await message.reply(
     `Setting up for price tracking, one moment, ${message.sender}...`
   );
@@ -79,7 +80,7 @@ export async function trackCommand(message: Message, type: 'buy' | 'sell'): Prom
   const {reply, itemData, regionName} = await trackCommandLogic(message, type);
 
   await replyPlaceHolder.edit(reply);
-  logCommand(`track-${type}-order`, message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  logCommand(`track-${type}-order`, message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
 async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> {
@@ -95,7 +96,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -103,18 +104,19 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  let regionId: number | void = 10000002;
+  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
+  let region = defaultRegion;
 
   if (messageData.region) {
-    regionId = guessUserRegionInput(messageData.region);
-    if (!regionId) {
-      regionId = 10000002;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
+    region = guessUserInput(messageData.region, regions, regionsFuse).itemData;
+    if (!region.id) {
+      region = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = regionList[regionId];
+  regionName = region.name;
 
   let changeLimit = messageData.limit || 1;
 
@@ -132,30 +134,30 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   }
 
   const channelItemDup = dupEntries.filter((_) =>
-    (_.item_id === itemData.itemID && _.region_id === regionId && _.tracking_type === type && _.channel_id === message.channel.id)
+    (_.item_id === itemData.id && _.region_id === region.id && _.tracking_type === type && _.channel_id === message.channel.id)
   );
   if (channelItemDup.length !== 0) {
-    reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name.en as string)} in this channel.`;
+    reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name)} in this channel.`;
     return {reply, itemData, regionName};
   }
 
-  const originalOrder = await getCheapestOrder(type, itemData.itemID, regionId);
+  const originalOrder = await getCheapestOrder(type, itemData.id, region.id);
   if (!originalOrder) {
-    reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}.`;
+    reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
   }
 
   const originalPrice = originalOrder.price;
 
-  reply += `Started ${makeBold(type)} price tracking for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}, ` +
+  reply += `Started ${makeBold(type)} price tracking for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}, ` +
     `I'll warn you when the ${makeBold(type)} price changes ${makeCode(formatNumber(changeLimit) + ' ISK')}. ` +
     ` Right now the price is ${makeCode(formatNumber(originalPrice) + ' ISK')}`;
   reply += newLine(2);
 
   const entry = new TrackingEntry();
   entry.channel_id = message.channel.id;
-  entry.item_id = itemData.itemID;
-  entry.region_id = regionId;
+  entry.item_id = itemData.id;
+  entry.region_id = region.id;
   entry.sender_id = message.author.id;
   entry.tracking_limit = changeLimit;
   entry.tracking_price = originalPrice;
@@ -168,24 +170,24 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   return {reply, itemData, regionName};
 }
 
-export async function clearTracking(message: Message): Promise<void> {
+export async function clearTrackingCommand(message: Message, transaction: any): Promise<void> {
   let reply = `All entries cleared from this channel, ${message.sender}.`;
 
   const messageData = parseMessage(message.content);
   let itemId: number | undefined;
   let itemData: IGuessReturn | undefined;
   if (messageData.item && messageData.item.length) {
-    itemData = guessUserItemInput(messageData.item);
-    if (itemData.itemData && itemData.itemData.name.en) {
-      itemId = itemData.itemData.itemID;
+    itemData = guessUserInput(messageData.item, items, itemsFuse);
+    if (itemData.itemData && itemData.itemData.name) {
+      itemId = itemData.itemData.id;
     }
   }
 
   const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
   if (trackingEntries && trackingEntries.length) {
     let entries = trackingEntries.filter((_) => _.channel_id === message.channel.id);
-    if (itemId && itemData && itemData.itemData && itemData.itemData.name.en) {
-      reply = `All entries for ${itemFormat(itemData.itemData.name.en)} cleared from this channel, ${message.sender}.`;
+    if (itemId && itemData && itemData.itemData && itemData.itemData.name) {
+      reply = `All entries for ${itemFormat(itemData.itemData.name)} cleared from this channel, ${message.sender}.`;
       entries = entries.filter((_) => _.item_id === itemId);
     }
 
@@ -194,7 +196,7 @@ export async function clearTracking(message: Message): Promise<void> {
     }
   }
   await message.reply(reply);
-  logCommand(`track-clear`, message, undefined, undefined);
+  logCommand(`track-clear`, message, undefined, undefined, transaction);
 }
 
 function droppedRose(amount: number) {
@@ -276,8 +278,8 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketData, e
   const droppedRoseWord = droppedRose(currentOrder.price - entry.tracking_price);
   const changeText = makeCode(`${formatNumber(change)} ISK`);
 
-  const itemName = items.filter((_) => _.itemID === entry.item_id)[0].name.en as string;
-  const regionName = regionList[entry.region_id];
+  const itemName = items.filter((_) => _.id === entry.item_id)[0].name;
+  const regionName = regions.filter((_) => _.id === entry.region_id)[0].name;
 
   let reply = `Attention, change detected in ${makeBold(entry.tracking_type)} price `;
   reply += `for ${itemFormat(itemName)} in ${regionFormat(regionName)}: `;

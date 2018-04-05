@@ -1,5 +1,7 @@
+import * as elastic from 'elastic-apm-node';
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
+import { Configurator } from './helpers/configurator';
 import { activate, deactivate } from './market-bot';
 
 /**
@@ -14,6 +16,18 @@ new WinstonPnPLogger({
 
 logger.info(`NodeJS version ${process.version}`);
 
+const configuration = new Configurator();
+configuration.addConfigFile('marketbot');
+
+if (configuration.getProperty('elastic.enabled') === true) {
+  elastic.start({
+    secretToken: configuration.getProperty('elastic.token'),
+    serverUrl: configuration.getProperty('elastic.url'),
+    serviceName: 'marketbot'
+  });
+  logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
+}
+
 activate().then();
 
 process.stdin.resume();
@@ -25,5 +39,8 @@ process.on('uncaughtException', (error) => {
   deactivate(true, true).then();
 });
 process.on('SIGINT', () => {
+  deactivate(true).then();
+});
+process.on('SIGTERM', () => {
   deactivate(true).then();
 });

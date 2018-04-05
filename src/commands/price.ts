@@ -1,57 +1,82 @@
+import * as Discord from 'discord.js';
 import { Message } from '../chat-service/discord/message';
 import { fetchPriceData } from '../helpers/api';
+import { items, itemsFuse, regions, systems } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { regionList } from '../regions';
-import { IPriceData } from '../typings';
+import { INamesData, IParsedMessage, IPriceData } from '../typings';
 
-export async function priceFunction(message: Message) {
+interface IPriceCommandLogicReturn {
+  reply: Discord.RichEmbed;
+  itemData: INamesData | undefined;
+  locationName: string | undefined;
+}
 
+export async function priceCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
-  const replyPlaceholder = await message.reply(
+  const replyPlaceHolder = await message.reply(
     `Checking price, one moment, ${message.sender}...`
   );
 
-  let reply = '';
-  let regionName = '';
+  const {reply, itemData, locationName} = await priceCommandLogic(messageData);
+
+  await replyPlaceHolder.edit('', {embed: reply});
+
+  logCommand('price', message, (itemData ? itemData.name : undefined), (locationName ? locationName : undefined), transaction);
+}
+
+async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCommandLogicReturn> {
+
+  const reply = new Discord.RichEmbed();
+
+  let locationName = '';
 
   if (!(messageData.item && messageData.item.length)) {
-    reply = 'You need to give me an item to search for.';
-    return replyPlaceholder.edit(reply);
+    reply.addField('Error', 'You need to give me an item to search for.');
+    return {reply, itemData: undefined, locationName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
-  reply += getGuessHint({itemData, guess, id}, messageData.item);
+  const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
+  if (guessHint) {
+    reply.addField('Warning', guessHint);
+  }
 
   if (!itemData) {
-    return {reply, itemData: undefined, regionName};
+    return {reply, itemData: undefined, locationName};
   }
 
-  let regionId: number | void = 10000002;
+  const defaultLocation = regions.filter((_) => _.name === 'The Forge')[0];
+  let location = defaultLocation;
 
   if (messageData.region) {
-    regionId = guessUserRegionInput(messageData.region);
-    if (!regionId) {
-      regionId = 10000002;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
-      reply += newLine(2);
+    location = guessUserInput(messageData.region, regions).itemData;
+    if (!location.id) {
+      location = defaultLocation;
+      reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(location.name)}`);
     }
   }
 
-  regionName = regionList[regionId];
+  if (messageData.system) {
+    location = guessUserInput(messageData.system, systems).itemData;
+    if (!location.id) {
+      location = defaultLocation;
+      reply.addField('Warning', `I don't know of the "${messageData.system}" system, defaulting to ${regionFormat(location.name)}`);
+    }
+  }
 
-  const itemId = itemData.itemID;
+  locationName = location.name;
 
-  const json = await fetchPriceData(itemId, regionId);
+  const json = await fetchPriceData(itemData.id, location.id);
 
   if (!(json && json.length)) {
-    reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
-    return replyPlaceholder.edit(reply);
+    reply.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);
+    return {reply, itemData, locationName};
   }
 
   const sellData: IPriceData = json[0].sell;
@@ -60,39 +85,45 @@ export async function priceFunction(message: Message) {
   let sellPrice = 'unknown';
   let lowestSellPrice = 'unknown';
   if (sellData.fivePercent && sellData.fivePercent !== 0) {
-    sellPrice = formatNumber(sellData.fivePercent) + ' ISK';
-    lowestSellPrice = formatNumber(sellData.min) + ' ISK';
+    sellPrice = formatNumber(sellData.wavg) + ' ISK';
+    lowestSellPrice = formatNumber(sellData.fivePercent) + ' ISK';
   }
 
   let buyPrice = 'unknown';
   let highestBuyPrice = 'unknown';
   if (buyData.fivePercent && buyData.fivePercent !== 0) {
-    buyPrice = formatNumber(buyData.fivePercent) + ' ISK';
-    highestBuyPrice = formatNumber(buyData.max) + ' ISK';
+    buyPrice = formatNumber(buyData.wavg) + ' ISK';
+    highestBuyPrice = formatNumber(buyData.fivePercent) + ' ISK';
   }
 
   if (sellPrice === 'unknown' && buyPrice === 'unknown') {
-    reply += `I couldn't find any price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}, sorry.`;
-    return replyPlaceholder.edit(reply);
+    const itemName = itemFormat(itemData.name);
+    const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(locationName)}, sorry.`;
+    reply.addField('No data', replyText);
+    return {reply, itemData, locationName};
   }
 
-  reply += `Price information for ${itemFormat(itemData.name.en as string)} in ${regionFormat(regionName)}:` + newLine(2);
+  reply.setAuthor(itemData.name, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
+  reply.setDescription(`Price information for ${regionFormat(locationName)}`);
+  reply.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 
+  let sellInfo = '';
   if (sellPrice !== 'unknown') {
-    reply += `- Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();
-    reply += `- Average selling price is ${itemFormat(sellPrice)}` + newLine();
+    sellInfo += `* Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();
+    sellInfo += `* Average selling price is ${itemFormat(sellPrice)}` + newLine();
   } else {
-    reply += '- Selling price data is unavailable' + newLine();
+    sellInfo += '* Selling price data is unavailable' + newLine();
   }
+  reply.addField('Sell', sellInfo);
 
-  reply += newLine();
+  let buyInfo = '';
   if (buyPrice !== 'unknown') {
-    reply += `- Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
-    reply += `- Average buying price is ${itemFormat(buyPrice)}` + newLine();
+    buyInfo += `* Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
+    buyInfo += `* Average buying price is ${itemFormat(buyPrice)}` + newLine();
   } else {
-    reply += '- Buying price data is unavailable' + newLine();
+    buyInfo += '* Buying price data is unavailable' + newLine();
   }
+  reply.addField('Buy', buyInfo);
 
-  await replyPlaceholder.edit(reply);
-  logCommand('price', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  return {reply, itemData, locationName};
 }

@@ -1,25 +1,26 @@
 import * as d3 from 'd3';
 import * as fs from 'fs';
+import * as moment from 'moment';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';
+import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
 import { createLineGraph, exportGraphImage } from '../helpers/graph';
-import { getGuessHint, guessUserItemInput, guessUserRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { regionList } from '../regions';
-import { IParsedMessage, ISDEObject } from '../typings';
+import { INamesData, IParsedMessage } from '../typings';
 
 interface IHistoryCommandLogicReturn {
   reply: string;
-  itemData: ISDEObject | undefined;
+  itemData: INamesData | undefined;
   regionName: string | undefined;
   fileName?: string;
 }
 
-export async function historyFunction(message: Message) {
+export async function historyCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
   const replyPlaceHolder = await message.reply(
@@ -32,10 +33,10 @@ export async function historyFunction(message: Message) {
   await replyPlaceHolder.reply(reply, replyOptions);
   replyPlaceHolder.remove().then();
 
-  logCommand('history', message, (itemData ? itemData.name.en : undefined), (regionName ? regionName : undefined));
+  logCommand('history', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
-export async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistoryCommandLogicReturn> {
+async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistoryCommandLogicReturn> {
 
   let regionName = '';
   let reply = '';
@@ -45,7 +46,7 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserItemInput(messageData.item);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -53,20 +54,21 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
     return {reply, itemData: undefined, regionName};
   }
 
-  let regionId: number | void = 10000002;
+  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
+  let region = defaultRegion;
 
   if (messageData.region) {
-    regionId = guessUserRegionInput(messageData.region);
-    if (!regionId) {
-      regionId = 10000002;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(regionList[regionId])}`;
+    region = guessUserInput(messageData.region, regions, regionsFuse).itemData;
+    if (!region.id) {
+      region = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = regionList[regionId];
+  regionName = region.name;
 
-  const historyData = await fetchHistoryData(itemData.itemID, regionId);
+  const historyData = await fetchHistoryData(itemData.id, region.id);
 
   if (!historyData) {
     reply += 'My apologies, I was unable to fetch the required data from the web, please try again later.';
@@ -74,30 +76,31 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
   }
 
   if (!historyData.length) {
-    reply = `I couldn't find any price history for ${itemFormat(itemData.name.en as string)}`;
+    reply = `I couldn't find any price history for ${itemFormat(itemData.name)}`;
     return {reply, itemData, regionName};
   }
 
-  const last20days = historyData.slice(-20).reverse();
-  reply += `Price history for ${itemFormat(itemData.name.en as string)} from the last 20 days, newest to oldest:`;
+  const last20days = historyData.filter((_) => moment(_.date).isAfter(moment().startOf('day').subtract(21, 'days'))).reverse();
+
+  if (!last20days.length) {
+    reply = `There is no history data in the last 20 days for ${itemFormat(itemData.name)} in ${regionName}.`;
+    return {reply, itemData, regionName};
+  }
+
+  reply += `Price history for ${itemFormat(itemData.name)} from the last 20 days, newest to oldest:`;
   reply += newLine();
 
   let historyText = '```';
 
   const parseTime = d3.utcParse('%Y-%m-%d');
 
-  let daysAgo = 1;
   for (const historyEntry of last20days) {
     historyText += newLine();
-    let dayName = `${daysAgo} days ago`;
-    if (daysAgo === 1) {
-      dayName = `Yesterday`;
-    }
+    const dayName = moment(historyEntry.date).from(moment().startOf('day'));
     const parsedTime = parseTime(historyEntry.date) as Date;
     const dateText = d3.utcFormat('%a, %m-%d')(parsedTime);
 
     historyText += `${dateText}: ${formatNumber(historyEntry.average) + ` ISK`} (${dayName})`;
-    daysAgo++;
   }
 
   historyText += '```';
@@ -110,9 +113,9 @@ export async function historyCommandLogic(messageData: IParsedMessage): Promise<
     };
   });
 
-  const fileName = `data/${last20days[0].date}_${itemData.itemID}_${regionId}.png`;
+  const fileName = `data/${last20days[0].date}_${itemData.id}_${region.id}.png`;
   if (!fs.existsSync(fileName)) {
-    const graph = createLineGraph(data, `Price history for ${itemData.name.en} in ${regionName}`);
+    const graph = createLineGraph(data, `Price history for ${itemData.name}`, regionName);
     try {
       await exportGraphImage(graph, fileName);
     } catch (error) {
