@@ -1,7 +1,7 @@
 import * as Discord from 'discord.js';
 import { logger } from 'winston-pnp-logger';
 
-import { makeCode, makeURL, makeUserLink, newLine } from '../../helpers/message-formatter';
+import { makeBold, makeCode, makeURL, makeUserLink, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
 import { maxMessageLength } from './misc';
 
@@ -19,7 +19,7 @@ export class Message {
     return text;
   }
 
-  private _message: Discord.Message;
+  public _message: Discord.Message;
   private _origin: string;
   private _sender: string;
   private _author: { id: string, name: string };
@@ -111,15 +111,28 @@ export class Message {
   }
 
   public async sendError(caughtError: Error) {
-    this.reply(Message.processError(caughtError, this.content))
+    let replyMessage = '';
+
+    if (caughtError.message === 'Missing Permissions') {
+      replyMessage += makeBold('ERROR');
+      replyMessage += newLine();
+      replyMessage += `I do not have enough chat permissions to send a reply for this command,`;
+      replyMessage += newLine();
+      replyMessage += `please check ${makeURL('https://ionaru.github.io/MarketBot/permissions/')} for the permissions I need.`;
+
+    } else {
+      replyMessage = Message.processError(caughtError, this.content);
+    }
+
+    this.reply(replyMessage)
       .then().catch(async (error: Discord.DiscordAPIError) => {
-      logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'`);
-      if (error.stack) {
-        logger.error(error.stack.toString());
-      } else {
-        logger.error(error.toString());
-      }
-    });
+        logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'`);
+        if (error.stack) {
+          logger.error(error.stack.toString());
+        } else {
+          logger.error(error.toString());
+        }
+      });
   }
 
   public async edit(message: string, options: Discord.MessageOptions = {}): Promise<void> {

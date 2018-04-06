@@ -12,7 +12,7 @@ It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [sto
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
 
 #### Bot commands
-[Commands can be found on the MarketBot website](https://ionaru.github.io/MarketBot/commands/)
+[Commands can be found on the MarketBot website's commands page.](https://ionaru.github.io/MarketBot/commands/)
 
 ## Screenshots
 The bot in action
@@ -69,6 +69,7 @@ Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you ne
 - [ ] % difference between lowest sell order and highest buy order
 - [ ] Show volume in price history
 - [ ] Show deviation between low and high in price history
+- [ ] EVE Online quotes in bot (error) messages
 - [x] Darker graphs to better match Discord colors
 - [x] More information in price command output (low/high)
 
