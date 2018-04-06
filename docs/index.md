@@ -14,8 +14,11 @@ It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [sto
 #### Bot commands
 [Commands can be found on the MarketBot website's commands page.](https://ionaru.github.io/MarketBot/commands/)
 
+#### Discord permissions
+[Required permissions can be found on the MarketBot website's permissions page.](https://ionaru.github.io/MarketBot/permissions/)
+
 ## Screenshots
-The bot in action
+MarketBot in action!
 
 ![Image of price command](https://user-images.githubusercontent.com/3472373/37924487-42f77698-3132-11e8-9df4-c316ee4457f5.png)
 
