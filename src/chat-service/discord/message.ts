@@ -1,7 +1,7 @@
 import * as Discord from 'discord.js';
 import { logger } from 'winston-pnp-logger';
 
-import { makeBold, makeCode, makeURL, makeUserLink, newLine } from '../../helpers/message-formatter';
+import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
 import { maxMessageLength } from './misc';
 
@@ -13,7 +13,7 @@ export class Message {
     logger.error(`Error triggered by command:`, command);
     let text = `${errorText}.`;
     text += newLine();
-    text += `Please let ${makeUserLink(creator.id)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
+    text += `Please let ${makeCode(creator)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
     text += newLine(2);
     text += `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`;
     return text;

@@ -1,6 +1,6 @@
 import { Message } from '../chat-service/discord/message';
 import { logCommand } from '../helpers/command-logger';
-import { makeBold, makeURL, makeUserLink, newLine } from '../helpers/message-formatter';
+import { makeBold, makeCode, makeURL, newLine } from '../helpers/message-formatter';
 import { botName, client, creator, version } from '../market-bot';
 
 export async function infoCommand(message: Message, transaction: any) {
@@ -17,7 +17,7 @@ export async function infoCommand(message: Message, transaction: any) {
   }
 
   reply += newLine(2);
-  reply += `I was created by ${makeUserLink(creator.id)} to fetch information from the EVE Online market and provide you with accurate `;
+  reply += `I was created by ${makeCode(creator)} to fetch information from the EVE Online market and provide you with accurate `;
   reply += `price information.`;
   reply += newLine();
   reply += `The data I use comes from the EVE Swagger Interface provided by CCP, as well as `;

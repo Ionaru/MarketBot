@@ -19,7 +19,7 @@ import { config } from './helpers/configurator';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
 
-export const creator = {name: 'Ionaru', id: '96746840958959616'};
+export const creator = 'Ionaru#3801';
 export let version: string;
 export const botName = 'MarketBot';
 
