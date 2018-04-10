@@ -34,11 +34,12 @@ export async function checkAndUpdateCache() {
   if (moment.utc().isAfter(noon)) {
     noon = noon.add(1, 'day');
   }
+  logger.debug(`Next cache check ${moment().to(noon.valueOf())}`);
   const timeUntilNextNoon = noon.valueOf() - Date.now();
   setTimeout(checkAndUpdateCache, timeUntilNextNoon);
 }
 
-export async function validateCache(): Promise<boolean> {
+async function validateCache(): Promise<boolean> {
   const serverVersionFilePath = `${dataFolder}/${serverVersionFileName}`;
 
   const serverVersion = readFileContents(serverVersionFilePath, true);
@@ -59,20 +60,23 @@ export async function validateCache(): Promise<boolean> {
   return false;
 }
 
-export async function cacheUniverse(cacheValid: boolean, type: string, fetchFunction: () => Promise<number[] | undefined>) {
+async function cacheUniverse(cacheValid: boolean, type: string, fetchFunction: () => Promise<number[] | undefined>): Promise<INamesData[]> {
   const savePath = `${dataFolder}/${type}.json`;
 
   if (fs.existsSync(savePath) && !cacheValid) {
     fs.unlinkSync(savePath);
   }
 
-  const cachedRegions = readFileContents(savePath, true);
-  if (cachedRegions) {
+  const cachedData = readFileContents(savePath, true);
+  if (cachedData) {
+    let cachedNames: INamesData[] = [];
     try {
-      return JSON.parse(cachedRegions);
+      cachedNames = JSON.parse(cachedData);
     } catch {
       throw new Error(`Could not parse cached ${type} data!`);
     }
+    logger.info(`Loaded ${cachedNames.length} ${type} from cache into memory`);
+    return cachedNames;
   }
 
   logger.info(`Updating ${type} cache`);
@@ -81,11 +85,9 @@ export async function cacheUniverse(cacheValid: boolean, type: string, fetchFunc
   if (data) {
     const names = await fetchUniverseNames(data);
     if (names.length === data.length) {
-      const cache: INamesData[] = [];
-      for (const name of names) {
-        cache.push(name);
-      }
-      fs.writeFileSync(savePath, JSON.stringify(cache));
+      fs.writeFileSync(savePath, JSON.stringify(names));
+      logger.info(`Wrote ${names.length} ${type} to cache at ${savePath} and loaded into memory`);
+      return names;
     } else {
       throw new Error(`Name data for ${type} was incomplete!`);
     }
@@ -94,7 +96,7 @@ export async function cacheUniverse(cacheValid: boolean, type: string, fetchFunc
   }
 }
 
-export async function checkAndUpdateCitadelCache() {
+export async function checkAndUpdateCitadelCache(): Promise<void> {
   logger.info(`Fetching known citadels from stop.hammerti.me API`);
 
   citadels = await fetchCitadelData().catch((error) => {
