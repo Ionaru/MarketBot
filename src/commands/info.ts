@@ -26,8 +26,14 @@ export async function infoCommand(message: Message, transaction: any) {
   reply += makeBold('Commands');
   reply += newLine();
   reply += `To learn which commands you can give me, look on this web page:`;
-  reply += newLine(2);
+  reply += newLine();
   reply += makeURL('https://ionaru.github.io/MarketBot/commands/');
+  reply += newLine(2);
+  reply += makeBold('Permissions');
+  reply += newLine();
+  reply += `To function correctly, I need the right set of permissions in Discord, you can find them on this web page:`;
+  reply += newLine();
+  reply += makeURL('https://ionaru.github.io/MarketBot/permissions/');
   reply += newLine(2);
   reply += makeBold('More information');
   reply += newLine();
