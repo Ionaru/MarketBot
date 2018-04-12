@@ -9,9 +9,9 @@ import {
   fetchCitadelData, fetchServerStatus, fetchUniverseNames, fetchUniverseRegions, fetchUniverseSystems,
   fetchUniverseTypes
 } from './api';
+import { formatNumber } from './formatters';
 import { createFuse } from './items-loader';
 import { readFileContents } from './readers';
-import { formatNumber } from './formatters';
 
 export let items: INamesData[];
 export let systems: INamesData[];
