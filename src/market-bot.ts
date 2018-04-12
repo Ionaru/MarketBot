@@ -90,7 +90,10 @@ export async function activate() {
 
   logger.info(`Bot version: ${version}`);
 
-  await checkAndUpdateCache();
+  await checkAndUpdateCache().catch((error: Error) => {
+    logger.error(error.stack as string);
+    deactivate(true, true).then();
+  });
   await checkAndUpdateCitadelCache();
 
   await createConnection({
