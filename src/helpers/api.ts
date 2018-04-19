@@ -113,10 +113,11 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
   const path = 'v2/universe/names/';
   const url = ccpHost + path;
-  const idData = JSON.stringify(ids);
+  const headers = {'Content-Type': 'application/json'};
+  const body = JSON.stringify(ids);
 
-  logger.debug(url, idData);
-  const namesResponse: Response | undefined = await fetch(url, {body: idData, method: 'POST'}).catch(
+  logger.debug(url, body);
+  const namesResponse: Response | undefined = await fetch(url, {body, method: 'POST', headers}).catch(
     (errorResponse) => {
       logger.error('Request failed:', url, errorResponse);
       return undefined;
