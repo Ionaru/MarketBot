@@ -56,11 +56,11 @@ export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, reg
   const marketData = await fetchMarketData(itemId, regionId);
   if (marketData && marketData.length) {
     if (type === 'sell') {
-      const sellOrders = marketData.filter((_) => _.is_buy_order === false);
+      const sellOrders = marketData.filter((entry) => !entry.is_buy_order);
       const sortedSellOrders: IMarketData[] = sortArrayByObjectProperty(sellOrders, 'price');
       return sortedSellOrders[0];
     } else if (type === 'buy') {
-      const buyOrders = marketData.filter((_) => _.is_buy_order === true);
+      const buyOrders = marketData.filter((entry) => entry.is_buy_order);
       const sortedBuyOrders: IMarketData[] = sortArrayByObjectProperty(buyOrders, 'price', true);
       return sortedBuyOrders[0];
     }
@@ -141,6 +141,7 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
 
   const types = [];
   let page = 1;
+  let errors = 0;
   while (true) {
     const typeData = await fetchESIData(`v1/universe/types?page=${page}`) as number[] | undefined;
     if (typeData) {
@@ -149,6 +150,12 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
         return types;
       }
       page++;
+    } else {
+      errors++;
+    }
+
+    if (errors >= 5) {
+      throw new Error('Too many request failures');
     }
   }
 }

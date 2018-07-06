@@ -13,28 +13,38 @@ import { formatNumber } from './formatters';
 import { createFuse } from './items-loader';
 import { readFileContents } from './readers';
 
-export let items: INamesData[];
-export let systems: INamesData[];
 export let regions: INamesData[];
+export let systems: INamesData[];
+export let items: INamesData[];
 
 export let itemsFuse: Fuse;
 export let regionsFuse: Fuse;
 
 export let citadels: ICitadelData;
 
+interface IvalidateCacheReturn {
+  useCache: boolean;
+  serverVersion: string | undefined;
+}
+
 const serverVersionFileName = 'server_version.txt';
 
 export async function checkAndUpdateCache() {
-  const useCache = await validateCache();
+  const {useCache, serverVersion}: IvalidateCacheReturn = await validateCache();
 
-  regions = await cacheUniverse(useCache, 'regions', fetchUniverseRegions);
-  systems = await cacheUniverse(useCache, 'systems', fetchUniverseSystems);
-  items = await cacheUniverse(useCache, 'items', fetchUniverseTypes);
+  const newRegions = await cacheUniverse(useCache, 'regions', fetchUniverseRegions);
+  const newSystems = await cacheUniverse(useCache, 'systems', fetchUniverseSystems);
+  const newItems = await cacheUniverse(useCache, 'items', fetchUniverseTypes);
 
-  if (!regions.length || !systems.length || !items.length) {
-    throw new Error('Data incomplete, bot cannot function!');
+  if (!newRegions.length || !newSystems.length || !newItems.length) {
+    fs.unlinkSync(`${dataFolder}/${serverVersionFileName}`);
+    throw new Error('Universe data incomplete, unable to create new cache');
   }
 
+  regions = newRegions;
+  regionsFuse = createFuse(regions);
+  systems = newSystems;
+  items = newItems;
   itemsFuse = createFuse(items);
 
   let noon = moment.utc().hours(12).minute(0).second(0).millisecond(0);
@@ -43,10 +53,17 @@ export async function checkAndUpdateCache() {
   }
   const timeUntilNextNoon = noon.valueOf() - Date.now();
   logger.debug(`Next cache check in ${formatNumber(timeUntilNextNoon / 3600000, 2)} hours`);
-  setTimeout(checkAndUpdateCache, timeUntilNextNoon);
+  setTimeout(() => {
+    checkAndUpdateCache().catch((error: Error) => {
+      logger.error(error.stack as string);
+      logger.error('An error prevented a cache update, attempting to re-use the old cache');
+    });
+  }, timeUntilNextNoon);
+
+  fs.writeFileSync(`${dataFolder}/${serverVersionFileName}`, serverVersion);
 }
 
-async function validateCache(): Promise<boolean> {
+async function validateCache(): Promise<IvalidateCacheReturn> {
   const serverVersionFilePath = `${dataFolder}/${serverVersionFileName}`;
 
   const serverVersion = readFileContents(serverVersionFilePath, true);
@@ -56,17 +73,16 @@ async function validateCache(): Promise<boolean> {
   if (!serverStatus) {
     logger.error('Could not get EVE Online server status, using cache if possible');
     // Return true so the cache is used.
-    return true;
+    return {useCache: true, serverVersion: undefined};
   }
 
   if (serverStatus.server_version === serverVersion) {
     logger.info(`EVE Online server version matches saved version, using cache`);
-    return true;
+    return {useCache: true, serverVersion: serverStatus.server_version};
   }
 
-  logger.info(`EVE Online server version does not match saved version, cache invalidated`);
-  fs.writeFileSync(serverVersionFilePath, serverStatus.server_version);
-  return false;
+  logger.info(`EVE Online server version does not match saved version (or there is no saved version), cache invalid`);
+  return {useCache: false, serverVersion: serverStatus.server_version};
 }
 
 async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () => Promise<number[] | undefined>): Promise<INamesData[]> {
@@ -86,11 +102,11 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
     }
   }
 
-  logger.info(`No cached ${type} found, updating from API`);
+  logger.info(`No valid cached ${type} available, updating from API`);
 
   const data = await fetchFunction();
   if (data) {
-    const names = await fetchUniverseNames(data);
+    const names = await fetchUniverseNames(data).catch(() => []);
     if (names.length === data.length) {
       fs.writeFileSync(savePath, JSON.stringify(names));
       logger.info(`Wrote ${names.length} ${type} to cache at ${savePath} and loaded into memory`);
@@ -103,7 +119,7 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
     if (!useCache) {
       // Attempt to load from cache if we didn't try that already.
       logger.error(`Attempting to get ${type} from cache`);
-      return cacheUniverse(true, type, fetchFunction);
+      return cacheUniverse(true, type, fetchFunction).catch(() => []);
     }
   }
   return [];

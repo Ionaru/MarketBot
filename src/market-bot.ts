@@ -92,6 +92,7 @@ export async function activate() {
 
   await checkAndUpdateCache().catch((error: Error) => {
     logger.error(error.stack as string);
+    logger.error('Unable to create initial cache, bot cannot function!');
     deactivate(true, true).then();
   });
   await checkAndUpdateCitadelCache();

@@ -58,7 +58,7 @@ interface ITrackCommandLogicReturn {
 }
 
 export function startTrackingCycle() {
-  logger.debug('Scheduled tracking cycle');
+  logger.debug('Scheduled next tracking cycle');
   trackingCycle = setInterval(() => {
     performTrackingCycle().then();
   }, 5 * 60 * 1000);
