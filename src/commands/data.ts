@@ -95,7 +95,7 @@ export async function dataCommand(message: Message, transaction: any) {
     reply += `I am currently online on ${makeCode(currentServerCount)} ${currentServerWord}.`;
     reply += newLine();
     const upTime = countdown(client.upTime) as countdown.Timespan;
-    reply += `I've been online for ${makeCode(upTime.toString())}.`;
+    reply += `I've been running continuously for ${makeCode(upTime.toString())}.`;
   }
 
   await message.reply(reply);

@@ -2,7 +2,7 @@ import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
-import { items, regions, regionsFuse } from '../helpers/cache';
+import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
 import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
@@ -42,7 +42,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items);
+  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 

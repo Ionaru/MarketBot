@@ -2,20 +2,17 @@
   "compilerOptions": {
     "baseUrl": "",
     "declaration": false,
-    "strict": true,
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
+    "emitDecoratorMetadata": true,
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
+    "noImplicitThis": true,
     "noFallthroughCasesInSwitch": true,
     "lib": [
-      "es6",
-      "dom"
+      "es6"
     ],
     "module": "commonjs",
     "moduleResolution": "node",

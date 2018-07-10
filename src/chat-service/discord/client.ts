@@ -46,7 +46,7 @@ export class Client {
       Client.onError(error);
     });
 
-    this.client.on('disconnect', (event: CloseEvent) => {
+    this.client.on('disconnect', (event: any) => {
       this.onDisconnect(event);
     });
   }
@@ -125,7 +125,7 @@ export class Client {
     this._emitter.emit('message', new Message(message));
   }
 
-  private onDisconnect(event: CloseEvent) {
+  private onDisconnect(event: any) {
     logger.warn('Connection closed unexpectedly');
     logger.warn('Code:', event.code);
     logger.warn('Reason:', event.reason);

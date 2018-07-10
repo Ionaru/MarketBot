@@ -1,9 +1,16 @@
-import 'isomorphic-fetch';
+import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
-
 import {
-  ICategory, ICitadelData, IEVEMarketerData, IGroup, IHistoryData, IMarketData, IMarketGroup, INamesData,
-  IServerStatus, ITypeData
+  ICategory,
+  ICitadelData,
+  IEVEMarketerData,
+  IGroup,
+  IHistoryData,
+  IMarketData,
+  IMarketGroup,
+  INamesData,
+  IServerStatus,
+  ITypeData
 } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
@@ -16,7 +23,7 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
   const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
 
   logger.debug(url);
-  const priceResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const priceResponse: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
@@ -34,7 +41,7 @@ export async function fetchMarketData(itemId: number, regionId: number): Promise
   const url = ccpHost + path;
 
   logger.debug(url);
-  const marketResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const marketResponse: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
@@ -69,12 +76,10 @@ export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, reg
 }
 
 export async function fetchCitadelData(): Promise<ICitadelData> {
-  const host = 'https://stop.hammerti.me.uk/';
-  const path = `api/citadel/all`;
-  const url = host + path;
+  const url = 'https://stop.hammerti.me.uk/api/citadel/all';
 
   logger.debug(url);
-  const citadelResponse: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const citadelResponse: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
@@ -118,7 +123,7 @@ async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 
   logger.debug(url, body);
   const namesResponse: Response | undefined = await fetch(url, {body, method: 'POST', headers}).catch(
-    (errorResponse) => {
+    (errorResponse: FetchError) => {
       logger.error('Request failed:', url, errorResponse);
       return undefined;
     });
@@ -196,7 +201,7 @@ async function fetchESIData(path: string): Promise<object | undefined> {
   const url = ccpHost + path;
 
   logger.debug(url);
-  const response: Response | undefined = await fetch(url).catch((errorResponse) => {
+  const response: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
     logger.error('Request failed:', url, errorResponse);
     return undefined;
   });
