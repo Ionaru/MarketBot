@@ -3,6 +3,7 @@ pipeline {
   stages {
     stage('Install') {
       steps {
+        withNPM()
         sh 'npm i'
       }
     }
