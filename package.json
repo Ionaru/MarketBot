@@ -14,7 +14,7 @@
     "start": "npm run build && node dist/index.js",
     "start:ts": "TS_NODE_TYPE_CHECK=true node --require ts-node/register src/index.ts",
     "test": "npm run lint && npm run unit",
-    "unit": "nyc mocha --require ts-node/register src/**/*.spec.ts",
+    "unit": "nyc mocha --reporter mocha-junit-reporter --require ts-node/register src/**/*.spec.ts",
     "posttest": "nyc report --reporter=json && codecov -f coverage/*.json"
   },
   "nyc": {
@@ -61,6 +61,7 @@
     "chai": "^4.1.2",
     "codecov": "^3.0.3",
     "mocha": "^5.2.0",
+    "mocha-junit-reporter": "^1.17.0",
     "nyc": "^12.0.2",
     "sinon": "^6.1.2",
     "ts-node": "^7.0.0",
