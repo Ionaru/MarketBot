@@ -19,6 +19,7 @@ pipeline {
     stage('Test') {
       steps {
         sh 'npm run unit'
+        junit 'test-results.xml'
       }
     }
   }
