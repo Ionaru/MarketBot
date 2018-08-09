@@ -11,15 +11,19 @@ pipeline {
         sh 'npm install'
       }
     }
-    stage('Lint') {
-      steps {
-        sh 'npm run lint'
-      }
-    }
-    stage('Test') {
-      steps {
-        sh 'npm run unit'
-        junit 'test-results.xml'
+    stage('Run tests') {
+      parallel {
+        stage('Lint') {
+          steps {
+            sh 'npm run lint'
+          }
+        }
+        stage('Unit') {
+          steps {
+            sh 'npm run unit'
+            junit 'test-results.xml'
+          }
+        }
       }
     }
   }
