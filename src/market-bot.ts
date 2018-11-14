@@ -100,7 +100,7 @@ export async function activate() {
   await checkAndUpdateCitadelCache();
 
   await createConnection({
-    database: 'marketbot.db',
+    database: 'data/marketbot.db',
     entities: [
       LogEntry, TrackingEntry,
     ],
