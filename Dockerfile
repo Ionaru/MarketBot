@@ -46,4 +46,4 @@ EXPOSE  80
 EXPOSE  443
 ENV LEVEL debug
 ENV NODE_ENV production
-CMD ["node", "./dist/index.js"]
+CMD ["node", "./dist/src/index.js"]
