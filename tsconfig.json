@@ -18,14 +18,14 @@
     "sourceMap": true,
     "target": "es2018",
     "typeRoots": [
-      "node_modules/@types"
+      "./node_modules/@types"
     ]
   },
   "exclude": [
-    "node_modules",
-    "src/**/*.spec.ts"
+    "./node_modules",
+    "./src/**/*.spec.ts"
   ],
   "include": [
-    "src/**/*.ts"
+    "./src/**/*.ts"
   ]
 }

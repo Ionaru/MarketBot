@@ -1,4 +1,7 @@
-FROM node:8-stretch
+FROM node:10-stretch
+
+
+## INSTALL
 
 # Dependencies for Puppeteer
 RUN apt-get update && apt-get install -y wget git --no-install-recommends \
@@ -11,19 +14,37 @@ RUN apt-get update && apt-get install -y wget git --no-install-recommends \
     && apt-get purge --auto-remove -y curl \
     && rm -rf /src/*.deb
 
-# Copy files to docker container
+RUN mkdir /app/
+RUN mkdir /app/logs
+RUN mkdir /app/data
+RUN mkdir /app/config
 WORKDIR /app
-ADD . /app
 
-# Install app dependencies
-RUN npm install -g typescript
+# Copy needed build files
+COPY ./package.json .
+COPY ./package-lock.json .
+COPY ./tsconfig.json .
+COPY ./config ./config
+
+# Copy source files
+COPY ./src ./src
+
+# Install server dependencies
 RUN npm install
 
-# Build the app
+# Build server for production
 RUN npm run build
 
+# Add volumes
 VOLUME /app/logs
+VOLUME /app/data
+VOLUME /app/config
+
+
+## RUN
 
 EXPOSE  80
 EXPOSE  443
+ENV LEVEL debug
+ENV NODE_ENV production
 CMD ["node", "./dist/index.js"]

@@ -9,7 +9,7 @@
     "url": "https://github.com/Ionaru/MarketBot.git"
   },
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --skipLibCheck --project tsconfig.json",
     "lint": "tslint --project tsconfig.json -c tslint.json && tslint -c tslint.json src/**/*.spec.ts",
     "start": "npm run build && node dist/index.js",
     "start:ts": "TS_NODE_TYPE_CHECK=true node --require ts-node/register src/index.ts",
