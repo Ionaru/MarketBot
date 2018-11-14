@@ -6,7 +6,7 @@
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
 
-It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), and the [EVE Swagger Interface](https://esi.tech.ccp.is/) provided by CCP.
+It uses a combination of data from [EVEMarketer](https://evemarketer.com/), [stop.hammerti.me.uk](https://stop.hammerti.me.uk/citadelhunt/getstarted), and the [EVE Swagger Interface](https://esi.evetech.net/) provided by CCP.
 
 ## Usage
 [Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).

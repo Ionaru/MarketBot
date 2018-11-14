@@ -15,7 +15,7 @@ import {
 } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
-const ccpHost = 'https://esi.tech.ccp.is/';
+const ccpHost = 'https://esi.evetech.net/';
 
 export async function fetchPriceData(itemId: number, locationId: number): Promise<IEVEMarketerData[] | undefined> {
   const locationType = locationId < 30000000 ? 'regionlimit' : 'usesystem';
