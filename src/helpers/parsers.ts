@@ -7,7 +7,7 @@ export function parseMessage(message: string): IParsedMessage {
     item: '',
     limit: 0,
     region: '',
-    system: ''
+    system: '',
   };
 
   // Remove double spaces because that confuses the input guessing system

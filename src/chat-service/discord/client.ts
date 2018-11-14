@@ -18,7 +18,7 @@ export class Client {
 
   private client: Discord.Client;
   private credentials: string;
-  private _emitter: EventEmitter;
+  private readonly _emitter: EventEmitter;
   private _name: string | undefined;
   private _id: string | undefined;
 

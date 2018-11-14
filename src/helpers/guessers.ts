@@ -22,7 +22,7 @@ export const shortcuts: IShortcuts = {
   mtu: 'Mobile Tractor Unit',
   rni: 'Raven Navy Issue',
   ssi: 'Small Skill Injector',
-  vni: 'Vexor Navy Issue'
+  vni: 'Vexor Navy Issue',
 };
 
 export interface IGuessReturn {
@@ -40,7 +40,7 @@ export function guessUserInput(itemString: string, possibilitiesList: INamesData
   let itemData: INamesData = {
     category: '',
     id: 0,
-    name: ''
+    name: '',
   };
   const possibilities: INamesData[] = [];
 

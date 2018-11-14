@@ -11,7 +11,7 @@ import { activate, deactivate } from './market-bot';
 
 new WinstonPnPLogger({
   announceSelf: false,
-  logDir: 'logs'
+  logDir: 'logs',
 });
 
 logger.info(`NodeJS version ${process.version}`);
@@ -23,7 +23,7 @@ if (configuration.getProperty('elastic.enabled') === true) {
   elastic.start({
     secretToken: configuration.getProperty('elastic.token'),
     serverUrl: configuration.getProperty('elastic.url'),
-    serviceName: 'marketbot'
+    serviceName: 'marketbot',
   });
   logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
 }

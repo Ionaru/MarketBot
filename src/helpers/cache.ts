@@ -6,8 +6,12 @@ import { logger } from 'winston-pnp-logger';
 import { dataFolder } from '../market-bot';
 import { ICitadelData, INamesData } from '../typings';
 import {
-  fetchCitadelData, fetchServerStatus, fetchUniverseNames, fetchUniverseRegions, fetchUniverseSystems,
-  fetchUniverseTypes
+  fetchCitadelData,
+  fetchServerStatus,
+  fetchUniverseNames,
+  fetchUniverseRegions,
+  fetchUniverseSystems,
+  fetchUniverseTypes,
 } from './api';
 import { formatNumber } from './formatters';
 import { createFuse } from './items-loader';
@@ -22,7 +26,7 @@ export let regionsFuse: Fuse;
 
 export let citadels: ICitadelData;
 
-interface IvalidateCacheReturn {
+interface IValidateCacheReturn {
   useCache: boolean;
   serverVersion: string | undefined;
 }
@@ -30,7 +34,7 @@ interface IvalidateCacheReturn {
 const serverVersionFileName = 'server_version.txt';
 
 export async function checkAndUpdateCache() {
-  const {useCache, serverVersion}: IvalidateCacheReturn = await validateCache();
+  const {useCache, serverVersion}: IValidateCacheReturn = await validateCache();
 
   const newRegions = await cacheUniverse(useCache, 'regions', fetchUniverseRegions);
   const newSystems = await cacheUniverse(useCache, 'systems', fetchUniverseSystems);
@@ -63,7 +67,7 @@ export async function checkAndUpdateCache() {
   fs.writeFileSync(`${dataFolder}/${serverVersionFileName}`, serverVersion);
 }
 
-async function validateCache(): Promise<IvalidateCacheReturn> {
+async function validateCache(): Promise<IValidateCacheReturn> {
   const serverVersionFilePath = `${dataFolder}/${serverVersionFileName}`;
 
   const serverVersion = readFileContents(serverVersionFilePath, true);

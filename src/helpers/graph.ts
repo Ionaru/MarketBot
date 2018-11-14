@@ -19,7 +19,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
     'font-family: Helvetica, Arial, sans-serif',
     'position: absolute',
     'top: 0',
-    'left: 0'
+    'left: 0',
   ].join(';');
 
   const selector = '#chart';
@@ -34,7 +34,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
 
   const d3n = new D3Node({
     container,
-    selector
+    selector,
   });
 
   const margin = {top: 0, right: 75, bottom: 125, left: 75};

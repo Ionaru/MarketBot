@@ -1,4 +1,5 @@
 import * as Discord from 'discord.js';
+
 import { Message } from '../chat-service/discord/message';
 import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
 import { items, itemsFuse } from '../helpers/cache';
@@ -19,9 +20,7 @@ export async function itemCommand(message: Message, transaction: any) {
 
   messageData.limit = messageData.limit || 5;
 
-  const replyPlaceHolder = await message.reply(
-    `Gathering information about the item, ${message.sender}...`
-  );
+  const replyPlaceHolder = await message.reply(`Gathering information about the item, ${message.sender}...`);
 
   const {reply, itemData} = await itemCommandLogic(messageData);
 

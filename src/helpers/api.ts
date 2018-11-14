@@ -1,5 +1,6 @@
 import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
+import { DataService } from '../services/data.service';
 import {
   ICategory,
   ICitadelData,
@@ -10,7 +11,7 @@ import {
   IMarketGroup,
   INamesData,
   IServerStatus,
-  ITypeData
+  ITypeData,
 } from '../typings';
 import { sortArrayByObjectProperty } from './arrays';
 
@@ -22,41 +23,15 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
   const host = 'https://api.evemarketer.com/ec/';
   const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
 
-  logger.debug(url);
-  const priceResponse: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
-    logger.error('Request failed:', url, errorResponse);
-    return undefined;
-  });
-  if (priceResponse) {
-    return priceResponse.json().catch((error) => {
-      logger.error('Unable to parse JSON:', error);
-      return [];
-    });
-  }
-  return [];
+  return DataService.fetchESIData<IEVEMarketerData[]>(url, 20000);
 }
 
 export async function fetchMarketData(itemId: number, regionId: number): Promise<IMarketData[]> {
   const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
   const url = ccpHost + path;
 
-  logger.debug(url);
-  const marketResponse: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
-    logger.error('Request failed:', url, errorResponse);
-    return undefined;
-  });
-  if (marketResponse) {
-    if (marketResponse.ok) {
-      return marketResponse.json().catch((error) => {
-        logger.error('Unable to parse JSON:', error);
-        return [];
-      });
-    } else {
-      const text = await marketResponse.text();
-      logger.error('Request not OK:', url, marketResponse.status, marketResponse.statusText, text);
-    }
-  }
-  return [];
+  const marketResponse = await DataService.fetchESIData<IMarketData[]>(url);
+  return marketResponse || [];
 }
 
 export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketData | undefined> {
@@ -78,24 +53,8 @@ export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, reg
 export async function fetchCitadelData(): Promise<ICitadelData> {
   const url = 'https://stop.hammerti.me.uk/api/citadel/all';
 
-  logger.debug(url);
-  const citadelResponse: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
-    logger.error('Request failed:', url, errorResponse);
-    return undefined;
-  });
-
-  if (citadelResponse) {
-    if (citadelResponse.ok) {
-      return citadelResponse.json().catch((error) => {
-        logger.error('Unable to parse JSON:', error);
-        return {};
-      });
-    } else {
-      const text = await citadelResponse.text();
-      logger.error('Request not OK:', url, citadelResponse.status, citadelResponse.statusText, text);
-    }
-  }
-  return {};
+  const citadelData = await DataService.fetchESIData<ICitadelData>(url);
+  return citadelData || {};
 }
 
 export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
@@ -148,7 +107,7 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
   let page = 1;
   let errors = 0;
   while (true) {
-    const typeData = await fetchESIData(`v1/universe/types?page=${page}`) as number[] | undefined;
+    const typeData = await DataService.fetchESIData<number[]>(ccpHost + `v1/universe/types?page=${page}`);
     if (typeData) {
       types.push(...typeData);
       if (typeData.length < 1000) {
@@ -166,55 +125,33 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
 }
 
 export async function fetchUniverseType(id: number): Promise<ITypeData | undefined> {
-  return fetchESIData(`v3/universe/types/${id}`) as Promise<ITypeData | undefined>;
+  return DataService.fetchESIData<ITypeData>(ccpHost + `v3/universe/types/${id}`);
 }
 
 export async function fetchUniverseSystems(): Promise<number[] | undefined> {
-  return fetchESIData(`v1/universe/systems`) as Promise<number[] | undefined>;
+  return DataService.fetchESIData<number[]>(ccpHost + `v1/universe/systems`);
 }
 
 export async function fetchUniverseRegions(): Promise<number[] | undefined> {
-  return fetchESIData(`v1/universe/regions`) as Promise<number[] | undefined>;
+  return DataService.fetchESIData<number[]>(ccpHost + `v1/universe/regions`);
 }
 
-export async function fetchHistoryData(itemId: number, regionId: number): Promise<IHistoryData[] | undefined> {
-  return fetchESIData(`v1/markets/${regionId}/history/?type_id=${itemId}`) as Promise<IHistoryData[] | undefined>;
+export async function fetchHistoryData(itemId: number, regionId: number) {
+  return DataService.fetchESIData<IHistoryData[]>(ccpHost + `v1/markets/${regionId}/history/?type_id=${itemId}`);
 }
 
-export async function fetchGroup(groupId: number): Promise<IGroup | undefined> {
-  return fetchESIData(`v1/universe/groups/${groupId}`) as Promise<IGroup | undefined>;
+export async function fetchGroup(groupId: number) {
+  return DataService.fetchESIData<IGroup>(ccpHost + `v1/universe/groups/${groupId}`);
 }
 
-export async function fetchMarketGroup(groupId: number): Promise<IMarketGroup | undefined> {
-  return fetchESIData(`v1/markets/groups/${groupId}`) as Promise<IMarketGroup | undefined>;
+export async function fetchMarketGroup(groupId: number) {
+  return DataService.fetchESIData<IMarketGroup>(ccpHost + `v1/markets/groups/${groupId}`);
 }
 
-export async function fetchCategory(categoryId: number): Promise<ICategory | undefined> {
-  return fetchESIData(`v1/universe/categories/${categoryId}`) as Promise<ICategory | undefined>;
+export async function fetchCategory(categoryId: number) {
+  return DataService.fetchESIData<ICategory>(ccpHost + `v1/universe/categories/${categoryId}`);
 }
 
-export async function fetchServerStatus(): Promise<IServerStatus | undefined> {
-  return fetchESIData(`v1/status/`) as Promise<IServerStatus | undefined>;
-}
-
-async function fetchESIData(path: string): Promise<object | undefined> {
-  const url = ccpHost + path;
-
-  logger.debug(url);
-  const response: Response | undefined = await fetch(url).catch((errorResponse: FetchError) => {
-    logger.error('Request failed:', url, errorResponse);
-    return undefined;
-  });
-  if (response) {
-    if (response.ok) {
-      return response.json().catch((error) => {
-        logger.error('Unable to parse JSON:', error);
-        return undefined;
-      });
-    } else {
-      const text = await response.text();
-      logger.error('Request not OK:', url, response.status, response.statusText, text);
-    }
-  }
-  return undefined;
+export async function fetchServerStatus() {
+  return DataService.fetchESIData<IServerStatus>(ccpHost + 'v1/status/');
 }

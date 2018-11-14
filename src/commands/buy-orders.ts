@@ -22,9 +22,7 @@ export async function buyOrdersCommand(message: Message, transaction: any) {
   messageData.limit = messageData.limit || 5;
   const orderWord = pluralize('order', 'orders', messageData.limit);
 
-  const replyPlaceHolder = await message.reply(
-    `Searching for the highest buy ${orderWord}, one moment, ${message.sender}...`
-  );
+  const replyPlaceHolder = await message.reply(`Searching for the highest buy ${orderWord}, one moment, ${message.sender}...`);
 
   const {reply, itemData, regionName} = await buyOrdersCommandLogic(messageData);
 

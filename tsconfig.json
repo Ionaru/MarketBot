@@ -7,17 +7,16 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitAny": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
     "noFallthroughCasesInSwitch": true,
     "lib": [
-      "es6"
+      "esnext"
     ],
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "target": "es6",
+    "sourceMap": true,
+    "target": "es2018",
     "typeRoots": [
       "node_modules/@types"
     ]

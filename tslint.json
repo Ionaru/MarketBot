@@ -3,7 +3,6 @@
   "extends": [
     "tslint:latest"
   ],
-  "jsRules": {},
   "rules": {
     "max-line-length": [
       true,
@@ -13,7 +12,6 @@
       true,
       "dev"
     ],
-    "no-null-keyword": true,
     "no-unused-expression": [
       true,
       "allow-new"
@@ -25,7 +23,7 @@
     "trailing-comma": [
       true,
       {
-        "multiline": "never",
+        "multiline": "always",
         "singleline": "never"
       }
     ],
@@ -35,6 +33,5 @@
       "check-format",
       "allow-leading-underscore"
     ]
-  },
-  "rulesDirectory": []
+  }
 }

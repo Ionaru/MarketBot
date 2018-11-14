@@ -13,6 +13,7 @@ import { itemCommand } from './commands/item';
 import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
+import { CacheController } from './controllers/cache.controller';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
 import { config } from './helpers/configurator';
@@ -30,43 +31,43 @@ export const dataFolder = 'data';
 export const commandPrefix = '/';
 
 export const priceCommands = [
-  'price', 'p', 'value'
+  'price', 'p', 'value',
 ];
 export const historyCommands = [
-  'history', 'h'
+  'history', 'h',
 ];
 export const dataCommands = [
-  'data', 'd', 'stats'
+  'data', 'd', 'stats',
 ];
 export const sellOrdersCommands = [
-  'sell-orders', 'sell', 'so', 's'
+  'sell-orders', 'sell', 'so', 's',
 ];
 export const buyOrdersCommands = [
-  'buy-orders', 'buy', 'bo', 'b'
+  'buy-orders', 'buy', 'bo', 'b',
 ];
 export const infoCommands = [
-  'info', 'i', 'about', 'help'
+  'info', 'i', 'about', 'help',
 ];
 export const regionCommands = [
-  'region', 'r'
+  'region', 'r',
 ];
 export const systemCommands = [
-  'system'
+  'system',
 ];
 export const itemCommands = [
-  'item', 'id', 'lookup'
+  'item', 'id', 'lookup',
 ];
 export const limitCommands = [
-  'limit', 'l', 'max'
+  'limit', 'l', 'max',
 ];
 export const sellTrackingCommands = [
-  'track-sell-orders', 'tso'
+  'track-sell-orders', 'tso',
 ];
 export const buyTrackingCommands = [
-  'track-buy-orders', 'tbo'
+  'track-buy-orders', 'tbo',
 ];
 export const clearTrackingCommands = [
-  'track-clear', 'tc'
+  'track-clear', 'tc',
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
@@ -90,6 +91,8 @@ export async function activate() {
 
   logger.info(`Bot version: ${version}`);
 
+  CacheController.readCache();
+
   await checkAndUpdateCache().catch((error: Error) => {
     logger.error(error.stack as string);
     logger.error('Unable to create initial cache, bot cannot function!');
@@ -100,10 +103,10 @@ export async function activate() {
   await createConnection({
     database: 'marketbot.db',
     entities: [
-      LogEntry, TrackingEntry
+      LogEntry, TrackingEntry,
     ],
     synchronize: true,
-    type: 'sqlite'
+    type: 'sqlite',
   });
 
   logger.info(`Database connection created`);
@@ -149,6 +152,8 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
   if (error) {
     quitMessage += ' because of an uncaught error!';
   }
+
+  CacheController.dumpCache();
 
   logger.info(quitMessage);
   if (client) {

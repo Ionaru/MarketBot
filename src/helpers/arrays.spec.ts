@@ -10,7 +10,7 @@ describe('Array sorting', () => {
       {value: 3},
       {value: 0},
       {value: 4},
-      {value: 1}
+      {value: 1},
     ];
 
     it('should sort the array by the object property', () => {
@@ -21,7 +21,7 @@ describe('Array sorting', () => {
         {value: 1},
         {value: 2},
         {value: 3},
-        {value: 4}
+        {value: 4},
       ]);
     });
 
@@ -33,7 +33,7 @@ describe('Array sorting', () => {
         {value: 3},
         {value: 2},
         {value: 1},
-        {value: 0}
+        {value: 0},
       ]);
     });
 
@@ -43,7 +43,7 @@ describe('Array sorting', () => {
         {value: 3},
         {value: 2},
         {value: 4},
-        {value: 1}
+        {value: 1},
       ];
 
       const sortedArray = sortArrayByObjectProperty(unsortedArrayWithEqualValue, 'value');
@@ -53,7 +53,7 @@ describe('Array sorting', () => {
         {value: 2},
         {value: 2},
         {value: 3},
-        {value: 4}
+        {value: 4},
       ]);
     });
 
@@ -63,7 +63,7 @@ describe('Array sorting', () => {
         {value: 3},
         {value: 2},
         {value: 4},
-        {value: 1}
+        {value: 1},
       ];
 
       const sortedArray = sortArrayByObjectProperty(unsortedArrayWithEqualValue, 'value', true);
@@ -73,7 +73,7 @@ describe('Array sorting', () => {
         {value: 3},
         {value: 2},
         {value: 2},
-        {value: 1}
+        {value: 1},
       ]);
     });
   });
@@ -84,7 +84,7 @@ describe('Array sorting', () => {
       {value: '12'},
       {value: '1'},
       {value: '123'},
-      {value: '1234'}
+      {value: '1234'},
     ];
 
     it('should sort the array by the object property length', () => {
@@ -95,7 +95,7 @@ describe('Array sorting', () => {
         {value: '12'},
         {value: '123'},
         {value: '1234'},
-        {value: '12345'}
+        {value: '12345'},
       ]);
     });
 
@@ -107,7 +107,7 @@ describe('Array sorting', () => {
         {value: '1234'},
         {value: '123'},
         {value: '12'},
-        {value: '1'}
+        {value: '1'},
       ]);
     });
 
@@ -118,7 +118,7 @@ describe('Array sorting', () => {
         {value: '1'},
         {value: '123'},
         {value: '1234'},
-        {value: '12'}
+        {value: '12'},
       ];
 
       const sortedArray = sortArrayByObjectPropertyLength(unsortedArrayWithEqualValues, 'value');
@@ -129,7 +129,7 @@ describe('Array sorting', () => {
         {value: '12'},
         {value: '123'},
         {value: '1234'},
-        {value: '12345'}
+        {value: '12345'},
       ]);
     });
 
@@ -140,7 +140,7 @@ describe('Array sorting', () => {
         {value:  '1'},
         {value: '123'},
         {value: '1234'},
-        {value: '12'}
+        {value: '12'},
       ];
 
       const sortedArray = sortArrayByObjectPropertyLength(unsortedArrayWithEqualValues, 'value', true);
@@ -151,7 +151,7 @@ describe('Array sorting', () => {
         {value: '123'},
         {value: '12'},
         {value: '12'},
-        {value: '1'}
+        {value: '1'},
       ]);
     });
   });

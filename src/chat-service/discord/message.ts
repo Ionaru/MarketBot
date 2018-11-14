@@ -20,13 +20,13 @@ export class Message {
   }
 
   public _message: Discord.Message;
-  private _origin: string;
-  private _sender: string;
-  private _author: { id: string, name: string };
-  private _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' };
-  private _server: { id: string | undefined, name: string | undefined };
-  private _content: string;
-  private _id: string;
+  private readonly _origin: string;
+  private readonly _sender: string;
+  private readonly _author: { id: string, name: string };
+  private readonly _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' };
+  private readonly _server: { id: string | undefined, name: string | undefined };
+  private readonly _content: string;
+  private readonly _id: string;
 
   constructor(message: Discord.Message) {
     this._message = message;
@@ -35,17 +35,17 @@ export class Message {
     this._id = message.id;
     this._author = {
       id: message.author.id,
-      name: message.author.tag
+      name: message.author.tag,
     };
     this._channel = {
       id: message.channel.id,
       name: undefined,
-      type: message.channel.type
+      type: message.channel.type,
     };
 
     this._server = {
       id: undefined,
-      name: undefined
+      name: undefined,
     };
 
     if (message.guild) {

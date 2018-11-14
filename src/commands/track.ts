@@ -73,9 +73,7 @@ export function stopTrackingCycle() {
 }
 
 export async function trackCommand(message: Message, type: 'buy' | 'sell', transaction: any): Promise<void> {
-  const replyPlaceHolder = await message.reply(
-    `Setting up for price tracking, one moment, ${message.sender}...`
-  );
+  const replyPlaceHolder = await message.reply(`Setting up for price tracking, one moment, ${message.sender}...`);
 
   const {reply, itemData, regionName} = await trackCommandLogic(message, type);
 
@@ -134,7 +132,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   }
 
   const channelItemDup = dupEntries.filter((_) =>
-    (_.item_id === itemData.id && _.region_id === region.id && _.tracking_type === type && _.channel_id === message.channel.id)
+    (_.item_id === itemData.id && _.region_id === region.id && _.tracking_type === type && _.channel_id === message.channel.id),
   );
   if (channelItemDup.length !== 0) {
     reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name)} in this channel.`;
@@ -229,7 +227,7 @@ export async function performTrackingCycle() {
 
     // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
     const duplicateEntry = entriesDone.filter((_) =>
-      (_.entry.item_id === entry.item_id && _.entry.region_id === entry.region_id)
+      (_.entry.item_id === entry.item_id && _.entry.region_id === entry.region_id),
     )[0];
 
     currentOrder = (duplicateEntry && duplicateEntry.order) ?
@@ -265,7 +263,7 @@ export async function performTrackingCycle() {
 
     entriesDone.push({
       entry,
-      order: currentOrder ? currentOrder : undefined
+      order: currentOrder ? currentOrder : undefined,
     });
   }
 }

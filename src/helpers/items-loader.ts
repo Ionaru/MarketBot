@@ -11,6 +11,6 @@ export function createFuse(possibilities: INamesData[]): Fuse {
     minMatchCharLength: 1,
     shouldSort: true,
     threshold: 0.6,
-    tokenize: true
+    tokenize: true,
   });
 }

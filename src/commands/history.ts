@@ -23,9 +23,7 @@ interface IHistoryCommandLogicReturn {
 export async function historyCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
-  const replyPlaceHolder = await message.reply(
-    `Checking history, one moment, ${message.sender}...`
-  );
+  const replyPlaceHolder = await message.reply(`Checking history, one moment, ${message.sender}...`);
 
   const {reply, itemData, regionName, fileName} = await historyCommandLogic(messageData);
 
@@ -109,7 +107,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
   const data = last20days.map((entry) => {
     return {
       x: parseTime(entry.date) as Date,
-      y: entry.average
+      y: entry.average,
     };
   });
 

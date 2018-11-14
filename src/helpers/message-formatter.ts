@@ -9,7 +9,7 @@ import {
   makeUrlStartTag,
   makeUserLinkEndTag,
   makeUserLinkStartTag,
-  newLineTag
+  newLineTag,
 } from '../chat-service/discord/misc';
 
 export function makeBold(text: string | number): string {

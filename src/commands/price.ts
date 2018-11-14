@@ -18,9 +18,7 @@ interface IPriceCommandLogicReturn {
 export async function priceCommand(message: Message, transaction: any) {
   const messageData = parseMessage(message.content);
 
-  const replyPlaceHolder = await message.reply(
-    `Checking price, one moment, ${message.sender}...`
-  );
+  const replyPlaceHolder = await message.reply(`Checking price, one moment, ${message.sender}...`);
 
   const {reply, itemData, locationName} = await priceCommandLogic(messageData);
 
