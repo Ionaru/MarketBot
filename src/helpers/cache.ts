@@ -21,8 +21,8 @@ export let regions: INamesData[];
 export let systems: INamesData[];
 export let items: INamesData[];
 
-export let itemsFuse: Fuse;
-export let regionsFuse: Fuse;
+export let itemsFuse: Fuse<INamesData>;
+export let regionsFuse: Fuse<INamesData>;
 
 export let citadels: ICitadelData;
 

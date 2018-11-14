@@ -31,7 +31,7 @@ export interface IGuessReturn {
   id: boolean;
 }
 
-export function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse): IGuessReturn {
+export function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>): IGuessReturn {
 
   itemString = escapeStringRegexp(itemString);
 

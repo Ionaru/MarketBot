@@ -23,7 +23,7 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
   const host = 'https://api.evemarketer.com/ec/';
   const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
 
-  return DataService.fetchESIData<IEVEMarketerData[]>(url, 20000);
+  return DataService.fetchESIData<IEVEMarketerData[]>(url, 900000);
 }
 
 export async function fetchMarketData(itemId: number, regionId: number): Promise<IMarketData[]> {
