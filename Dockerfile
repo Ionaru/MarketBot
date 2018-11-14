@@ -24,7 +24,6 @@ WORKDIR /app
 COPY ./package.json .
 COPY ./package-lock.json .
 COPY ./tsconfig.json .
-COPY ./config ./config
 
 # Copy source files
 COPY ./src ./src

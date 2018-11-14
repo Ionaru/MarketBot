@@ -43,7 +43,7 @@ export async function infoCommand(message: Message, transaction: any) {
   reply += makeBold('Version');
   reply += newLine();
 
-  reply += `My current version is ${version}.`;
+  reply += `My current version is ${makeCode(version)}.`;
 
   await message.reply(reply);
   logCommand('info', message, undefined, undefined, transaction);

@@ -1,19 +1,9 @@
 import * as fs from 'fs';
-import * as git from 'git-rev-sync';
 import { logger } from 'winston-pnp-logger';
 
-import { makeCode } from './message-formatter';
+import { version } from '../../package.json';
 
 export function readVersion(): string {
-  let version = makeCode('unknown');
-  try {
-    version = makeCode(git.tag());
-    if (git.isTagDirty()) {
-      version = `${makeCode(git.short())}, based on release ${makeCode(git.tag())}`;
-    }
-  } catch (error) {
-    logger.error('Unable to get version information from Git', error);
-  }
   return version;
 }
 

@@ -22,8 +22,8 @@ configuration.addConfigFile('marketbot');
 
 if (configuration.getProperty('elastic.enabled') === true) {
   elastic.start({
-    secretToken: configuration.getProperty('elastic.token'),
-    serverUrl: configuration.getProperty('elastic.url'),
+    secretToken: configuration.getProperty('elastic.token') as string,
+    serverUrl: configuration.getProperty('elastic.url') as string,
     serviceName: 'marketbot',
   });
   logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
