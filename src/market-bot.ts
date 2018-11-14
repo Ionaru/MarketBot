@@ -1,5 +1,4 @@
 import * as elastic from 'elastic-apm-node';
-import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 

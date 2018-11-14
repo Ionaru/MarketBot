@@ -1,4 +1,5 @@
 import * as elastic from 'elastic-apm-node';
+import 'reflect-metadata'; // Required for TypeORM
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
 import { Configurator } from './helpers/configurator';
