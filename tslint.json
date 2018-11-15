@@ -3,6 +3,11 @@
   "extends": [
     "tslint:latest"
   ],
+  "linterOptions": {
+    "exclude": [
+      "**/*.json"
+    ]
+  },
   "rules": {
     "max-line-length": [
       true,
