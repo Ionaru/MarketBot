@@ -1,7 +1,7 @@
 # Discord MarketBot for EVE Online
-[![Build Status](https://travis-ci.org/Ionaru/MarketBot.svg?branch=master)](https://travis-ci.org/Ionaru/MarketBot)
-[![codecov](https://codecov.io/gh/Ionaru/MarketBot/branch/master/graph/badge.svg)](https://codecov.io/gh/Ionaru/MarketBot)
-[![Internet spaceships are serious business](https://img.shields.io/badge/internet%20spaceships-are%20serious%20business-2F849E.svg)](https://www.eveonline.com/)
+[![Build Status](https://img.shields.io/travis/Ionaru/MarketBot/master.svg?style=for-the-badge)](https://travis-ci.org/Ionaru/MarketBot)
+[![codecov](https://img.shields.io/codecov/c/github/Ionaru/MarketBot/master.svg?style=for-the-badge)](https://codecov.io/gh/Ionaru/MarketBot)
+[![Internet spaceships are serious business](https://img.shields.io/badge/internet%20spaceships-are%20serious%20business-2F849E.svg?style=for-the-badge)](https://www.eveonline.com/)
 
 ## General information
 The purpose of this bot is to get fast information on the EVE Online market for specific items and in specific regions.
