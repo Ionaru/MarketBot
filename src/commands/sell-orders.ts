@@ -40,7 +40,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -52,7 +52,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   let region = defaultRegion;
 
   if (messageData.region) {
-    region = guessUserInput(messageData.region, regions, regionsFuse).itemData;
+    region = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
     if (!region.id) {
       region = defaultRegion;
       reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;

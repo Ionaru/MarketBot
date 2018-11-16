@@ -39,7 +39,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
     return {reply, itemData: undefined};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
 
   const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
   if (guessHint) {

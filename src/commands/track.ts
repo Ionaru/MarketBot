@@ -94,7 +94,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -106,7 +106,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   let region = defaultRegion;
 
   if (messageData.region) {
-    region = guessUserInput(messageData.region, regions, regionsFuse).itemData;
+    region = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
     if (!region.id) {
       region = defaultRegion;
       reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
@@ -175,7 +175,7 @@ export async function clearTrackingCommand(message: Message, transaction: any): 
   let itemId: number | undefined;
   let itemData: IGuessReturn | undefined;
   if (messageData.item && messageData.item.length) {
-    itemData = guessUserInput(messageData.item, items, itemsFuse);
+    itemData = await guessUserInput(messageData.item, items, itemsFuse);
     if (itemData.itemData && itemData.itemData.name) {
       itemId = itemData.itemData.id;
     }

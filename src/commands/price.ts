@@ -38,7 +38,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
     return {reply, itemData: undefined, locationName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
 
   const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
   if (guessHint) {
@@ -53,7 +53,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
   let location = defaultLocation;
 
   if (messageData.region) {
-    location = guessUserInput(messageData.region, regions).itemData;
+    location = (await guessUserInput(messageData.region, regions)).itemData;
     if (!location.id) {
       location = defaultLocation;
       reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(location.name)}`);
@@ -61,7 +61,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
   }
 
   if (messageData.system) {
-    location = guessUserInput(messageData.system, systems).itemData;
+    location = (await guessUserInput(messageData.system, systems)).itemData;
     if (!location.id) {
       location = defaultLocation;
       reply.addField('Warning', `I don't know of the "${messageData.system}" system, defaulting to ${regionFormat(location.name)}`);

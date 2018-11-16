@@ -2,6 +2,7 @@ import * as escapeStringRegexp from 'escape-string-regexp';
 import * as Fuse from 'fuse.js';
 
 import { INamesData } from '../typings';
+import { fetchUniverseType } from './api';
 import { sortArrayByObjectPropertyLength } from './arrays';
 import { itemFormat, newLine } from './message-formatter';
 
@@ -31,7 +32,7 @@ export interface IGuessReturn {
   id: boolean;
 }
 
-export function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>): IGuessReturn {
+export async function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>): Promise<IGuessReturn> {
 
   itemString = escapeStringRegexp(itemString);
 
@@ -99,9 +100,18 @@ export function guessUserInput(itemString: string, possibilitiesList: INamesData
     guess = true;
   }
 
-  // Sort by word length and select first itemData, shortest is usually the correct one.
   if (possibilities.length) {
-    itemData = sortArrayByObjectPropertyLength(possibilities, 'name')[0];
+    // Sort by word length, shortest is usually the correct one.
+    const sortedPossibilities = sortArrayByObjectPropertyLength(possibilities, 'name');
+
+    for (const possibility of sortedPossibilities) {
+      // Check if the matched item is published.
+      const type = await fetchUniverseType(possibility.id);
+      if (type && type.published) {
+        itemData = possibility;
+        break;
+      }
+    }
   }
 
   return {itemData, guess, id: false};
