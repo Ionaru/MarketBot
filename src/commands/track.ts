@@ -102,19 +102,19 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
-  let region = defaultRegion;
+  const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+  let selectedRegion = defaultRegion;
 
   if (messageData.region) {
-    region = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
-    if (!region.id) {
-      region = defaultRegion;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
+    selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
+    if (!selectedRegion.id) {
+      selectedRegion = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = region.name;
+  regionName = selectedRegion.name;
 
   let changeLimit = messageData.limit || 1;
 
@@ -125,21 +125,22 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   }
 
   const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
-  const dupEntries = trackingEntries.filter((_) => _.sender_id === message.author.id);
+  const dupEntries = trackingEntries.filter((trackingEntry) => trackingEntry.sender_id === message.author.id);
   if (dupEntries.length + 1 > maxEntries) {
     reply += `You've reached the maximum of ${makeBold(maxEntries)} tracking entries.`;
     return {reply, itemData, regionName};
   }
 
-  const channelItemDup = dupEntries.filter((_) =>
-    (_.item_id === itemData.id && _.region_id === region.id && _.tracking_type === type && _.channel_id === message.channel.id),
+  const channelItemDup = dupEntries.filter((duplicate) =>
+    (duplicate.item_id === itemData.id && duplicate.region_id === selectedRegion.id
+      && duplicate.tracking_type === type && duplicate.channel_id === message.channel.id),
   );
   if (channelItemDup.length !== 0) {
     reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name)} in this channel.`;
     return {reply, itemData, regionName};
   }
 
-  const originalOrder = await getCheapestOrder(type, itemData.id, region.id);
+  const originalOrder = await getCheapestOrder(type, itemData.id, selectedRegion.id);
   if (!originalOrder) {
     reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
     return {reply, itemData, regionName};
@@ -155,7 +156,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   const entry = new TrackingEntry();
   entry.channel_id = message.channel.id;
   entry.item_id = itemData.id;
-  entry.region_id = region.id;
+  entry.region_id = selectedRegion.id;
   entry.sender_id = message.author.id;
   entry.tracking_limit = changeLimit;
   entry.tracking_price = originalPrice;
@@ -183,10 +184,10 @@ export async function clearTrackingCommand(message: Message, transaction: any): 
 
   const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
   if (trackingEntries && trackingEntries.length) {
-    let entries = trackingEntries.filter((_) => _.channel_id === message.channel.id);
+    let entries = trackingEntries.filter((trackingEntry) => trackingEntry.channel_id === message.channel.id);
     if (itemId && itemData && itemData.itemData && itemData.itemData.name) {
       reply = `All entries for ${itemFormat(itemData.itemData.name)} cleared from this channel, ${message.sender}.`;
-      entries = entries.filter((_) => _.item_id === itemId);
+      entries = entries.filter((entry) => entry.item_id === itemId);
     }
 
     for (const entry of entries) {
@@ -226,8 +227,8 @@ export async function performTrackingCycle() {
     let currentOrder: IMarketData | undefined;
 
     // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
-    const duplicateEntry = entriesDone.filter((_) =>
-      (_.entry.item_id === entry.item_id && _.entry.region_id === entry.region_id),
+    const duplicateEntry = entriesDone.filter((entryDone) =>
+      (entryDone.entry.item_id === entry.item_id && entryDone.entry.region_id === entry.region_id),
     )[0];
 
     currentOrder = (duplicateEntry && duplicateEntry.order) ?
@@ -276,8 +277,8 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketData, e
   const droppedRoseWord = droppedRose(currentOrder.price - entry.tracking_price);
   const changeText = makeCode(`${formatNumber(change)} ISK`);
 
-  const itemName = items.filter((_) => _.id === entry.item_id)[0].name;
-  const regionName = regions.filter((_) => _.id === entry.region_id)[0].name;
+  const itemName = items.filter((item) => item.id === entry.item_id)[0].name;
+  const regionName = regions.filter((region) => region.id === entry.region_id)[0].name;
 
   let reply = `Attention, change detected in ${makeBold(entry.tracking_type)} price `;
   reply += `for ${itemFormat(itemName)} in ${regionFormat(regionName)}: `;

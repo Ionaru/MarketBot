@@ -52,21 +52,21 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     return {reply, itemData: undefined, regionName};
   }
 
-  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
-  let region = defaultRegion;
+  const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+  let selectedRegion = defaultRegion;
 
   if (messageData.region) {
-    region = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
-    if (!region.id) {
-      region = defaultRegion;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
+    selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
+    if (!selectedRegion.id) {
+      selectedRegion = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = region.name;
+  regionName = selectedRegion.name;
 
-  const historyData = await fetchHistoryData(itemData.id, region.id);
+  const historyData = await fetchHistoryData(itemData.id, selectedRegion.id);
 
   if (!historyData) {
     reply += 'My apologies, I was unable to fetch the required data from the web, please try again later.';
@@ -78,7 +78,8 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     return {reply, itemData, regionName};
   }
 
-  const last20days = historyData.filter((_) => moment(_.date).isAfter(moment().startOf('day').subtract(21, 'days'))).reverse();
+  const twentyDaysAgo = moment().startOf('day').subtract(21, 'days');
+  const last20days = historyData.filter((historyEntry) => moment(historyEntry.date).isAfter(twentyDaysAgo)).reverse();
 
   if (!last20days.length) {
     reply = `There is no history data in the last 20 days for ${itemFormat(itemData.name)} in ${regionName}.`;
@@ -111,7 +112,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     };
   });
 
-  const fileName = `data/${last20days[0].date}_${itemData.id}_${region.id}.png`;
+  const fileName = `data/${last20days[0].date}_${itemData.id}_${selectedRegion.id}.png`;
   if (!fs.existsSync(fileName)) {
     const graph = createLineGraph(data, `Price history for ${itemData.name}`, regionName);
     try {

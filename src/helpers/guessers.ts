@@ -50,7 +50,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
   // Check if the item is an ID
   const possibleId = Number(itemWords[0]);
   if (!isNaN(possibleId)) {
-    possibilities.push(...possibilitiesList.filter((_): boolean | void => _.id === possibleId));
+    possibilities.push(...possibilitiesList.filter((possibility): boolean | void => possibility.id === possibleId));
     if (possibilities.length) {
       return {itemData: possibilities[0], guess: false, id: true};
     }
@@ -58,8 +58,8 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
   // Check if word is defined as a shortcut.
   regex = new RegExp(`^${itemWords[0]}`, 'i');
-  const shortcut = Object.keys(shortcuts).filter((_) => {
-    return _.match(regex);
+  const shortcut = Object.keys(shortcuts).filter((shortcutText) => {
+    return shortcutText.match(regex);
   })[0];
 
   if (shortcut) {
@@ -69,27 +69,27 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
   // Check in start of the words.
   regex = new RegExp(`^${itemString}`, 'i');
-  possibilities.push(...possibilitiesList.filter((_): RegExpMatchArray | null | void => {
-    if (_.name) {
-      return _.name.match(regex);
+  possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | null | void => {
+    if (possibility.name) {
+      return possibility.name.match(regex);
     }
   }));
 
   if (!possibilities.length) {
     // Check at end of the words.
     regex = new RegExp(`${itemString}$`, 'i');
-    possibilities.push(...possibilitiesList.filter((_): RegExpMatchArray | null | void => {
-      if (_.name) {
-        return _.name.match(regex);
+    possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | null | void => {
+      if (possibility.name) {
+        return possibility.name.match(regex);
       }
     }));
   }
 
   if (!possibilities.length) {
     // Check in middle of words.
-    possibilities.push(...possibilitiesList.filter((_): boolean | void => {
-      if (_.name) {
-        return _.name.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
+    possibilities.push(...possibilitiesList.filter((possibility): boolean | void => {
+      if (possibility.name) {
+        return possibility.name.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
       }
     }));
   }

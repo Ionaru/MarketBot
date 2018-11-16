@@ -48,30 +48,30 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  const defaultRegion = regions.filter((_) => _.name === 'The Forge')[0];
-  let region = defaultRegion;
+  const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+  let selectedRegion = defaultRegion;
 
   if (messageData.region) {
-    region = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
-    if (!region.id) {
-      region = defaultRegion;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(region.name)}`;
+    selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
+    if (!selectedRegion.id) {
+      selectedRegion = defaultRegion;
+      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
       reply += newLine(2);
     }
   }
 
-  regionName = region.name;
+  regionName = selectedRegion.name;
 
   const itemId = itemData.id;
 
-  const marketData = await fetchMarketData(itemId, region.id);
+  const marketData = await fetchMarketData(itemId, selectedRegion.id);
 
   if (!marketData) {
     reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
     return {reply, itemData, regionName};
   }
 
-  let sellOrders: IMarketData[] = marketData.filter((_) => _.is_buy_order === false);
+  let sellOrders: IMarketData[] = marketData.filter((order) => order.is_buy_order === false);
 
   if (!(sellOrders && sellOrders.length)) {
     reply += `I couldn't find any sell orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
@@ -99,7 +99,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
   for (const order of sellOrders) {
     const orderPrice = formatNumber(order.price);
 
-    const locationNameData = locationNames.filter((_) => _.id === order.location_id)[0];
+    const locationNameData = locationNames.filter((locationName) => locationName.id === order.location_id)[0];
     const locationName = locationNameData ? locationNameData.name : `an unknown location with ID ${order.location_id}`;
 
     const volume = formatNumber(order.volume_remain, 0);

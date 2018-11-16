@@ -49,7 +49,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
     return {reply, itemData: undefined, locationName};
   }
 
-  const defaultLocation = regions.filter((_) => _.name === 'The Forge')[0];
+  const defaultLocation = regions.filter((region) => region.name === 'The Forge')[0];
   let location = defaultLocation;
 
   if (messageData.region) {
