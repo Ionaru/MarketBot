@@ -101,12 +101,12 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
   for (const order of buyOrders) {
     const orderPrice = formatNumber(order.price);
     const location = locationNames.filter((locationName) => locationName.id === order.location_id)[0];
-    let locationName = `an unknown location with ID ${order.location_id}`;
+    let locationText = `an unknown location with ID ${order.location_id}`;
     if (location) {
-      locationName = location.name;
+      locationText = location.name;
     } else if (order.location_id.toString().length === 13) {
       const citadel = citadels[order.location_id];
-      locationName = citadel ? citadel.name : 'an unknown citadel';
+      locationText = citadel ? citadel.name : 'an unknown citadel';
     }
 
     const volume = formatNumber(order.volume_remain, 0);
@@ -124,7 +124,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
     }
 
     let replyAddition = `${makeCode(orderPrice + ' ISK')} for ${makeCode(volume)} ${itemWord} ${volumeAddition}`;
-    replyAddition += `with ${makeCode(range)} order range from ${makeCode(locationName)}`;
+    replyAddition += `with ${makeCode(range)} order range from ${makeCode(locationText)}`;
     replyAddition += newLine();
 
     // Messages can not be longer than 2000 characters, if this command is issued with a

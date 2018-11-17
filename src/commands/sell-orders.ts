@@ -100,12 +100,12 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     const orderPrice = formatNumber(order.price);
 
     const locationNameData = locationNames.filter((locationName) => locationName.id === order.location_id)[0];
-    const locationName = locationNameData ? locationNameData.name : `an unknown location with ID ${order.location_id}`;
+    const locationText = locationNameData ? locationNameData.name : `an unknown location with ID ${order.location_id}`;
 
     const volume = formatNumber(order.volume_remain, 0);
     const itemWord = pluralize('item', 'items', order.volume_remain);
 
-    let replyAddition = `${makeCode(orderPrice + ' ISK')} at ${makeCode(locationName)}, ${makeCode(volume)} ${itemWord} left.`;
+    let replyAddition = `${makeCode(orderPrice + ' ISK')} at ${makeCode(locationText)}, ${makeCode(volume)} ${itemWord} left.`;
     replyAddition += newLine();
 
     // Messages can not be longer than 2000 characters, if this command is issued with a
