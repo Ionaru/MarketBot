@@ -1,6 +1,7 @@
 import * as Discord from 'discord.js';
 import { EventEmitter } from 'events';
 import { logger } from 'winston-pnp-logger';
+import Timeout = NodeJS.Timeout;
 
 import { commandPrefix, infoCommands } from '../../market-bot';
 import { Message } from './message';
@@ -19,8 +20,9 @@ export class Client {
   private client: Discord.Client;
   private credentials: string;
   private readonly _emitter: EventEmitter;
-  private _name: string | undefined;
-  private _id: string | undefined;
+  private _name?: string;
+  private _id?: string;
+  private presenceInterval?: Timeout;
 
   constructor(credentials: string) {
     this.credentials = credentials;
@@ -28,9 +30,6 @@ export class Client {
     this._emitter = new EventEmitter();
 
     this.client.on('ready', () => {
-      this._name = this.client.user.username;
-      this._id = this.client.user.id;
-      this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
       this.onReady();
     });
 
@@ -121,8 +120,17 @@ export class Client {
     return this.client.readyAt;
   }
 
+  private setPresence() {
+    this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
+
+    // Re-set the presence every hour because the bot tends to forget.
+    if (!this.presenceInterval) {
+      this.presenceInterval = setInterval(() => this.setPresence(), 3_600_000); // Every hour.
+    }
+  }
+
   private onMessage(message: Discord.Message): void {
-    this._emitter.emit('message', new Message(message));
+    this.emitter.emit('message', new Message(message));
   }
 
   private onDisconnect(event: any) {
@@ -134,6 +142,9 @@ export class Client {
   }
 
   private onReady() {
+    this._name = this.client.user.username;
+    this._id = this.client.user.id;
+    this.setPresence();
     this.emitter.emit('ready');
   }
 }
