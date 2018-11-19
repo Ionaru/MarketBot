@@ -44,7 +44,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
-  if (!itemData) {
+  if (!itemData.id) {
     return {reply, itemData: undefined, regionName};
   }
 

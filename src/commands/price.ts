@@ -45,7 +45,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
     reply.addField('Warning', guessHint);
   }
 
-  if (!itemData) {
+  if (!itemData.id) {
     return {reply, itemData: undefined, locationName};
   }
 

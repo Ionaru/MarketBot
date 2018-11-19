@@ -46,7 +46,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
     reply.addField('Warning', guessHint);
   }
 
-  if (!itemData) {
+  if (!itemData.id) {
     return {reply, itemData: undefined};
   }
 
