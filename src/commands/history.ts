@@ -48,7 +48,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
-  if (!itemData) {
+  if (!itemData.id) {
     return {reply, itemData: undefined, regionName};
   }
 

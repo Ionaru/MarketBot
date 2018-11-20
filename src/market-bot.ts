@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import * as elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
@@ -205,5 +206,10 @@ async function processMessage(message: Message, transaction: any): Promise<void>
 }
 
 export function handleError(message: Message, caughtError: Error) {
+  Sentry.addBreadcrumb({
+    category: 'command',
+    message: message.content,
+  });
+  Sentry.captureException(caughtError);
   message.sendError(caughtError).then();
 }

@@ -2,6 +2,7 @@ export interface INamesData {
   category: string;
   id: number;
   name: string;
+  originalName?: string;
 }
 
 export interface IMarketData {

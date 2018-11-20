@@ -32,7 +32,12 @@ export interface IGuessReturn {
   id: boolean;
 }
 
-export async function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>): Promise<IGuessReturn> {
+function replaceQuotes(text: string): string {
+  return text.replace(/'/g, '').replace(/"/g, '');
+}
+
+export async function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>, raw = true):
+  Promise<IGuessReturn> {
 
   itemString = escapeStringRegexp(itemString);
 
@@ -66,6 +71,15 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
     itemWords[0] = shortcuts[shortcut];
     itemString = itemWords.join(' ');
   }
+
+  // Check for full words.
+  possibilities.push(...possibilitiesList.filter((possibility): boolean | void => {
+    if (possibility.name) {
+      const possibilityName = replaceQuotes(possibility.name).toLowerCase();
+      const possibilityParts = possibilityName.split(' ');
+      return itemWords.every((part) => possibilityParts.includes(part));
+    }
+  }));
 
   // Check in start of the words.
   regex = new RegExp(`^${itemString}`, 'i');
@@ -105,13 +119,35 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
     const sortedPossibilities = sortArrayByObjectPropertyLength(possibilities, 'name');
 
     for (const possibility of sortedPossibilities) {
-      // Check if the matched item is published.
-      const type = await fetchUniverseType(possibility.id);
-      if (type && type.published) {
+      if (possibility.category === 'inventory_type') {
+        // Check if the matched item is published.
+        const type = await fetchUniverseType(possibility.id);
+        if (type && type.published) {
+          itemData = possibility;
+          break;
+        }
+      } else {
         itemData = possibility;
-        break;
       }
     }
+  }
+
+  if (!itemData.id && raw) {
+    // Strip quotes from possibilities and try guessing again.
+    const list = possibilitiesList.map((possibility) => {
+      return {
+        category: possibility.category,
+        id: possibility.id,
+        name: replaceQuotes(possibility.name),
+        originalName: possibility.name,
+      };
+    });
+    itemData = (await guessUserInput(itemString, list, fuse, false)).itemData;
+  }
+
+  if (itemData.originalName) {
+    itemData.name = itemData.originalName;
+    delete itemData.originalName;
   }
 
   return {itemData, guess, id: false};
@@ -120,7 +156,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 export function getGuessHint(guessReturn: IGuessReturn, userInput: string): string {
   let returnString = '';
 
-  if (!guessReturn.itemData) {
+  if (!guessReturn.itemData.id) {
     returnString += `I don't know what you mean with "${userInput}" 😟`;
   } else if (guessReturn.guess) {
     returnString += `"${userInput}" didn't directly match any item I know of,`;

@@ -98,7 +98,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
-  if (!itemData) {
+  if (!itemData.id) {
     return {reply, itemData: undefined, regionName};
   }
 
