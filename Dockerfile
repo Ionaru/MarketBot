@@ -28,9 +28,6 @@ COPY ./tsconfig.json .
 # Copy source files
 COPY ./src ./src
 
-# Set environment for install and run
-ENV NODE_ENV production
-
 # Install server dependencies
 RUN npm install
 
@@ -48,4 +45,5 @@ VOLUME /app/config
 EXPOSE  80
 EXPOSE  443
 ENV LEVEL debug
+ENV NODE_ENV production
 CMD ["node", "./dist/src/index.js"]
