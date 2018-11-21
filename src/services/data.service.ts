@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import * as httpStatus from 'http-status-codes';
 import { logger } from 'winston-pnp-logger';
@@ -73,8 +74,13 @@ export class DataService {
     return;
   }
 
-  public static logWarning(route: string, text?: string) {
+  public static logWarning(route: string, text: string) {
     if (!DataService.deprecationsLogged.includes(route)) {
+      Sentry.addBreadcrumb({
+        category: 'route',
+        message: route,
+      });
+      Sentry.captureMessage(text, Sentry.Severity.Warning);
       logger.warn('HTTP request warning:', route, text);
       DataService.deprecationsLogged.push(route);
     }
