@@ -120,12 +120,12 @@ export class Client {
     return this.client.readyAt;
   }
 
-  private setPresence() {
+  private setDiscordPresence() {
     this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
 
     // Re-set the presence every hour because the bot tends to forget.
     if (!this.presenceInterval) {
-      this.presenceInterval = setInterval(() => this.setPresence(), 3_600_000); // Every hour.
+      this.presenceInterval = setInterval(() => this.setDiscordPresence(), 3_600_000); // Every hour.
     }
   }
 
@@ -144,7 +144,7 @@ export class Client {
   private onReady() {
     this._name = this.client.user.username;
     this._id = this.client.user.id;
-    this.setPresence();
+    this.setDiscordPresence();
     this.emitter.emit('ready');
   }
 }
