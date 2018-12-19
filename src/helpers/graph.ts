@@ -79,10 +79,18 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
       .tickSize(-width);
   }
 
+  // Set scope of X-axis.
   const startDate = new Date(data[data.length - 1].x);
   const endDate = new Date(data[0].x);
   xScale.domain([startDate, endDate]);
-  yScale.domain(d3.extent(data, (d: IData) => d.y) as any);
+
+  // Set scope of Y-axis.
+  const yValues = data.map((d) => d.y);
+  const minValue = Math.min(...yValues);
+  const maxValue = Math.max(...yValues);
+  const adjustedMinValue = minValue - (minValue * 0.01);
+  const adjustedMaxValue = maxValue + (maxValue * 0.01);
+  yScale.domain([adjustedMinValue, adjustedMaxValue]);
 
   g.append('g')
     .attr('transform', `translate(0, ${graphHeight})`)
