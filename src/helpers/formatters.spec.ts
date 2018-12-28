@@ -115,9 +115,9 @@ describe('Formatting functions', () => {
     });
 
     it('should accept different delimiters', () => {
-      const result = formatNumber(50000, 2, ',', 'X');
+      const result = formatNumber(50000, 2, undefined, 'X');
       assert.isString(result);
-      assert.equal(result, '50X000,00');
+      assert.equal(result, '50X000.00');
     });
 
     it('should accept different decimal marks', () => {
@@ -127,9 +127,9 @@ describe('Formatting functions', () => {
     });
 
     it('should be able to have an empty string as delimiter', () => {
-      const result = formatNumber(50000, 2, ',', '');
+      const result = formatNumber(50000, 2, undefined, '');
       assert.isString(result);
-      assert.equal(result, '50000,00');
+      assert.equal(result, '50000.00');
     });
 
     it('should be able to have an empty string as both decimal mark and delimiter', () => {
@@ -142,6 +142,12 @@ describe('Formatting functions', () => {
       const result = formatNumber(50000, 2, 'X', 'X');
       assert.isString(result);
       assert.equal(result, '50X000X00');
+    });
+
+    it('should use default values when parameters are undefined', () => {
+      const result = formatNumber(50000, undefined, undefined, undefined);
+      assert.isString(result);
+      assert.equal(result, '50,000.00');
     });
   });
 });
