@@ -110,7 +110,12 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
   if (!possibilities.length && fuse) {
     // Use Fuse to search (slow but fuzzy).
-    possibilities.push(fuse.search(itemString)[0] as INamesData);
+    const fuseGuess = fuse.search(itemString)[0] as INamesData | undefined;
+
+    if (fuseGuess) {
+      possibilities.push(fuseGuess);
+    }
+
     guess = true;
   }
 
