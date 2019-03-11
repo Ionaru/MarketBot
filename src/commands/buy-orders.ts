@@ -12,8 +12,8 @@ import { IMarketData, INamesData, IParsedMessage } from '../typings';
 
 interface IBuyOrdersCommandLogicReturn {
   reply: string;
-  itemData: INamesData | undefined;
-  regionName: string | undefined;
+  itemData?: INamesData;
+  regionName?: string;
 }
 
 export async function buyOrdersCommand(message: Message, transaction: any) {

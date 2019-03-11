@@ -19,12 +19,12 @@ export class CacheController {
 
   public static dumpCache() {
     const cacheString = JSON.stringify(CacheController.responseCache);
-    writeFileSync('data/responseCache.json', cacheString);
+    writeFileSync(CacheController.cacheLocation, cacheString);
   }
 
   public static readCache() {
-    if (existsSync('data/responseCache.json')) {
-      const cacheString = readFileSync('data/responseCache.json').toString();
+    if (existsSync(CacheController.cacheLocation)) {
+      const cacheString = readFileSync(CacheController.cacheLocation).toString();
       let cacheJson;
       try {
         cacheJson = JSON.parse(cacheString);
@@ -38,4 +38,6 @@ export class CacheController {
       }
     }
   }
+
+  private static readonly cacheLocation = 'data/responseCache.json';
 }

@@ -11,8 +11,8 @@ import { INamesData, IParsedMessage, IPriceData } from '../typings';
 
 interface IPriceCommandLogicReturn {
   reply: Discord.RichEmbed;
-  itemData: INamesData | undefined;
-  locationName: string | undefined;
+  itemData?: INamesData;
+  locationName?: string;
 }
 
 export async function priceCommand(message: Message, transaction: any) {

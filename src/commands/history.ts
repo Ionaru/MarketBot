@@ -15,8 +15,8 @@ import { INamesData, IParsedMessage } from '../typings';
 
 interface IHistoryCommandLogicReturn {
   reply: string;
-  itemData: INamesData | undefined;
-  regionName: string | undefined;
+  itemData?: INamesData;
+  regionName?: string;
   fileName?: string;
 }
 
@@ -99,7 +99,8 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     const parsedTime = parseTime(historyEntry.date) as Date;
     const dateText = d3.utcFormat('%a, %m-%d')(parsedTime);
 
-    historyText += `${dateText}: ${formatNumber(historyEntry.average) + ` ISK`} (${dayName})`;
+    const price = formatNumber(historyEntry.average) + ` ISK`;
+    historyText += `${dateText}: ${price} (${dayName})`;
   }
 
   historyText += '```';

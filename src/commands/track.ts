@@ -53,8 +53,8 @@ let trackingCycle: Timer | undefined;
 
 interface ITrackCommandLogicReturn {
   reply: string;
-  itemData: INamesData | undefined;
-  regionName: string | undefined;
+  itemData?: INamesData;
+  regionName?: string;
 }
 
 export function startTrackingCycle() {
@@ -219,7 +219,7 @@ export async function performTrackingCycle() {
     return;
   }
 
-  const entriesDone: Array<{entry: TrackingEntry, order: IMarketData | undefined}> = [];
+  const entriesDone: Array<{entry: TrackingEntry, order?: IMarketData}> = [];
 
   for (const entry of trackingEntries) {
 

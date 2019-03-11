@@ -12,7 +12,7 @@ import { IMarketGroup, INamesData, IParsedMessage } from '../typings';
 
 interface IItemCommandLogicReturn {
   reply: Discord.RichEmbed;
-  itemData: INamesData | undefined;
+  itemData?: INamesData;
 }
 
 export async function itemCommand(message: Message, transaction: any) {
@@ -93,6 +93,8 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
       if (marketGroup) {
         marketGroups.unshift(marketGroup.name);
         marketGroupId = marketGroup.parent_group_id ? marketGroup.parent_group_id : undefined;
+      // } else {
+      //   break;
       }
     }
 

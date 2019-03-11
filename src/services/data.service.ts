@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as httpStatus from 'http-status-codes';
 import { logger } from 'winston-pnp-logger';
 
@@ -15,18 +15,10 @@ export class DataService {
       return CacheController.responseCache[url].data as T;
     }
 
-    const requestConfig: AxiosRequestConfig = {
-      // Make sure 304 responses are not treated as errors.
-      validateStatus: (status) => status === httpStatus.OK || status === httpStatus.NOT_MODIFIED,
-    };
-
-    if (CacheController.responseCache[url] && CacheController.responseCache[url].etag) {
-      requestConfig.headers = {
-        'If-None-Match': `${CacheController.responseCache[url].etag}`,
-      };
-    }
+    const requestConfig = DataService.getESIRequestConfig(url);
 
     const response = await axios.get<T>(url, requestConfig).catch((error: AxiosError) => {
+      DataService.reportRequestError(url, error);
       logger.error('Request failed:', url, error.message);
       return undefined;
     });
@@ -38,24 +30,7 @@ export class DataService {
           DataService.logWarning(url, response.headers.warning);
         }
 
-        if (response.headers.expires || response.headers.etag) {
-          CacheController.responseCache[url] = {
-            data: response.data,
-          };
-
-          if (response.headers.etag) {
-            CacheController.responseCache[url].etag = response.headers.etag;
-          }
-
-          CacheController.responseCache[url].expiry =
-            response.headers.expires ? new Date(response.headers.expires).getTime() : Date.now() + 300000;
-
-        } else if (cacheTime) {
-          CacheController.responseCache[url] = {
-            data: response.data,
-            expiry: Date.now() + cacheTime,
-          };
-        }
+        DataService.cacheResponse(url, response, cacheTime);
 
         return response.data;
 
@@ -65,9 +40,6 @@ export class DataService {
           response.headers.expires ? new Date(response.headers.expires).getTime() : Date.now() + 300000;
 
         return CacheController.responseCache[url].data as T;
-
-      } else {
-        logger.error('Request not OK:', url, response.status, response.statusText, response.data);
       }
     }
 
@@ -84,5 +56,53 @@ export class DataService {
       logger.warn('HTTP request warning:', route, text);
       DataService.deprecationsLogged.push(route);
     }
+  }
+
+  private static cacheResponse(url: string, response: AxiosResponse, alternateCacheTime?: number) {
+    if (response.headers.expires || response.headers.etag) {
+      CacheController.responseCache[url] = {
+        data: response.data,
+      };
+
+      if (response.headers.etag) {
+        CacheController.responseCache[url].etag = response.headers.etag;
+      }
+
+      CacheController.responseCache[url].expiry =
+        response.headers.expires ? new Date(response.headers.expires).getTime() : Date.now() + 300000;
+
+    } else if (alternateCacheTime) {
+      CacheController.responseCache[url] = {
+        data: response.data,
+        expiry: Date.now() + alternateCacheTime,
+      };
+    }
+  }
+
+  private static getESIRequestConfig(url: string): AxiosRequestConfig {
+    const requestConfig: AxiosRequestConfig = {
+      // Make sure 304 responses are not treated as errors.
+      validateStatus: (status) => status === httpStatus.OK || status === httpStatus.NOT_MODIFIED,
+    };
+
+    if (CacheController.responseCache[url] && CacheController.responseCache[url].etag) {
+      requestConfig.headers = {
+        'If-None-Match': `${CacheController.responseCache[url].etag}`,
+      };
+    }
+
+    return requestConfig;
+  }
+
+  private static reportRequestError(url: string, error: AxiosError) {
+    Sentry.withScope((scope) => {
+      scope.addBreadcrumb({
+        category: 'url',
+        message: url,
+      });
+      scope.setExtra('response code', error.code || (error.response && error.response.status));
+      scope.setExtra('response message', error.message);
+      Sentry.captureMessage(`Request failed: ${url}`, Sentry.Severity.Error);
+    });
   }
 }

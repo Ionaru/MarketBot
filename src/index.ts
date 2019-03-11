@@ -1,3 +1,4 @@
+import { TypedEvent } from '@ionaru/typed-events';
 import * as Sentry from '@sentry/node';
 import * as elastic from 'elastic-apm-node';
 import 'reflect-metadata'; // Required for TypeORM
@@ -11,6 +12,9 @@ import { activate, deactivate } from './market-bot';
  * The code in this file starts the bot by calling the async 'activate' function.
  * It also defines what to do on exit signals, unhandled exceptions and promise rejections.
  */
+
+const event = new TypedEvent<number>();
+event.on((bla) => bla + 5);
 
 new WinstonPnPLogger({
   announceSelf: false,

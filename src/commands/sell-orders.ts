@@ -12,8 +12,8 @@ import { IMarketData, INamesData, IParsedMessage } from '../typings';
 
 interface ISellOrdersCommandLogicReturn {
   reply: string;
-  itemData: INamesData | undefined;
-  regionName: string | undefined;
+  itemData?: INamesData;
+  regionName?: string;
 }
 
 export async function sellOrdersCommand(message: Message, transaction: any) {
@@ -53,11 +53,11 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
 
   if (messageData.region) {
     selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
-    if (!selectedRegion.id) {
-      selectedRegion = defaultRegion;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
-      reply += newLine(2);
-    }
+    // if (!selectedRegion.id) {
+    //   selectedRegion = defaultRegion;
+    //   reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
+    //   reply += newLine(2);
+    // }
   }
 
   regionName = selectedRegion.name;

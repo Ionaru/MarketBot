@@ -1,7 +1,10 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:latest"
+    "tslint:latest",
+    "tslint-clean-code",
+    "tslint-consistent-codestyle",
+    "tslint-sonarts"
   ],
   "linterOptions": {
     "exclude": [

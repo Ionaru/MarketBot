@@ -135,12 +135,18 @@ function finishActivation() {
 
   if (client) {
     client.emitter.on('message', (message: Message) => {
-      let transaction: any;
-      if (config.getProperty('elastic.enabled') === true) {
-        transaction = elastic.startTransaction();
-      }
-      processMessage(message, transaction).then().catch((error: Error) => {
-        handleError(message, error);
+      Sentry.withScope((scope) => {
+        scope.addBreadcrumb({
+          category: 'command',
+          message: message.content,
+        });
+        let transaction: any;
+        if (config.getProperty('elastic.enabled') === true) {
+          transaction = elastic.startTransaction();
+        }
+        processMessage(message, transaction).then().catch((error: Error) => {
+          handleError(message, error);
+        });
       });
     });
     logger.info(`Activation complete, ready for messages!`);

@@ -5,6 +5,13 @@ import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-form
 import { creator } from '../../market-bot';
 import { maxMessageLength } from './misc';
 
+interface IServer {
+  id?: string;
+  name?: string;
+}
+
+type channelType = 'dm' | 'text' | 'voice' | 'group' | 'category';
+
 export class Message {
 
   public static processError(caughtError: Error, command: string, errorText = `I'm sorry, it appears I have developed a fault`) {
@@ -15,7 +22,8 @@ export class Message {
     text += newLine();
     text += `Please let ${makeCode(creator)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
     text += newLine(2);
-    text += `Technical information: ${makeCode(`${caughtError.message} @ ${time}`)}`;
+    const errorMessage = `${caughtError.message} @ ${time}`;
+    text += `Technical information: ${makeCode(errorMessage)}`;
     return text;
   }
 
@@ -23,8 +31,8 @@ export class Message {
   private readonly _origin: string;
   private readonly _sender: string;
   private readonly _author: { id: string, name: string };
-  private readonly _channel: { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' };
-  private readonly _server: { id: string | undefined, name: string | undefined };
+  private readonly _channel: { id: string, name?: string, type: channelType };
+  private readonly _server: IServer;
   private readonly _content: string;
   private readonly _id: string;
 
@@ -65,11 +73,11 @@ export class Message {
     return this._id;
   }
 
-  get server(): { id: string | undefined, name: string | undefined } {
+  get server(): IServer {
     return this._server;
   }
 
-  get channel(): { id: string, name: string | undefined, type: 'dm' | 'text' | 'voice' | 'group' | 'category' } {
+  get channel(): { id: string, name?: string, type: channelType } {
     return this._channel;
   }
 
