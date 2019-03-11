@@ -5,6 +5,11 @@ import { logger } from 'winston-pnp-logger';
 
 import { CacheController } from '../controllers/cache.controller';
 
+export function validateStatus(status: number) {
+  // Make sure 304 responses are not treated as errors.
+  return status === httpStatus.OK || status === httpStatus.NOT_MODIFIED;
+}
+
 export class DataService {
 
   public static deprecationsLogged: string[] = [];
@@ -15,10 +20,7 @@ export class DataService {
       return CacheController.responseCache[url].data as T;
     }
 
-    const requestConfig: AxiosRequestConfig = {
-      // Make sure 304 responses are not treated as errors.
-      validateStatus: (status) => status === httpStatus.OK || status === httpStatus.NOT_MODIFIED,
-    };
+    const requestConfig: AxiosRequestConfig = {validateStatus};
 
     if (CacheController.responseCache[url] && CacheController.responseCache[url].etag) {
       requestConfig.headers = {
