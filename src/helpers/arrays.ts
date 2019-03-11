@@ -14,9 +14,10 @@ export function sortArrayByObjectPropertyLength<T>(array: T[], property: string,
 
 export function sortArrayByObjectProperty<T>(array: T[], property: string, inverse = false): T[] {
 
-  const compare = (a: any, b: any) => {
-    let left = property.split('.').reduce((o, i) =>  o ? o[i] : o, a);
-    let right = property.split('.').reduce((o, i) =>  o ? o[i] : o, b);
+  const compare = (a: T, b: T) => {
+    const returnObjectValue = (object: any, key: string): any => object[key];
+    let left = property.split('.').reduce(returnObjectValue, a);
+    let right = property.split('.').reduce(returnObjectValue, b);
 
     if (left === undefined || right === undefined) {
       throw new Error(`Unable to compare values '${left}' and '${right}'`);

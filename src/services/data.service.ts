@@ -5,6 +5,11 @@ import { logger } from 'winston-pnp-logger';
 
 import { CacheController } from '../controllers/cache.controller';
 
+export function validateStatus(status: number) {
+  // Make sure 304 responses are not treated as errors.
+  return status === httpStatus.OK || status === httpStatus.NOT_MODIFIED;
+}
+
 export class DataService {
 
   public static deprecationsLogged: string[] = [];
@@ -16,6 +21,7 @@ export class DataService {
     }
 
     const requestConfig = DataService.getESIRequestConfig(url);
+    const requestConfig: AxiosRequestConfig = {validateStatus};
 
     const response = await axios.get<T>(url, requestConfig).catch((error: AxiosError) => {
       DataService.reportRequestError(url, error);

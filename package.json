@@ -10,12 +10,19 @@
   },
   "scripts": {
     "build": "tsc --skipLibCheck --project tsconfig.json",
-    "lint": "tslint --project tsconfig.json -c tslint.json \"src/**/*.ts\" --format stylish && tslint -c tslint.json src/**/*.spec.ts",
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "tslint --project tsconfig.json -c tslint.json --format stylish",
+    "lint:test": "tslint -c tslint.json src/**/*.spec.ts --format stylish",
     "start": "npm run build && node dist/index.js",
     "start:ts": "TS_NODE_TYPE_CHECK=true node --require ts-node/register src/index.ts",
     "test": "npm run lint && npm run unit",
     "unit": "nyc mocha --require ts-node/register src/**/*.spec.ts",
     "posttest": "nyc report --reporter=json && codecov -f coverage/*.json"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   },
   "nyc": {
     "all": true,
@@ -60,6 +67,7 @@
     "@types/elastic-apm-node": "^1.0.0",
     "@types/escape-string-regexp": "^1.0.0",
     "@types/ini": "^1.3.30",
+    "@types/jest": "^24.0.9",
     "@types/js-yaml": "^3.11.4",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.18",
@@ -70,9 +78,11 @@
     "@types/winston": "^2.4.4",
     "chai": "^4.2.0",
     "codecov": "^3.1.0",
+    "jest": "^24.3.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "sinon": "^7.2.2",
+    "ts-jest": "^24.0.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.12.0",
     "tslint-clean-code": "^0.2.9",
