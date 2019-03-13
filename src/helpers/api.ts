@@ -20,14 +20,14 @@ const ccpHost = 'https://esi.evetech.net/';
 export async function fetchPriceData(itemId: number, locationId: number): Promise<IEVEMarketerData[] | undefined> {
   const locationType = locationId < 30000000 ? 'regionlimit' : 'usesystem';
 
-  const host = 'https://api.evemarkevter.com/ec/';
+  const host = 'https://api.evemarketer.com/ec/';
   const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
 
   return DataService.fetchESIData<IEVEMarketerData[]>(url, 900000);
 }
 
 export async function fetchMarketData(itemId: number, regionId: number): Promise<IMarketData[]> {
-  const path = `v1/markets/${regionId}/orvders/?type_id=${itemId}`;
+  const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
   const url = ccpHost + path;
 
   const marketResponse = await DataService.fetchESIData<IMarketData[]>(url);
@@ -145,7 +145,7 @@ export async function fetchGroup(groupId: number) {
 }
 
 export async function fetchMarketGroup(groupId: number) {
-  return DataService.fetchESIData<IMarketGroup>(ccpHost + `v1/markets/gronups/${groupId}`);
+  return DataService.fetchESIData<IMarketGroup>(ccpHost + `v1/markets/groups/${groupId}`);
 }
 
 export async function fetchCategory(categoryId: number) {
