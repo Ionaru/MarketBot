@@ -5,12 +5,12 @@ import { logger } from 'winston-pnp-logger';
 
 import { CacheController } from '../controllers/cache.controller';
 
-export function validateStatus(status: number) {
-  // Make sure 304 responses are not treated as errors.
-  return status === httpStatus.OK || status === httpStatus.NOT_MODIFIED;
-}
-
 export class DataService {
+
+  public static acceptedStatusCodes = [
+    httpStatus.OK,
+    httpStatus.NOT_MODIFIED,
+  ];
 
   public static deprecationsLogged: string[] = [];
 
@@ -21,7 +21,6 @@ export class DataService {
     }
 
     const requestConfig = DataService.getESIRequestConfig(url);
-    const requestConfig: AxiosRequestConfig = {validateStatus};
 
     const response = await axios.get<T>(url, requestConfig).catch((error: AxiosError) => {
       DataService.reportRequestError(url, error);
@@ -64,6 +63,23 @@ export class DataService {
     }
   }
 
+  public static validateStatus = (status: number) => DataService.acceptedStatusCodes.includes(status);
+
+  public static getESIRequestConfig(url: string): AxiosRequestConfig {
+    const requestConfig: AxiosRequestConfig = {
+      // Make sure 304 responses are not treated as errors.
+      validateStatus: DataService.validateStatus,
+    };
+
+    if (CacheController.responseCache[url] && CacheController.responseCache[url].etag) {
+      requestConfig.headers = {
+        'If-None-Match': `${CacheController.responseCache[url].etag}`,
+      };
+    }
+
+    return requestConfig;
+  }
+
   private static cacheResponse(url: string, response: AxiosResponse, alternateCacheTime?: number) {
     if (response.headers.expires || response.headers.etag) {
       CacheController.responseCache[url] = {
@@ -83,21 +99,6 @@ export class DataService {
         expiry: Date.now() + alternateCacheTime,
       };
     }
-  }
-
-  private static getESIRequestConfig(url: string): AxiosRequestConfig {
-    const requestConfig: AxiosRequestConfig = {
-      // Make sure 304 responses are not treated as errors.
-      validateStatus: (status) => status === httpStatus.OK || status === httpStatus.NOT_MODIFIED,
-    };
-
-    if (CacheController.responseCache[url] && CacheController.responseCache[url].etag) {
-      requestConfig.headers = {
-        'If-None-Match': `${CacheController.responseCache[url].etag}`,
-      };
-    }
-
-    return requestConfig;
   }
 
   private static reportRequestError(url: string, error: AxiosError) {

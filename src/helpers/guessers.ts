@@ -4,6 +4,7 @@ import * as Fuse from 'fuse.js';
 import { INamesData } from '../typings';
 import { fetchUniverseType } from './api';
 import { sortArrayByObjectPropertyLength } from './arrays';
+import { items, itemsFuse, regions, regionsFuse, systems } from './cache';
 import { itemFormat, newLine } from './message-formatter';
 
 interface IShortcuts {
@@ -34,6 +35,22 @@ export interface IGuessReturn {
 
 function replaceQuotes(text: string): string {
   return text.replace(/'/g, '').replace(/"/g, '');
+}
+
+export async function guessSystemInput(input: string) {
+  return guessUserInput(input, systems);
+}
+
+export async function guessRegionInput(input: string) {
+  return guessUserInput(input, regions, regionsFuse);
+}
+
+export async function guessItemInput(input: string) {
+  return guessUserInput(input, items, itemsFuse);
+}
+
+export function matchWithRegex(possibility: INamesData, regex: RegExp) {
+  return possibility.name ? possibility.name.match(regex) || undefined : undefined;
 }
 
 export async function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>, raw = true):
@@ -83,20 +100,12 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
   // Check in start of the words.
   regex = new RegExp(`^${itemString}`, 'i');
-  possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | null | void => {
-    if (possibility.name) {
-      return possibility.name.match(regex);
-    }
-  }));
+  possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | undefined => matchWithRegex(possibility, regex)));
 
   if (!possibilities.length) {
     // Check at end of the words.
     regex = new RegExp(`${itemString}$`, 'i');
-    possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | null | void => {
-      if (possibility.name) {
-        return possibility.name.match(regex);
-      }
-    }));
+    possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | undefined => matchWithRegex(possibility, regex)));
   }
 
   if (!possibilities.length) {

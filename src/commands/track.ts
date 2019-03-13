@@ -4,10 +4,10 @@ import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
-import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
+import { items, regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
@@ -94,7 +94,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -106,7 +106,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
   let selectedRegion = defaultRegion;
 
   if (messageData.region) {
-    selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
+    selectedRegion = (await guessRegionInput(messageData.region)).itemData;
     if (!selectedRegion.id) {
       selectedRegion = defaultRegion;
       reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
@@ -176,7 +176,7 @@ export async function clearTrackingCommand(message: Message, transaction: any): 
   let itemId: number | undefined;
   let itemData: IGuessReturn | undefined;
   if (messageData.item && messageData.item.length) {
-    itemData = await guessUserInput(messageData.item, items, itemsFuse);
+    itemData = await guessItemInput(messageData.item);
     if (itemData.itemData && itemData.itemData.name) {
       itemId = itemData.itemData.id;
     }
