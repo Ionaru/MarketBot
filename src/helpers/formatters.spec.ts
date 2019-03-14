@@ -42,34 +42,25 @@ describe('Formatting functions', () => {
 
   describe('formatNumber()', () => {
 
-    test('should output xx,xxx.xx by default', () => {
-      const result = formatNumber(50000);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('50,000.00');
-    });
+    test.each([
 
-    test('should support negative numbers', () => {
-      const result = formatNumber(-50000);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('-50,000.00');
-    });
+      [-Infinity, '0.00'],
+      [-50000, '-50,000.00'],
+      [-0, '0.00'],
+      [0, '0.00'],
+      [1, '1.00'],
+      [500, '500.00'],
+      [50000, '50,000.00'],
+      [1234567890, '1,234,567,890.00'],
+      [5000000000, '5,000,000,000.00'],
+      [Infinity, '0.00'],
 
-    test('should properly format a number with different digits in it', () => {
-      const result = formatNumber(1234567890);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('1,234,567,890.00');
-    });
+    ])('default formatting behaviour: %d', (input, expected) => {
 
-    test('should properly format larger numbers', () => {
-      const result = formatNumber(5000000000);
+      const result = formatNumber(input);
       expect(typeof result).toBe('string');
-      expect(result).toEqual('5,000,000,000.00');
-    });
+      expect(result).toEqual(expected);
 
-    test('should properly format smaller numbers', () => {
-      const result = formatNumber(500);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('500.00');
     });
 
     test('should accept a string as input', () => {
@@ -84,34 +75,47 @@ describe('Formatting functions', () => {
       expect(result).toEqual('0.00');
     });
 
-    test('should accept different amount of decimals', () => {
-      const result = formatNumber(50000, 6);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('50,000.000000');
-    });
+    test.each([
 
-    test('should accept zero decimals', () => {
-      const result = formatNumber(50000, 0);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('50,000');
-    });
+      [0, 0, '0'],
+      [0.5, 0, '1'],
+      [1, 0, '1'],
+      [49999.00, 0, '49,999'],
+      [49999.49, 0, '49,999'],
+      [49999.5, 0, '50,000'],
+      [50000, 0, '50,000'],
 
-    test('should correctly round amounts up', () => {
-      const result = formatNumber(49999.50, 0);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('50,000');
-    });
+      [0, 1, '0.0'],
+      [1, 1, '1.0'],
+      [1.45, 1, '1.4'],
+      [1.494, 1, '1.5'],
+      [1.495, 1, '1.5'],
 
-    test('should correctly round amounts down', () => {
-      const result = formatNumber(49999.49, 0);
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('49,999');
-    });
+      [0, 2, '0.00'],
+      [0.5, 2, '0.50'],
+      [1, 2, '1.00'],
+      [49999.00, 2, '49,999.00'],
+      [49999.49, 2, '49,999.49'],
+      [49999.5, 2, '49,999.50'],
+      [50000, 2, '50,000.00'],
+      [50000.494, 2, '50,000.49'],
+      [50000.495, 2, '50,000.50'],
 
-    test('should not change the number when rounding', () => {
-      const result = formatNumber(49999.00, 0);
+      [50000, 6, '50,000.000000'],
+
+      // Dynamic decimal amount
+      [49999.995, Infinity, '49,999.995'],
+      [50000, Infinity, '50,000'],
+      [50000.5, Infinity, '50,000.5'],
+      [50000.50, Infinity, '50,000.5'],
+      [50000.51234567891, Infinity, '50,000.51234567891'],
+
+    ])('rounding %d to %p decimal place(s)', (input, decimalAmount, expected) => {
+
+      const result = formatNumber(input, decimalAmount as number);
       expect(typeof result).toBe('string');
-      expect(result).toEqual('49,999');
+      expect(result).toEqual(expected);
+
     });
 
     test('should accept different delimiters', () => {

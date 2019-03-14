@@ -11,7 +11,7 @@ export function formatNumber(amount: number | string, decimalAmount = 2, decimal
 
   let amountNumber = Number(amount);
 
-  if (isNaN(amountNumber)) {
+  if (isNaN(amountNumber) || Math.abs(Number(amount)) === Infinity) {
     amountNumber = 0;
   }
 
