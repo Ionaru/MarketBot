@@ -1,4 +1,4 @@
-import { assert } from 'chai';
+/* tslint:disable:no-big-function no-identical-functions */
 
 import { formatNumber, pluralize } from './formatters';
 
@@ -9,145 +9,162 @@ describe('Formatting functions', () => {
     const plural = 'things';
     let amount: number;
 
-    it('should return the plural if item amount is 0', () => {
+    test('should return the plural if item amount is 0', () => {
       amount = 0;
       const result = pluralize(singular, plural, amount);
-      assert.isString(result);
-      assert.equal(result, plural);
+      expect(typeof result).toBe('string');
+      expect(result).toEqual(plural);
     });
 
-    it('should return the singular if item amount is 1', () => {
+    test('should return the singular if item amount is 1', () => {
       amount = 1;
       const result = pluralize(singular, plural, amount);
-      assert.isString(result);
-      assert.equal(result, singular);
+      expect(typeof result).toBe('string');
+      expect(result).toEqual(singular);
     });
 
-    it('should return the plural if item amount is 2 or greater (test 2 - 100)', () => {
+    test('should return the plural if item amount is 2 or greater (test 2 - 100)', () => {
       for (let i = 2; i <= 100; i++) {
         amount = i;
         const result = pluralize(singular, plural, amount);
-        assert.isString(result);
-        assert.equal(result, plural);
+        expect(typeof result).toBe('string');
+        expect(result).toEqual(plural);
       }
     });
 
-    it('should return the plural if item amount is negative', () => {
+    test('should return the plural if item amount is negative', () => {
       amount = -1;
       const result = pluralize(singular, plural, amount);
-      assert.isString(result);
-      assert.equal(result, plural);
+      expect(typeof result).toBe('string');
+      expect(result).toEqual(plural);
     });
   });
 
   describe('formatNumber()', () => {
 
-    it('should output xx,xxx.xx by default', () => {
-      const result = formatNumber(50000);
-      assert.isString(result);
-      assert.equal(result, '50,000.00');
+    test.each([
+
+      [-50000, '-50,000.00'],
+      [-0, '0.00'],
+      [0, '0.00'],
+      [1, '1.00'],
+      [500, '500.00'],
+      [50000, '50,000.00'],
+      [1234567890, '1,234,567,890.00'],
+      [5000000000, '5,000,000,000.00'],
+
+      ['0.00', '0.00'],
+      ['.004', '0.00'],
+      ['.005', '0.01'],
+      ['0.01', '0.01'],
+      ['5', '5.00'],
+
+    ])('default formatting behaviour: %p', (input, expected) => {
+
+      const result = formatNumber(input);
+      expect(typeof result).toBe('string');
+      expect(result).toEqual(expected);
+
     });
 
-    it('should support negative numbers', () => {
-      const result = formatNumber(-50000);
-      assert.isString(result);
-      assert.equal(result, '-50,000.00');
-    });
-
-    it('should properly format a number with different digits in it', () => {
-      const result = formatNumber(1234567890);
-      assert.isString(result);
-      assert.equal(result, '1,234,567,890.00');
-    });
-
-    it('should properly format larger numbers', () => {
-      const result = formatNumber(5000000000);
-      assert.isString(result);
-      assert.equal(result, '5,000,000,000.00');
-    });
-
-    it('should properly format smaller numbers', () => {
-      const result = formatNumber(500);
-      assert.isString(result);
-      assert.equal(result, '500.00');
-    });
-
-    it('should accept a string as input', () => {
+    test('should accept a string as input', () => {
       const result = formatNumber('50000');
-      assert.isString(result);
-      assert.equal(result, '50,000.00');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('50,000.00');
     });
 
-    it('should return 0.00 when input is not a number', () => {
-      const result = formatNumber('not_a_number');
-      assert.isString(result);
-      assert.equal(result, '0.00');
+    test.each([
+
+      -Infinity,
+      '50,000.305',
+      Infinity,
+      'Bogus',
+      'not_a_number',
+      'Infinity',
+
+    ])('unusable number: %p', (input) => {
+
+      expect(() => formatNumber(input)).toThrowError('formatNumber only accepts actual numbers.');
+
     });
 
-    it('should accept different amount of decimals', () => {
-      const result = formatNumber(50000, 6);
-      assert.isString(result);
-      assert.equal(result, '50,000.000000');
+    test.each([
+
+      [0, 0, '0'],
+      [0.5, 0, '1'],
+      [1, 0, '1'],
+      [49999.00, 0, '49,999'],
+      [49999.49, 0, '49,999'],
+      [49999.5, 0, '50,000'],
+      [50000, 0, '50,000'],
+
+      [0, 1, '0.0'],
+      [1, 1, '1.0'],
+      [1.45, 1, '1.4'],
+      [1.494, 1, '1.5'],
+      [1.495, 1, '1.5'],
+
+      [0, 2, '0.00'],
+      [0.5, 2, '0.50'],
+      [1, 2, '1.00'],
+      [49999.00, 2, '49,999.00'],
+      [49999.49, 2, '49,999.49'],
+      [49999.5, 2, '49,999.50'],
+      [50000, 2, '50,000.00'],
+      [50000.494, 2, '50,000.49'],
+      [50000.495, 2, '50,000.50'],
+
+      [50000, 6, '50,000.000000'],
+
+      // Dynamic decimal amount
+      [49999.995, Infinity, '49,999.995'],
+      [50000, Infinity, '50,000'],
+      [50000.5, Infinity, '50,000.5'],
+      [50000.50, Infinity, '50,000.5'],
+      [50000.51234567891, Infinity, '50,000.51234567891'],
+
+    ])('rounding %d to %p decimal place(s)', (input, decimalAmount, expected) => {
+
+      const result = formatNumber(input, decimalAmount as number);
+      expect(typeof result).toBe('string');
+      expect(result).toEqual(expected);
+
     });
 
-    it('should accept zero decimals', () => {
-      const result = formatNumber(50000, 0);
-      assert.isString(result);
-      assert.equal(result, '50,000');
-    });
-
-    it('should correctly round amounts up', () => {
-      const result = formatNumber(49999.50, 0);
-      assert.isString(result);
-      assert.equal(result, '50,000');
-    });
-
-    it('should correctly round amounts down', () => {
-      const result = formatNumber(49999.49, 0);
-      assert.isString(result);
-      assert.equal(result, '49,999');
-    });
-
-    it('should not change the number when rounding', () => {
-      const result = formatNumber(49999.00, 0);
-      assert.isString(result);
-      assert.equal(result, '49,999');
-    });
-
-    it('should accept different delimiters', () => {
+    test('should accept different delimiters', () => {
       const result = formatNumber(50000, 2, undefined, 'X');
-      assert.isString(result);
-      assert.equal(result, '50X000.00');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('50X000.00');
     });
 
-    it('should accept different decimal marks', () => {
+    test('should accept different decimal marks', () => {
       const result = formatNumber(50000, 2, 'X');
-      assert.isString(result);
-      assert.equal(result, '50,000X00');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('50,000X00');
     });
 
-    it('should be able to have an empty string as delimiter', () => {
+    test('should be able to have an empty string as delimiter', () => {
       const result = formatNumber(50000, 2, undefined, '');
-      assert.isString(result);
-      assert.equal(result, '50000.00');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('50000.00');
     });
 
-    it('should be able to have an empty string as both decimal mark and delimiter', () => {
+    test('should be able to have an empty string as both decimal mark and delimiter', () => {
       const result = formatNumber(50000, 2, '', '');
-      assert.isString(result);
-      assert.equal(result, '5000000');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('5000000');
     });
 
-    it('should be able to handle the same character as decimal mark and delimiter', () => {
+    test('should be able to handle the same character as decimal mark and delimiter', () => {
       const result = formatNumber(50000, 2, 'X', 'X');
-      assert.isString(result);
-      assert.equal(result, '50X000X00');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('50X000X00');
     });
 
-    it('should use default values when parameters are undefined', () => {
+    test('should use default values when parameters are undefined', () => {
       const result = formatNumber(50000, undefined, undefined, undefined);
-      assert.isString(result);
-      assert.equal(result, '50,000.00');
+      expect(typeof result).toBe('string');
+      expect(result).toEqual('50,000.00');
     });
   });
 });

@@ -1,18 +1,18 @@
 import * as Discord from 'discord.js';
 import { Message } from '../chat-service/discord/message';
 import { fetchPriceData } from '../helpers/api';
-import { items, itemsFuse, regions, systems } from '../helpers/cache';
+import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessItemInput, guessRegionInput, guessSystemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { INamesData, IParsedMessage, IPriceData } from '../typings';
 
 interface IPriceCommandLogicReturn {
   reply: Discord.RichEmbed;
-  itemData: INamesData | undefined;
-  locationName: string | undefined;
+  itemData?: INamesData;
+  locationName?: string;
 }
 
 export async function priceCommand(message: Message, transaction: any) {
@@ -27,6 +27,7 @@ export async function priceCommand(message: Message, transaction: any) {
   logCommand('price', message, (itemData ? itemData.name : undefined), (locationName ? locationName : undefined), transaction);
 }
 
+// tslint:disable-next-line:cognitive-complexity
 async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCommandLogicReturn> {
 
   const reply = new Discord.RichEmbed();
@@ -38,7 +39,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
     return {reply, itemData: undefined, locationName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
   const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
   if (guessHint) {
@@ -53,7 +54,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
   let location = defaultLocation;
 
   if (messageData.region) {
-    location = (await guessUserInput(messageData.region, regions)).itemData;
+    location = (await guessRegionInput(messageData.region)).itemData;
     if (!location.id) {
       location = defaultLocation;
       reply.addField('Warning', `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(location.name)}`);
@@ -61,7 +62,7 @@ async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCom
   }
 
   if (messageData.system) {
-    location = (await guessUserInput(messageData.system, systems)).itemData;
+    location = (await guessSystemInput(messageData.system)).itemData;
     if (!location.id) {
       location = defaultLocation;
       reply.addField('Warning', `I don't know of the "${messageData.system}" system, defaulting to ${regionFormat(location.name)}`);

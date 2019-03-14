@@ -4,19 +4,19 @@ import * as moment from 'moment';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';
-import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
+import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
 import { createLineGraph, exportGraphImage } from '../helpers/graph';
-import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { INamesData, IParsedMessage } from '../typings';
 
 interface IHistoryCommandLogicReturn {
   reply: string;
-  itemData: INamesData | undefined;
-  regionName: string | undefined;
+  itemData?: INamesData;
+  regionName?: string;
   fileName?: string;
 }
 
@@ -44,7 +44,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -56,7 +56,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
   let selectedRegion = defaultRegion;
 
   if (messageData.region) {
-    selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
+    selectedRegion = (await guessRegionInput(messageData.region)).itemData;
     if (!selectedRegion.id) {
       selectedRegion = defaultRegion;
       reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
@@ -99,7 +99,8 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
     const parsedTime = parseTime(historyEntry.date) as Date;
     const dateText = d3.utcFormat('%a, %m-%d')(parsedTime);
 
-    historyText += `${dateText}: ${formatNumber(historyEntry.average) + ` ISK`} (${dayName})`;
+    const price = formatNumber(historyEntry.average) + ` ISK`;
+    historyText += `${dateText}: ${price} (${dayName})`;
   }
 
   historyText += '```';

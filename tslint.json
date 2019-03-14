@@ -1,7 +1,8 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:latest"
+    "tslint:latest",
+    "tslint-sonarts"
   ],
   "linterOptions": {
     "exclude": [

@@ -1,3 +1,5 @@
+/* tslint:disable:no-big-function */
+
 import { sortArrayByObjectProperty, sortArrayByObjectPropertyLength } from './arrays';
 
 describe('Array sorting', () => {
@@ -275,7 +277,7 @@ describe('Array sorting', () => {
       const unsortedArrayWithEqualValues = [
         {value: '12345'},
         {value: '12'},
-        {value:  '1'},
+        {value: '1'},
         {value: '123'},
         {value: '1234'},
         {value: '12'},

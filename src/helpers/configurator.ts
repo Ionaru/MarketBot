@@ -7,8 +7,10 @@ export const configFolder = 'config';
 
 export let config: Configurator;
 
+type configValueType = boolean | number | string | undefined;
+
 interface IConfig {
-  [key: string]: boolean | number | string;
+  [key: string]: configValueType;
 }
 
 export class Configurator {
@@ -22,15 +24,15 @@ export class Configurator {
   /**
    * Get a property from the config file
    * @param {string} property - The name of the property to fetch
-   * @return {boolean | number | string | undefined} - The value of the given config property
+   * @return {configValueType} - The value of the given config property
    */
-  public getProperty(property: string): boolean | number | string | undefined {
+  public getProperty(property: string): configValueType {
     const propertyParts = property.split('.');
     try {
       return this.getPropertyFromPath(propertyParts);
     } catch (error) {
       logger.warn(`Property '${property}' does not exist in the current configuration.`);
-      return undefined;
+      return;
     }
   }
 

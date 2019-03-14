@@ -2,17 +2,16 @@ import * as Discord from 'discord.js';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
-import { items, itemsFuse } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber } from '../helpers/formatters';
-import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { makeCode, newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { IMarketGroup, INamesData, IParsedMessage } from '../typings';
 
 interface IItemCommandLogicReturn {
   reply: Discord.RichEmbed;
-  itemData: INamesData | undefined;
+  itemData?: INamesData;
 }
 
 export async function itemCommand(message: Message, transaction: any) {
@@ -30,6 +29,7 @@ export async function itemCommand(message: Message, transaction: any) {
   logCommand('item', message, (itemData ? itemData.name : undefined), undefined, transaction);
 }
 
+// tslint:disable-next-line:cognitive-complexity
 async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemCommandLogicReturn> {
 
   const reply = new Discord.RichEmbed();
@@ -39,7 +39,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
     return {reply, itemData: undefined};
   }
 
-  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
   const guessHint = getGuessHint({itemData, guess, id}, messageData.item);
   if (guessHint) {

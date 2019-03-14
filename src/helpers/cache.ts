@@ -28,7 +28,7 @@ export let citadels: ICitadelData;
 
 interface IValidateCacheReturn {
   useCache: boolean;
-  serverVersion: string | undefined;
+  serverVersion?: string;
 }
 
 const serverVersionFileName = 'server_version.txt';

@@ -2,18 +2,18 @@ import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
 import { sortArrayByObjectProperty } from '../helpers/arrays';
-import { items, itemsFuse, regions, regionsFuse } from '../helpers/cache';
+import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { formatNumber, pluralize } from '../helpers/formatters';
-import { getGuessHint, guessUserInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { IMarketData, INamesData, IParsedMessage } from '../typings';
 
 interface ISellOrdersCommandLogicReturn {
   reply: string;
-  itemData: INamesData | undefined;
-  regionName: string | undefined;
+  itemData?: INamesData;
+  regionName?: string;
 }
 
 export async function sellOrdersCommand(message: Message, transaction: any) {
@@ -30,6 +30,22 @@ export async function sellOrdersCommand(message: Message, transaction: any) {
   logCommand('sell-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
+async function getSelectedRegion(input: string, reply: string) {
+  const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+  let selectedRegion = defaultRegion;
+
+  if (input) {
+    selectedRegion = (await guessRegionInput(input)).itemData;
+    if (!selectedRegion.id) {
+      selectedRegion = defaultRegion;
+      reply += `I don't know of the "${input}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
+      reply += newLine(2);
+    }
+  }
+
+  return {selectedRegion, regionReply: reply};
+}
+
 async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> {
 
   let regionName = '';
@@ -40,7 +56,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  const {itemData, guess, id}: IGuessReturn = await guessUserInput(messageData.item, items, itemsFuse);
+  const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
   reply += getGuessHint({itemData, guess, id}, messageData.item);
 
@@ -48,17 +64,8 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     return {reply, itemData: undefined, regionName};
   }
 
-  const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
-  let selectedRegion = defaultRegion;
-
-  if (messageData.region) {
-    selectedRegion = (await guessUserInput(messageData.region, regions, regionsFuse)).itemData;
-    if (!selectedRegion.id) {
-      selectedRegion = defaultRegion;
-      reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
-      reply += newLine(2);
-    }
-  }
+  const {selectedRegion, regionReply} = await getSelectedRegion(messageData.region, reply);
+  reply += regionReply;
 
   regionName = selectedRegion.name;
 

@@ -54,7 +54,7 @@ export async function dataCommand(message: Message, transaction: any) {
     const searchTimes = row.count;
     const timesWord = pluralize('time', 'times', searchTimes);
     reply += newLine();
-    const itemAmount = row.item_output as string;
+    const itemAmount = row.item_output;
     reply += `${iter}. ${itemFormat(itemAmount)}, searched ${makeCode(searchTimes)} ${timesWord}.`;
   }
 

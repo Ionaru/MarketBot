@@ -1,9 +1,11 @@
+/* tslint:disable:no-big-function */
+
 import { WinstonPnPLogger } from 'winston-pnp-logger';
 
-import mockAxios from '../__mocks__/axios';
-
-import { validateStatus } from '../services/data.service';
+import { DataService } from '../services/data.service';
 import { fetchUniverseType } from './api';
+
+import mockAxios from '../__mocks__/axios';
 
 new WinstonPnPLogger({announceSelf: false});
 
@@ -35,7 +37,8 @@ test('fetchUniverseType(34)', async () => {
   const result = await fetchUniverseType(34);
 
   expect(mockAxios.get).toHaveBeenCalledTimes(1);
-  expect(mockAxios.get).toHaveBeenCalledWith('https://esi.evetech.net/v3/universe/types/34', {validateStatus});
+  const url = 'https://esi.evetech.net/v3/universe/types/34';
+  expect(mockAxios.get).toHaveBeenCalledWith('https://esi.evetech.net/v3/universe/types/34', DataService.getESIRequestConfig(url));
   expect(result).toBeTruthy();
   expect(result!.name).toEqual('Tritanium');
 });
