@@ -9,10 +9,10 @@ export function formatNumber(amount: number | string, decimalAmount = 2, decimal
     }
   }
 
-  let amountNumber = Number(amount);
+  const amountNumber = Number(amount);
 
   if (isNaN(amountNumber) || Math.abs(Number(amount)) === Infinity) {
-    amountNumber = 0;
+    throw new Error('formatNumber only accepts actual numbers.');
   }
 
   let negativeMarker = '';

@@ -44,7 +44,6 @@ describe('Formatting functions', () => {
 
     test.each([
 
-      [-Infinity, '0.00'],
       [-50000, '-50,000.00'],
       [-0, '0.00'],
       [0, '0.00'],
@@ -53,9 +52,14 @@ describe('Formatting functions', () => {
       [50000, '50,000.00'],
       [1234567890, '1,234,567,890.00'],
       [5000000000, '5,000,000,000.00'],
-      [Infinity, '0.00'],
 
-    ])('default formatting behaviour: %d', (input, expected) => {
+      ['0.00', '0.00'],
+      ['.004', '0.00'],
+      ['.005', '0.01'],
+      ['0.01', '0.01'],
+      ['5', '5.00'],
+
+    ])('default formatting behaviour: %p', (input, expected) => {
 
       const result = formatNumber(input);
       expect(typeof result).toBe('string');
@@ -69,10 +73,19 @@ describe('Formatting functions', () => {
       expect(result).toEqual('50,000.00');
     });
 
-    test('should return 0.00 when input is not a number', () => {
-      const result = formatNumber('not_a_number');
-      expect(typeof result).toBe('string');
-      expect(result).toEqual('0.00');
+    test.each([
+
+      -Infinity,
+      '50,000.305',
+      Infinity,
+      'Bogus',
+      'not_a_number',
+      'Infinity',
+
+    ])('unusable number: %p', (input) => {
+
+      expect(() => formatNumber(input)).toThrowError('formatNumber only accepts actual numbers.');
+
     });
 
     test.each([
