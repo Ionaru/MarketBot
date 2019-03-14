@@ -53,6 +53,7 @@ export function matchWithRegex(possibility: INamesData, regex: RegExp) {
   return possibility.name ? possibility.name.match(regex) || undefined : undefined;
 }
 
+// tslint:disable-next-line:cognitive-complexity
 export async function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>, raw = true):
   Promise<IGuessReturn> {
 

@@ -29,6 +29,7 @@ export async function itemCommand(message: Message, transaction: any) {
   logCommand('item', message, (itemData ? itemData.name : undefined), undefined, transaction);
 }
 
+// tslint:disable-next-line:cognitive-complexity
 async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemCommandLogicReturn> {
 
   const reply = new Discord.RichEmbed();

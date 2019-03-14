@@ -208,6 +208,7 @@ function droppedRose(amount: number) {
 /**
  * The main tracking cycle, it will fetch prices for all items in the TrackingEntries array and send messages.
  */
+// tslint:disable-next-line:cognitive-complexity
 export async function performTrackingCycle() {
 
   logger.debug('Executing tracking cycle');

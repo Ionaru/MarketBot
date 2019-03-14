@@ -27,6 +27,7 @@ export async function priceCommand(message: Message, transaction: any) {
   logCommand('price', message, (itemData ? itemData.name : undefined), (locationName ? locationName : undefined), transaction);
 }
 
+// tslint:disable-next-line:cognitive-complexity
 async function priceCommandLogic(messageData: IParsedMessage): Promise<IPriceCommandLogicReturn> {
 
   const reply = new Discord.RichEmbed();

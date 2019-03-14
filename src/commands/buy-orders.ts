@@ -30,6 +30,7 @@ export async function buyOrdersCommand(message: Message, transaction: any) {
   logCommand('buy-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
+// tslint:disable-next-line:cognitive-complexity
 async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyOrdersCommandLogicReturn> {
 
   let regionName = '';
