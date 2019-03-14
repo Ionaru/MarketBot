@@ -1,9 +1,11 @@
-import { WinstonPnPLogger } from 'winston-pnp-logger';
+/* tslint:disable:no-big-function */
 
-import mockAxios from '../__mocks__/axios';
+import { WinstonPnPLogger } from 'winston-pnp-logger';
 
 import { DataService } from '../services/data.service';
 import { fetchUniverseType } from './api';
+
+import mockAxios from '../__mocks__/axios';
 
 new WinstonPnPLogger({announceSelf: false});
 
