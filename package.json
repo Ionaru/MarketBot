@@ -29,19 +29,6 @@
     "preset": "ts-jest",
     "testEnvironment": "node"
   },
-  "nyc": {
-    "all": true,
-    "include": [
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "src/**/*.d.ts",
-      "src/**/*.spec.ts"
-    ],
-    "extension": [
-      ".ts"
-    ]
-  },
   "dependencies": {
     "@ionaru/typed-events": "0.0.2-7.0",
     "@sentry/node": "^4.6.4",

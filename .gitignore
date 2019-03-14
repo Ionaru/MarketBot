@@ -8,7 +8,6 @@ npm-debug.log*
 node_modules/
 
 # Build files & test artifacts
-.nyc_output/
 coverage/
 dist/
 
