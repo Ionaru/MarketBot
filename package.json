@@ -30,6 +30,7 @@
     "testEnvironment": "node"
   },
   "dependencies": {
+    "@ionaru/format-number": "^1.0.1",
     "@ionaru/typed-events": "0.0.2-7.0",
     "@sentry/node": "^4.6.4",
     "axios": "^0.18.0",

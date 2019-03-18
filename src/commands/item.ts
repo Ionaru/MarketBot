@@ -1,9 +1,9 @@
+import { formatNumber } from '@ionaru/format-number';
 import * as Discord from 'discord.js';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
 import { logCommand } from '../helpers/command-logger';
-import { formatNumber } from '../helpers/formatters';
 import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { makeCode, newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';

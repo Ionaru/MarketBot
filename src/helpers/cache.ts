@@ -1,3 +1,4 @@
+import { formatNumber } from '@ionaru/format-number';
 import * as fs from 'fs';
 import * as Fuse from 'fuse.js';
 import * as moment from 'moment';
@@ -13,7 +14,6 @@ import {
   fetchUniverseSystems,
   fetchUniverseTypes,
 } from './api';
-import { formatNumber } from './formatters';
 import { createFuse } from './items-loader';
 import { readFileContents } from './readers';
 

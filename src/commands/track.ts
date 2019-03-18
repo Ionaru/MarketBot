@@ -1,4 +1,5 @@
 import Timer = NodeJS.Timer;
+import { formatNumber } from '@ionaru/format-number';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
@@ -6,7 +7,7 @@ import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { items, regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
-import { formatNumber, pluralize } from '../helpers/formatters';
+import { pluralize } from '../helpers/formatters';
 import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';

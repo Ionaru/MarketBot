@@ -1,3 +1,4 @@
+import { formatNumber } from '@ionaru/format-number';
 import * as d3 from 'd3';
 import * as fs from 'fs';
 import * as moment from 'moment';
@@ -6,7 +7,6 @@ import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';
 import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
-import { formatNumber } from '../helpers/formatters';
 import { createLineGraph, exportGraphImage } from '../helpers/graph';
 import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
