@@ -1,32 +1,32 @@
 {
-  "compilerOptions": {
-    "baseUrl": "",
-    "declaration": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true,
-    "lib": [
-      "esnext"
+    "compilerOptions": {
+        "baseUrl": "",
+        "declaration": false,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "resolveJsonModule": true,
+        "lib": [
+            "esnext"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "sourceMap": true,
+        "target": "es2018",
+        "typeRoots": [
+            "./node_modules/@types"
+        ]
+    },
+    "exclude": [
+        "./node_modules",
+        "./src/**/*.spec.ts"
     ],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "./dist",
-    "sourceMap": true,
-    "target": "es2018",
-    "typeRoots": [
-      "./node_modules/@types"
+    "include": [
+        "./src/**/*.ts"
     ]
-  },
-  "exclude": [
-    "./node_modules",
-    "./src/**/*.spec.ts"
-  ],
-  "include": [
-    "./src/**/*.ts"
-  ]
 }

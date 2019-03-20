@@ -13,8 +13,8 @@ import { activate, deactivate } from './market-bot';
  */
 
 new WinstonPnPLogger({
-  announceSelf: false,
-  logDir: 'logs',
+    announceSelf: false,
+    logDir: 'logs',
 });
 
 logger.info(`NodeJS version ${process.version}`);
@@ -23,33 +23,33 @@ const configuration = new Configurator();
 configuration.addConfigFile('marketbot');
 
 Sentry.init({
-  dsn: configuration.getProperty('sentry.dsn') as string,
-  enabled: configuration.getProperty('sentry.enabled') as boolean,
-  release: version,
+    dsn: configuration.getProperty('sentry.dsn') as string,
+    enabled: configuration.getProperty('sentry.enabled') as boolean,
+    release: version,
 });
 
 if (configuration.getProperty('elastic.enabled') === true) {
-  elastic.start({
-    secretToken: configuration.getProperty('elastic.token') as string,
-    serverUrl: configuration.getProperty('elastic.url') as string,
-    serviceName: 'marketbot',
-  });
-  logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
+    elastic.start({
+        secretToken: configuration.getProperty('elastic.token') as string,
+        serverUrl: configuration.getProperty('elastic.url') as string,
+        serviceName: 'marketbot',
+    });
+    logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
 }
 
 activate().then();
 
 process.stdin.resume();
 process.on('unhandledRejection', (reason: string, p: Promise<any>): void => {
-  logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
+    logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception!', error);
-  deactivate(true, true).then();
+    logger.error('Uncaught Exception!', error);
+    deactivate(true, true).then();
 });
 process.on('SIGINT', () => {
-  deactivate(true).then();
+    deactivate(true).then();
 });
 process.on('SIGTERM', () => {
-  deactivate(true).then();
+    deactivate(true).then();
 });

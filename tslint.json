@@ -1,43 +1,43 @@
 {
-  "defaultSeverity": "error",
-  "extends": [
-    "tslint:latest",
-    "tslint-sonarts"
-  ],
-  "linterOptions": {
-    "exclude": [
-      "**/*.json"
-    ]
-  },
-  "rules": {
-    "max-line-length": [
-      true,
-      140
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:latest",
+        "tslint-sonarts"
     ],
-    "no-implicit-dependencies": [
-      true,
-      "dev"
-    ],
-    "no-unused-expression": [
-      true,
-      "allow-new"
-    ],
-    "quotemark": [
-      true,
-      "single"
-    ],
-    "trailing-comma": [
-      true,
-      {
-        "multiline": "always",
-        "singleline": "never"
-      }
-    ],
-    "variable-name": [
-      true,
-      "ban-keywords",
-      "check-format",
-      "allow-leading-underscore"
-    ]
-  }
+    "linterOptions": {
+        "exclude": [
+            "**/*.json"
+        ]
+    },
+    "rules": {
+        "max-line-length": [
+            true,
+            140
+        ],
+        "no-implicit-dependencies": [
+            true,
+            "dev"
+        ],
+        "no-unused-expression": [
+            true,
+            "allow-new"
+        ],
+        "quotemark": [
+            true,
+            "single"
+        ],
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "always",
+                "singleline": "never"
+            }
+        ],
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-leading-underscore"
+        ]
+    }
 }

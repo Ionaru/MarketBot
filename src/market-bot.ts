@@ -31,43 +31,43 @@ export const dataFolder = 'data';
 export const commandPrefix = '/';
 
 export const priceCommands = [
-  'price', 'p', 'value',
+    'price', 'p', 'value',
 ];
 export const historyCommands = [
-  'history', 'h',
+    'history', 'h',
 ];
 export const dataCommands = [
-  'data', 'd', 'stats',
+    'data', 'd', 'stats',
 ];
 export const sellOrdersCommands = [
-  'sell-orders', 'sell', 'so', 's',
+    'sell-orders', 'sell', 'so', 's',
 ];
 export const buyOrdersCommands = [
-  'buy-orders', 'buy', 'bo', 'b',
+    'buy-orders', 'buy', 'bo', 'b',
 ];
 export const infoCommands = [
-  'info', 'i', 'about', 'help',
+    'info', 'i', 'about', 'help',
 ];
 export const regionCommands = [
-  'region', 'r',
+    'region', 'r',
 ];
 export const systemCommands = [
-  'system',
+    'system',
 ];
 export const itemCommands = [
-  'item', 'id', 'lookup',
+    'item', 'id', 'lookup',
 ];
 export const limitCommands = [
-  'limit', 'l', 'max',
+    'limit', 'l', 'max',
 ];
 export const sellTrackingCommands = [
-  'track-sell-orders', 'tso',
+    'track-sell-orders', 'tso',
 ];
 export const buyTrackingCommands = [
-  'track-buy-orders', 'tbo',
+    'track-buy-orders', 'tbo',
 ];
 export const clearTrackingCommands = [
-  'track-clear', 'tc',
+    'track-clear', 'tc',
 ];
 
 export const priceCommandRegex = createCommandRegex(priceCommands, true);
@@ -85,131 +85,131 @@ export const systemCommandRegex = createCommandRegex(systemCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
-  logger.info('Starting bot activation');
+    logger.info('Starting bot activation');
 
-  version = readVersion();
+    version = readVersion();
 
-  logger.info(`Bot version: ${version}`);
+    logger.info(`Bot version: ${version}`);
 
-  CacheController.readCache();
+    CacheController.readCache();
 
-  await checkAndUpdateCache().catch((error: Error) => {
-    logger.error(error.stack as string);
-    logger.error('Unable to create initial cache, bot cannot function!');
-    deactivate(true, true).then();
-  });
-  await checkAndUpdateCitadelCache();
-
-  await createConnection({
-    database: 'data/marketbot.db',
-    entities: [
-      LogEntry, TrackingEntry,
-    ],
-    synchronize: true,
-    type: 'sqlite',
-  });
-
-  logger.info(`Database connection created`);
-
-  const token = config.getProperty('discord.token');
-  if (token && typeof token === 'string') {
-    client = new Client(token);
-
-    logger.info(`Logging in...`);
-    client.login();
-    client.emitter.once('ready', () => {
-      if (client) {
-        logger.info(`Logged in as ${client.name}`);
-        finishActivation();
-      }
+    await checkAndUpdateCache().catch((error: Error) => {
+        logger.error(error.stack as string);
+        logger.error('Unable to create initial cache, bot cannot function!');
+        deactivate(true, true).then();
     });
-  } else {
-    logger.error(`Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`);
-  }
+    await checkAndUpdateCitadelCache();
+
+    await createConnection({
+        database: 'data/marketbot.db',
+        entities: [
+            LogEntry, TrackingEntry,
+        ],
+        synchronize: true,
+        type: 'sqlite',
+    });
+
+    logger.info(`Database connection created`);
+
+    const token = config.getProperty('discord.token');
+    if (token && typeof token === 'string') {
+        client = new Client(token);
+
+        logger.info(`Logging in...`);
+        client.login();
+        client.emitter.once('ready', () => {
+            if (client) {
+                logger.info(`Logged in as ${client.name}`);
+                finishActivation();
+            }
+        });
+    } else {
+        logger.error(`Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`);
+    }
 }
 
 function finishActivation() {
-  performTrackingCycle().then(() => {
-    startTrackingCycle();
-  });
-
-  if (client) {
-    client.emitter.on('message', (message: Message) => {
-      let transaction: any;
-      if (config.getProperty('elastic.enabled') === true) {
-        transaction = elastic.startTransaction();
-      }
-      processMessage(message, transaction).then().catch((error: Error) => {
-        handleError(message, error);
-      });
+    performTrackingCycle().then(() => {
+        startTrackingCycle();
     });
-    logger.info(`Activation complete, ready for messages!`);
-  }
+
+    if (client) {
+        client.emitter.on('message', (message: Message) => {
+            let transaction: any;
+            if (config.getProperty('elastic.enabled') === true) {
+                transaction = elastic.startTransaction();
+            }
+            processMessage(message, transaction).then().catch((error: Error) => {
+                handleError(message, error);
+            });
+        });
+        logger.info(`Activation complete, ready for messages!`);
+    }
 }
 
 export async function deactivate(exitProcess: boolean, error = false): Promise<void> {
-  let quitMessage = 'Quitting';
-  if (error) {
-    quitMessage += ' because of an uncaught error!';
-  }
+    let quitMessage = 'Quitting';
+    if (error) {
+        quitMessage += ' because of an uncaught error!';
+    }
 
-  CacheController.dumpCache();
+    CacheController.dumpCache();
 
-  logger.info(quitMessage);
-  if (client) {
-    await client.disconnect();
-    client = undefined;
-    logger.info('Client destroyed');
-  }
+    logger.info(quitMessage);
+    if (client) {
+        await client.disconnect();
+        client = undefined;
+        logger.info('Client destroyed');
+    }
 
-  logger.info('Done!');
+    logger.info('Done!');
 
-  if (exitProcess) {
-    process.exit(0);
-  }
+    if (exitProcess) {
+        process.exit(0);
+    }
 }
 
 async function processMessage(message: Message, transaction: any): Promise<void> {
-  const commandPart = message.content.split(' ')[0];
-  switch (true) {
-    case priceCommandRegex.test(commandPart):
-      await priceCommand(message, transaction);
-      break;
-    case sellOrdersCommandRegex.test(commandPart):
-      await sellOrdersCommand(message, transaction);
-      break;
-    case infoCommandRegex.test(commandPart):
-      await infoCommand(message, transaction);
-      break;
-    case buyOrdersCommandRegex.test(commandPart):
-      await buyOrdersCommand(message, transaction);
-      break;
-    case dataCommandRegex.test(commandPart):
-      await dataCommand(message, transaction);
-      break;
-    case sellTrackingCommandRegex.test(commandPart):
-      await trackCommand(message, 'sell', transaction);
-      break;
-    case itemCommandRegex.test(commandPart):
-      await itemCommand(message, transaction);
-      break;
-    case historyCommandRegex.test(commandPart):
-      await historyCommand(message, transaction);
-      break;
-    case clearTrackingCommandRegex.test(commandPart):
-      await clearTrackingCommand(message, transaction);
-      break;
-    case buyTrackingCommandRegex.test(commandPart):
-      await trackCommand(message, 'buy', transaction);
-      break;
-  }
+    const commandPart = message.content.split(' ')[0];
+    switch (true) {
+        case priceCommandRegex.test(commandPart):
+            await priceCommand(message, transaction);
+            break;
+        case sellOrdersCommandRegex.test(commandPart):
+            await sellOrdersCommand(message, transaction);
+            break;
+        case infoCommandRegex.test(commandPart):
+            await infoCommand(message, transaction);
+            break;
+        case buyOrdersCommandRegex.test(commandPart):
+            await buyOrdersCommand(message, transaction);
+            break;
+        case dataCommandRegex.test(commandPart):
+            await dataCommand(message, transaction);
+            break;
+        case sellTrackingCommandRegex.test(commandPart):
+            await trackCommand(message, 'sell', transaction);
+            break;
+        case itemCommandRegex.test(commandPart):
+            await itemCommand(message, transaction);
+            break;
+        case historyCommandRegex.test(commandPart):
+            await historyCommand(message, transaction);
+            break;
+        case clearTrackingCommandRegex.test(commandPart):
+            await clearTrackingCommand(message, transaction);
+            break;
+        case buyTrackingCommandRegex.test(commandPart):
+            await trackCommand(message, 'buy', transaction);
+            break;
+    }
 }
 
 export function handleError(message: Message, caughtError: Error) {
-  Sentry.addBreadcrumb({
-    category: 'command',
-    message: message.content,
-  });
-  Sentry.captureException(caughtError);
-  message.sendError(caughtError).then();
+    Sentry.addBreadcrumb({
+        category: 'command',
+        message: message.content,
+    });
+    Sentry.captureException(caughtError);
+    message.sendError(caughtError).then();
 }
