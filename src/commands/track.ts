@@ -14,9 +14,10 @@ import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
 import { IMarketData, INamesData } from '../typings';
 
-// tslint:disable:variable-name
 @Entity('TrackingEntries')
 export class TrackingEntry extends BaseEntity {
+
+    // tslint:disable:variable-name
 
     @PrimaryGeneratedColumn()
     public id!: number;
@@ -47,8 +48,9 @@ export class TrackingEntry extends BaseEntity {
     // noinspection TsLint
     @Column()
     public tracking_type!: 'buy' | 'sell';
+
+    // tslint:enable:variable-name
 }
-// tslint:enable:variable-name
 
 let trackingCycle: Timer | undefined;
 
