@@ -28,10 +28,10 @@ COPY ./tsconfig.json .
 # Copy source files
 COPY ./src ./src
 
-# Install server dependencies
+# Install dependencies
 RUN npm install
 
-# Build server for production
+# Build the project
 RUN npm run build
 
 # Add volumes
@@ -39,11 +39,14 @@ VOLUME /app/logs
 VOLUME /app/data
 VOLUME /app/config
 
+# Install production packages
+ENV NODE_ENV production
+RUN npm ci
+
 
 ## RUN
 
 EXPOSE  80
 EXPOSE  443
 ENV LEVEL debug
-ENV NODE_ENV production
 CMD ["node", "./dist/src/index.js"]
