@@ -24,6 +24,7 @@
     },
     "exclude": [
         "./node_modules",
+        "./src/__mocks__",
         "./src/**/*.spec.ts"
     ],
     "include": [
