@@ -3,6 +3,7 @@ import * as elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
+import { Command } from './chat-service/command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { buyOrdersCommand } from './commands/buy-orders';
@@ -19,6 +20,7 @@ import { LogEntry } from './helpers/command-logger';
 import { config } from './helpers/configurator';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
+import { PriceCommand } from './chat-service/price-command';
 
 export const creator = 'Ionaru#3801';
 export let version: string;
@@ -135,6 +137,11 @@ function finishActivation() {
 
     if (client) {
         client.emitter.on('message', (message: Message) => {
+
+            if (!Command.test(message.content)) {
+                return;
+            }
+
             let transaction: any;
             if (config.getProperty('elastic.enabled') === true) {
                 transaction = elastic.startTransaction();
@@ -142,6 +149,7 @@ function finishActivation() {
             processMessage(message, transaction).then().catch((error: Error) => {
                 handleError(message, error);
             });
+
         });
         logger.info(`Activation complete, ready for messages!`);
     }
@@ -170,36 +178,37 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
 }
 
 async function processMessage(message: Message, transaction: any): Promise<void> {
-    const commandPart = message.content.split(' ')[0];
+    const rootCommand = message.content.split(' ')[0];
     switch (true) {
-        case priceCommandRegex.test(commandPart):
+        case PriceCommand.test(rootCommand):
+            await (new PriceCommand(message)).execute();
             await priceCommand(message, transaction);
             break;
-        case sellOrdersCommandRegex.test(commandPart):
+        case sellOrdersCommandRegex.test(rootCommand):
             await sellOrdersCommand(message, transaction);
             break;
-        case infoCommandRegex.test(commandPart):
+        case infoCommandRegex.test(rootCommand):
             await infoCommand(message, transaction);
             break;
-        case buyOrdersCommandRegex.test(commandPart):
+        case buyOrdersCommandRegex.test(rootCommand):
             await buyOrdersCommand(message, transaction);
             break;
-        case dataCommandRegex.test(commandPart):
+        case dataCommandRegex.test(rootCommand):
             await dataCommand(message, transaction);
             break;
-        case sellTrackingCommandRegex.test(commandPart):
+        case sellTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'sell', transaction);
             break;
-        case itemCommandRegex.test(commandPart):
+        case itemCommandRegex.test(rootCommand):
             await itemCommand(message, transaction);
             break;
-        case historyCommandRegex.test(commandPart):
+        case historyCommandRegex.test(rootCommand):
             await historyCommand(message, transaction);
             break;
-        case clearTrackingCommandRegex.test(commandPart):
+        case clearTrackingCommandRegex.test(rootCommand):
             await clearTrackingCommand(message, transaction);
             break;
-        case buyTrackingCommandRegex.test(commandPart):
+        case buyTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'buy', transaction);
             break;
     }

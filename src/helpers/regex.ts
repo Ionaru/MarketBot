@@ -1,6 +1,6 @@
 import escapeStringRegexp = require('escape-string-regexp');
 
-import { commandPrefix } from '../market-bot';
+import { Command } from '../chat-service/command';
 
 export function createCommandRegex(commands: string[], rootCommand = false): RegExp {
     let beginning = '';
@@ -11,6 +11,6 @@ export function createCommandRegex(commands: string[], rootCommand = false): Reg
     }
 
     return new RegExp(`${beginning}(${commands.map((element) => {
-        return escapeStringRegexp(commandPrefix) + element + '\\b';
+        return escapeStringRegexp(Command.commandPrefix) + element + '\\b';
     }).join('|')})${end}`, 'i');
 }
