@@ -1,5 +1,5 @@
 # MarketBot Changelog
-All notable changes to this project will be documented in this file.
+All notable changes to MarketBot will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - 1% of spacing to the top and bottom of the `/history` graphs.
+
+### Changed
+- Replaced local configurator script with configurator package from npm.
 
 ### Fixed
 - Error when Fuse returns `undefined`.
@@ -44,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2017-11-22
 ### Added
-- Command documentation on https://ionaru.github.io/MarketBot/commands/.
+- Command documentation on <https://ionaru.github.io/MarketBot/commands/>.
 - `/history` command, used to get information about the price history of an item.
 - `/item` command, used to get info and details about an item.
 - Ability for `/track-clear` to remove entries of a single item, instead of everything.

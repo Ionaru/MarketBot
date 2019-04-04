@@ -6,6 +6,7 @@ import { logger } from 'winston-pnp-logger';
 import { Command } from './chat-service/command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
+import { PriceCommand } from './chat-service/price-command';
 import { buyOrdersCommand } from './commands/buy-orders';
 import { dataCommand } from './commands/data';
 import { historyCommand } from './commands/history';
@@ -17,10 +18,9 @@ import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCo
 import { CacheController } from './controllers/cache.controller';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
-import { config } from './helpers/configurator';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
-import { PriceCommand } from './chat-service/price-command';
+import { configuration } from './index';
 
 export const creator = 'Ionaru#3801';
 export let version: string;
@@ -113,7 +113,7 @@ export async function activate() {
 
     logger.info(`Database connection created`);
 
-    const token = config.getProperty('discord.token');
+    const token = configuration.getProperty('discord.token');
     if (token && typeof token === 'string') {
         client = new Client(token);
 
@@ -143,7 +143,7 @@ function finishActivation() {
             }
 
             let transaction: any;
-            if (config.getProperty('elastic.enabled') === true) {
+            if (configuration.getProperty('elastic.enabled') === true) {
                 transaction = elastic.startTransaction();
             }
             processMessage(message, transaction).then().catch((error: Error) => {

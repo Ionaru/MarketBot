@@ -1,10 +1,10 @@
+import { Configurator } from '@ionaru/configurator';
 import * as Sentry from '@sentry/node';
 import * as elastic from 'elastic-apm-node';
 import 'reflect-metadata'; // Required for TypeORM
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
 import { version } from '../package.json';
-import { Configurator } from './helpers/configurator';
 import { activate, deactivate } from './market-bot';
 
 /**
@@ -19,8 +19,7 @@ new WinstonPnPLogger({
 
 logger.info(`NodeJS version ${process.version}`);
 
-const configuration = new Configurator();
-configuration.addConfigFile('marketbot');
+export const configuration = new Configurator('config', 'marketbot');
 
 Sentry.init({
     dsn: configuration.getProperty('sentry.dsn') as string,
@@ -40,7 +39,7 @@ if (configuration.getProperty('elastic.enabled') === true) {
 activate().then();
 
 process.stdin.resume();
-process.on('unhandledRejection', (reason: string, p: Promise<any>): void => {
+process.on('unhandledRejection', (reason, p): void => {
     logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
 });
 process.on('uncaughtException', (error) => {
