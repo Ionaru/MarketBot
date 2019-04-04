@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
 import { Message } from '../chat-service/discord/message';
-import { config } from './configurator';
+import { configuration } from '../index';
 import { parseMessage } from './parsers';
 
 // tslint:disable:variable-name
@@ -72,7 +72,7 @@ export function logCommand(commandType: string, message: Message, outputItem?: s
     newLogEntry.sender_id = message.author.id;
     newLogEntry.sender_name = message.author.name;
 
-    if (config.getProperty('elastic.enabled') === true && transaction) {
+    if (configuration.getProperty('elastic.enabled') === true && transaction) {
         transaction.setTag('channel_id', newLogEntry.channel_id);
         transaction.setTag('channel_name', newLogEntry.channel_name);
         transaction.setTag('channel_type', newLogEntry.channel_type);
@@ -89,7 +89,7 @@ export function logCommand(commandType: string, message: Message, outputItem?: s
         transaction.end();
     }
 
-    if (config.getProperty('logging.enabled') === true) {
+    if (configuration.getProperty('logging.enabled') === true) {
         newLogEntry.save().then();
     }
 }

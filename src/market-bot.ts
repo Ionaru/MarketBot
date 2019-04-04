@@ -16,9 +16,9 @@ import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCo
 import { CacheController } from './controllers/cache.controller';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
-import { config } from './helpers/configurator';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
+import { configuration } from './index';
 
 export const creator = 'Ionaru#3801';
 export let version: string;
@@ -111,7 +111,7 @@ export async function activate() {
 
     logger.info(`Database connection created`);
 
-    const token = config.getProperty('discord.token');
+    const token = configuration.getProperty('discord.token');
     if (token && typeof token === 'string') {
         client = new Client(token);
 
@@ -136,7 +136,7 @@ function finishActivation() {
     if (client) {
         client.emitter.on('message', (message: Message) => {
             let transaction: any;
-            if (config.getProperty('elastic.enabled') === true) {
+            if (configuration.getProperty('elastic.enabled') === true) {
                 transaction = elastic.startTransaction();
             }
             processMessage(message, transaction).then().catch((error: Error) => {

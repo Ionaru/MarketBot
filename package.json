@@ -30,8 +30,8 @@
         "testEnvironment": "node"
     },
     "dependencies": {
+        "@ionaru/configurator": "^1.0.0",
         "@ionaru/format-number": "^1.0.1",
-        "@ionaru/typed-events": "0.0.2-7.0",
         "@sentry/node": "^4.6.4",
         "axios": "^0.18.0",
         "countdown": "^2.6.0",
@@ -42,7 +42,6 @@
         "escape-string-regexp": "^1.0.5",
         "fuse.js": "^3.4.4",
         "http-status-codes": "^1.3.1",
-        "ini": "^1.3.5",
         "js-yaml": "^3.12.2",
         "moment": "^2.24.0",
         "node-fetch": "^2.3.0",
