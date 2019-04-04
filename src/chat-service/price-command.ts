@@ -1,3 +1,5 @@
+import * as discord from 'discord.js';
+
 import { createCommandRegex } from '../helpers/regex';
 import { Command } from './command';
 
@@ -13,8 +15,19 @@ export class PriceCommand extends Command {
 
     private static readonly commandRegex = createCommandRegex(PriceCommand.priceCommands, true);
 
+    protected initialReply = `Checking price, one moment, ${this.message.sender}...`;
+    protected commandName = PriceCommand.priceCommands[0];
+
     public execute() {
-        this.parseMessage();
-        console.log('Moo');
+        return this.executeCommand();
+    }
+
+    protected async makeReply() {
+        const embed = new discord.RichEmbed();
+
+        // TODO: Add command logic here.
+        embed.addField('Warning', 'Wololo');
+
+        this.reply.options = {embed};
     }
 }

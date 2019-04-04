@@ -1,8 +1,12 @@
+import * as discord from 'discord.js';
+import { startTransaction } from 'elastic-apm-node';
 import { logger } from 'winston-pnp-logger';
 
+import { logCommand } from '../helpers/command-logger';
+import { configuration } from '../index';
+import { limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
+import { INamesData, IParsedMessage } from '../typings';
 import { Message } from './discord/message';
-import { IParsedMessage } from '../typings';
-import { commandPrefix, limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
 
 export abstract class Command {
 
@@ -12,37 +16,17 @@ export abstract class Command {
         return message.startsWith(Command.commandPrefix);
     }
 
-    protected message: Message;
-    protected parsedMessage: IParsedMessage;
-
-    constructor(message: Message) {
-        this.message = message;
-        this.parseMessage();
-        logger.info(message.content);
-    }
-
-    protected parseMessage() {
+    protected static parseMessage(messageContent: string) {
         const parsedMessage: IParsedMessage = {
-            content: this.message.content,
+            content: messageContent,
             item: '',
             limit: 0,
             region: '',
             system: '',
         };
 
-        let contentToParse = this.message.content;
-
         // Remove double spaces because that confuses the input guessing system
-        let messageText = contentToParse.replace(/ +(?= )/g, '');
-        // let messageWords: string[];
-
-        // Split the message into separate words and remove the first word (the command tag)
-        // messageWords = messageText.split(' ');
-        // messageWords.shift();
-        //
-        // if (messageWords) {
-        //     messageText = messageWords.join(' ');
-        // }
+        let messageText = messageContent.replace(/ +(?= )/g, '');
 
         messageText = Command.removeCommandFromMessage(messageText);
 
@@ -85,8 +69,6 @@ export abstract class Command {
             parsedMessage.limit = Number(sep1);
         }
 
-        console.log(parsedMessage);
-
         return parsedMessage;
     }
 
@@ -102,5 +84,52 @@ export abstract class Command {
             message = message.substring(0, nextCommandPartLocation);
         }
         return message.trim();
+    }
+
+    protected message: Message;
+    protected parsedMessage: IParsedMessage;
+    protected reply: {text?: string, options?: discord.MessageOptions} = {};
+
+    // Members that all derivative classes must implement.
+    protected abstract initialReply: string;
+    protected abstract commandName: string;
+
+    private readonly transaction: any;
+    private replyPlaceHolder?: Message;
+
+    constructor(message: Message) {
+        this.message = message;
+        this.parsedMessage = Command.parseMessage(message.content);
+
+        logger.info(message.content);
+
+        if (configuration.getProperty('elastic.enabled') === true) {
+            this.transaction = startTransaction();
+        }
+    }
+
+    protected abstract async makeReply(): Promise<void>;
+
+    protected async sendInitialReply() {
+        this.replyPlaceHolder = await this.message.reply(this.initialReply);
+    }
+
+    protected async sendReply(reply: string, options: discord.MessageOptions) {
+        if (this.replyPlaceHolder) {
+            return this.replyPlaceHolder.edit(reply, options);
+        }
+        return this.message.reply(reply, options);
+    }
+
+    protected logCommand(itemData?: INamesData, locationName?: string) {
+        const itemName = itemData ? itemData.name : undefined;
+        logCommand(this.commandName, this.message, itemName, locationName, this.transaction);
+    }
+
+    protected async executeCommand() {
+        await this.sendInitialReply();
+        await this.makeReply();
+        await this.sendReply(this.reply.text || '', this.reply.options || {});
+        // this.logCommand('price');
     }
 }

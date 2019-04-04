@@ -181,7 +181,7 @@ async function processMessage(message: Message, transaction: any): Promise<void>
     const rootCommand = message.content.split(' ')[0];
     switch (true) {
         case PriceCommand.test(rootCommand):
-            await (new PriceCommand(message)).execute();
+            new PriceCommand(message).execute().then();
             await priceCommand(message, transaction);
             break;
         case sellOrdersCommandRegex.test(rootCommand):
