@@ -32,9 +32,6 @@ export const dataFolder = 'data';
 
 export const commandPrefix = '/';
 
-export const priceCommands = [
-    'price', 'p', 'value',
-];
 export const historyCommands = [
     'history', 'h',
 ];
@@ -72,7 +69,6 @@ export const clearTrackingCommands = [
     'track-clear', 'tc',
 ];
 
-export const priceCommandRegex = createCommandRegex(priceCommands, true);
 export const itemCommandRegex = createCommandRegex(itemCommands, true);
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const dataCommandRegex = createCommandRegex(dataCommands, true);
