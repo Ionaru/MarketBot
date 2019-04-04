@@ -24,10 +24,13 @@ export class PriceCommand extends Command {
 
     protected async makeReply() {
         const embed = new discord.RichEmbed();
+        this.reply.options = {embed};
 
         // TODO: Add command logic here.
-        embed.addField('Warning', 'Wololo');
 
-        this.reply.options = {embed};
+        if (!(this.parsedMessage.item && this.parsedMessage.item.length)) {
+            embed.addField('Error', 'You need to give me an item to search for.');
+            return;
+        }
     }
 }
