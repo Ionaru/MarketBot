@@ -39,7 +39,7 @@ if (configuration.getProperty('elastic.enabled') === true) {
 activate().then();
 
 process.stdin.resume();
-process.on('unhandledRejection', (reason: string, p: Promise<any>): void => {
+process.on('unhandledRejection', (reason, p): void => {
     logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
 });
 process.on('uncaughtException', (error) => {
