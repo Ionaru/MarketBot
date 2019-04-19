@@ -81,9 +81,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
     // Check if word is defined as a shortcut.
     regex = new RegExp(`^${itemWords[0]}`, 'i');
-    const shortcut = Object.keys(shortcuts).filter((shortcutText) => {
-        return shortcutText.match(regex);
-    })[0];
+    const shortcut = Object.keys(shortcuts).filter((shortcutText) => shortcutText.match(regex))[0];
 
     if (shortcut) {
         itemWords[0] = shortcuts[shortcut];
