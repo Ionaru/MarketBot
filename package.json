@@ -9,7 +9,8 @@
         "url": "https://github.com/Ionaru/MarketBot.git"
     },
     "scripts": {
-        "build": "tsc --skipLibCheck --project tsconfig.json",
+        "clean": "npx rimraf -q dist",
+        "build": "npm run clean && tsc --skipLibCheck --project tsconfig.json",
         "lint": "npm run lint:src && npm run lint:test",
         "lint:src": "tslint --project tsconfig.json -c tslint.json --format stylish",
         "lint:test": "tslint -c tslint.json src/**/*.spec.ts --format stylish",
