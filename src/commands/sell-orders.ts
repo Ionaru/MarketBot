@@ -80,7 +80,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
         return {reply, itemData, regionName};
     }
 
-    let sellOrders: IMarketData[] = marketData.filter((order) => order.is_buy_order === false);
+    let sellOrders: IMarketData[] = marketData.filter((order) => !order.is_buy_order);
 
     if (!(sellOrders && sellOrders.length)) {
         reply += `I couldn't find any sell orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;

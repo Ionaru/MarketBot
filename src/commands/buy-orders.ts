@@ -74,7 +74,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
         return {reply, itemData, regionName};
     }
 
-    let buyOrders: IMarketData[] = marketData.filter((order) => order.is_buy_order === true);
+    let buyOrders: IMarketData[] = marketData.filter((order) => order.is_buy_order);
 
     if (!(buyOrders && buyOrders.length)) {
         reply += `It seems nobody is buying ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
