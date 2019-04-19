@@ -1,5 +1,7 @@
+import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
+
 import { DataService } from '../services/data.service';
 import {
     ICategory,
@@ -13,7 +15,6 @@ import {
     IServerStatus,
     ITypeData,
 } from '../typings';
-import { sortArrayByObjectProperty } from './arrays';
 
 const ccpHost = 'https://esi.evetech.net/';
 

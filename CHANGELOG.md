@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Replaced local configurator script with configurator package from npm.
+- Replaced local array sorting script with one from array-utils package from npm.
 
 ### Fixed
 - Error when Fuse returns `undefined`.

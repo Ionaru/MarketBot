@@ -1,9 +1,9 @@
+import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import { formatNumber } from '@ionaru/format-number';
 
 import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
-import { sortArrayByObjectProperty } from '../helpers/arrays';
 import { citadels, regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';

@@ -31,6 +31,7 @@
         "testEnvironment": "node"
     },
     "dependencies": {
+        "@ionaru/array-utils": "^1.0.0",
         "@ionaru/configurator": "^1.0.0",
         "@ionaru/format-number": "^1.0.1",
         "@sentry/node": "^5.0.5",
