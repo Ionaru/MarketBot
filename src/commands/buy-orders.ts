@@ -109,7 +109,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
             locationText = location.name;
         } else if (order.location_id.toString().length === 13) {
             const citadel = citadels[order.location_id];
-            locationText = citadel ? citadel.name : 'an unknown citadel';
+            locationText = citadel ? citadel.name : `an unknown citadel in ${regionName}`;
         }
 
         const volume = formatNumber(order.volume_remain, 0);

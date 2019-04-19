@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - 1% of spacing to the top and bottom of the `/history` graphs.
+- The name of the region to the `/buy` output text when a citadel name is unknown.
 
 ### Changed
 - Replaced local configurator script with configurator package from npm.
