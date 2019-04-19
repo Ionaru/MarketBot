@@ -123,7 +123,8 @@ export class Client {
     private setDiscordPresence() {
         this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
 
-        // Re-set the presence every hour because the bot tends to forget.
+        // Re-set the presence every hour because of a known issue on Discord's side.
+        // https://github.com/discordapp/discord-api-docs/issues/834
         if (!this.presenceInterval) {
             this.presenceInterval = setInterval(() => this.setDiscordPresence(), 3_600_000); // Every hour.
         }
