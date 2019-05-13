@@ -3,8 +3,10 @@ import * as elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
+import { Command } from './chat-service/command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
+import { PriceCommand } from './chat-service/price-command';
 import { buyOrdersCommand } from './commands/buy-orders';
 import { dataCommand } from './commands/data';
 import { historyCommand } from './commands/history';
@@ -30,9 +32,6 @@ export const dataFolder = 'data';
 
 export const commandPrefix = '/';
 
-export const priceCommands = [
-    'price', 'p', 'value',
-];
 export const historyCommands = [
     'history', 'h',
 ];
@@ -70,7 +69,6 @@ export const clearTrackingCommands = [
     'track-clear', 'tc',
 ];
 
-export const priceCommandRegex = createCommandRegex(priceCommands, true);
 export const itemCommandRegex = createCommandRegex(itemCommands, true);
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const dataCommandRegex = createCommandRegex(dataCommands, true);
@@ -135,6 +133,11 @@ function finishActivation() {
 
     if (client) {
         client.emitter.on('message', (message: Message) => {
+
+            if (!Command.test(message.content)) {
+                return;
+            }
+
             let transaction: any;
             if (configuration.getProperty('elastic.enabled') === true) {
                 transaction = elastic.startTransaction();
@@ -142,6 +145,7 @@ function finishActivation() {
             processMessage(message, transaction).then().catch((error: Error) => {
                 handleError(message, error);
             });
+
         });
         logger.info(`Activation complete, ready for messages!`);
     }
@@ -170,36 +174,37 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
 }
 
 async function processMessage(message: Message, transaction: any): Promise<void> {
-    const commandPart = message.content.split(' ')[0];
+    const rootCommand = message.content.split(' ')[0];
     switch (true) {
-        case priceCommandRegex.test(commandPart):
+        case PriceCommand.test(rootCommand):
+            new PriceCommand(message).execute().then();
             await priceCommand(message, transaction);
             break;
-        case sellOrdersCommandRegex.test(commandPart):
+        case sellOrdersCommandRegex.test(rootCommand):
             await sellOrdersCommand(message, transaction);
             break;
-        case infoCommandRegex.test(commandPart):
+        case infoCommandRegex.test(rootCommand):
             await infoCommand(message, transaction);
             break;
-        case buyOrdersCommandRegex.test(commandPart):
+        case buyOrdersCommandRegex.test(rootCommand):
             await buyOrdersCommand(message, transaction);
             break;
-        case dataCommandRegex.test(commandPart):
+        case dataCommandRegex.test(rootCommand):
             await dataCommand(message, transaction);
             break;
-        case sellTrackingCommandRegex.test(commandPart):
+        case sellTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'sell', transaction);
             break;
-        case itemCommandRegex.test(commandPart):
+        case itemCommandRegex.test(rootCommand):
             await itemCommand(message, transaction);
             break;
-        case historyCommandRegex.test(commandPart):
+        case historyCommandRegex.test(rootCommand):
             await historyCommand(message, transaction);
             break;
-        case clearTrackingCommandRegex.test(commandPart):
+        case clearTrackingCommandRegex.test(rootCommand):
             await clearTrackingCommand(message, transaction);
             break;
-        case buyTrackingCommandRegex.test(commandPart):
+        case buyTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'buy', transaction);
             break;
     }
