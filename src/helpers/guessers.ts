@@ -66,7 +66,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
         id: 0,
         name: '',
     };
-    const possibilities: INamesData[] = [];
+    let possibilities: INamesData[] = [];
 
     const itemWords = itemString.split(' ');
 
@@ -116,6 +116,8 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
         }));
     }
 
+    possibilities = await filterUnpublishedTypes(possibilities);
+
     if (!possibilities.length && fuse) {
         // Use Fuse to search (slow but fuzzy).
         const fuseGuess = fuse.search(itemString)[0] as INamesData | undefined;
@@ -129,19 +131,10 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
     if (possibilities.length) {
         // Sort by word length, shortest is usually the correct one.
-        const sortedPossibilities = sortArrayByObjectPropertyLength(possibilities, 'name');
-
-        for (const possibility of sortedPossibilities) {
-            if (possibility.category === 'inventory_type') {
-                // Check if the matched item is published.
-                const type = await fetchUniverseType(possibility.id);
-                if (type && type.published) {
-                    itemData = possibility;
-                    break;
-                }
-            } else {
-                itemData = possibility;
-            }
+        let sortedPossibilities = sortArrayByObjectPropertyLength(possibilities, 'name');
+        sortedPossibilities = await filterUnpublishedTypes(sortedPossibilities);
+        if (sortedPossibilities.length) {
+            itemData = sortedPossibilities[0];
         }
     }
 
@@ -164,6 +157,24 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
     }
 
     return {itemData, guess, id: false};
+}
+
+async function filterUnpublishedTypes(possibilities: INamesData[]): Promise<INamesData[]> {
+
+    const filteredPossibilities = [];
+
+    for (const possibility of possibilities) {
+
+        if (possibility.category === 'inventory_type') {
+            const type = await fetchUniverseType(possibility.id);
+            if (!type || !type.published) {
+                continue;
+            }
+        }
+        filteredPossibilities.push(possibility);
+    }
+
+    return filteredPossibilities;
 }
 
 export function getGuessHint(guessReturn: IGuessReturn, userInput: string): string {
