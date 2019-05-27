@@ -1,3 +1,7 @@
+// Create and export the debug instance so imported classes can create extensions of it.
+import Debug from 'debug';
+export const debug = Debug('market-bot');
+
 import { Configurator } from '@ionaru/configurator';
 import * as Sentry from '@sentry/node';
 import * as elastic from 'elastic-apm-node';

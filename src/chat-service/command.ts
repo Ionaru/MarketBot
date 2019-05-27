@@ -1,9 +1,8 @@
 import * as discord from 'discord.js';
 import { startTransaction } from 'elastic-apm-node';
-import { logger } from 'winston-pnp-logger';
 
 import { logCommand } from '../helpers/command-logger';
-import { configuration } from '../index';
+import { configuration, debug } from '../index';
 import { limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
 import { INamesData, IParsedMessage } from '../typings';
 import { Message } from './discord/message';
@@ -13,8 +12,11 @@ export abstract class Command {
     public static commandPrefix = '/';
 
     public static test(message: string) {
+        Command.debug(`Testing ${message}`);
         return message.startsWith(Command.commandPrefix);
     }
+
+    protected static debug = debug.extend('command');
 
     protected static parseMessage(messageContent: string) {
         const parsedMessage: IParsedMessage = {
@@ -101,9 +103,10 @@ export abstract class Command {
         this.message = message;
         this.parsedMessage = Command.parseMessage(message.content);
 
-        logger.info(message.content);
+        Command.debug(message.content);
 
         if (configuration.getProperty('elastic.enabled') === true) {
+            Command.debug(`Starting elastic transaction`);
             this.transaction = startTransaction();
         }
     }
@@ -111,13 +114,16 @@ export abstract class Command {
     protected abstract async makeReply(): Promise<void>;
 
     protected async sendInitialReply() {
+        Command.debug(`Sending initial reply`);
         this.replyPlaceHolder = await this.message.reply(this.initialReply);
     }
 
     protected async sendReply(reply: string, options: discord.MessageOptions) {
         if (this.replyPlaceHolder) {
+            Command.debug(`Editing initial reply`);
             return this.replyPlaceHolder.edit(reply, options);
         }
+        Command.debug(`Sending reply`);
         return this.message.reply(reply, options);
     }
 

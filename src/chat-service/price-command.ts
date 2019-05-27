@@ -6,8 +6,11 @@ import { Command } from './command';
 export class PriceCommand extends Command {
 
     public static test(command: string) {
+        PriceCommand.debug(`Testing ${command}`);
         return PriceCommand.commandRegex.test(command);
     }
+
+    protected static debug = Command.debug.extend('price');
 
     private static readonly priceCommands = [
         'price', 'p', 'value',
