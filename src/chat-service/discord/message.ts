@@ -10,7 +10,7 @@ interface IServer {
     name?: string;
 }
 
-type channelType = 'dm' | 'text' | 'voice' | 'group' | 'category';
+type channelType = 'dm' | 'text' | 'voice' | 'group' | 'category' | 'news' | 'store';
 
 export class Message {
 
