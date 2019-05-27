@@ -42,6 +42,7 @@ VOLUME /app/config
 # Install production packages
 ENV NODE_ENV production
 RUN npm ci
+RUN npm cache clean --force
 
 
 ## RUN
