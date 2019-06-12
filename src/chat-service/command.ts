@@ -111,6 +111,14 @@ export abstract class Command {
         }
     }
 
+    public async execute() {
+        await this.sendInitialReply();
+        await this.makeReply();
+        await this.sendReply(this.reply.text || '', this.reply.options || {});
+        // tslint:disable-next-line:no-commented-code
+        // this.logCommand('price');
+    }
+
     protected abstract async makeReply(): Promise<void>;
 
     protected async sendInitialReply() {
@@ -130,12 +138,5 @@ export abstract class Command {
     protected logCommand(itemData?: INamesData, locationName?: string) {
         const itemName = itemData ? itemData.name : undefined;
         logCommand(this.commandName, this.message, itemName, locationName, this.transaction);
-    }
-
-    protected async executeCommand() {
-        await this.sendInitialReply();
-        await this.makeReply();
-        await this.sendReply(this.reply.text || '', this.reply.options || {});
-        // this.logCommand('price');
     }
 }

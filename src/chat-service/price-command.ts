@@ -1,3 +1,4 @@
+/* tslint:disable:no-commented-code max-line-length */
 import * as discord from 'discord.js';
 
 import { createCommandRegex } from '../helpers/regex';
@@ -20,10 +21,6 @@ export class PriceCommand extends Command {
 
     protected initialReply = `Checking price, one moment, ${this.message.sender}...`;
     protected commandName = PriceCommand.priceCommands[0];
-
-    public execute() {
-        return this.executeCommand();
-    }
 
     protected async makeReply() {
         const embed = new discord.RichEmbed();
