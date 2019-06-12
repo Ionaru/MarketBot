@@ -15,12 +15,11 @@ import { itemCommand } from './commands/item';
 import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
-import { CacheController } from './controllers/cache.controller';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
-import { configuration } from './index';
+import { configuration, esiCache } from './index';
 
 export const creator = 'Ionaru#3801';
 export let version: string;
@@ -89,7 +88,7 @@ export async function activate() {
 
     logger.info(`Bot version: ${version}`);
 
-    CacheController.readCache();
+    esiCache.readCache();
 
     await checkAndUpdateCache().catch((error: Error) => {
         logger.error(error.stack as string);
@@ -157,7 +156,7 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
         quitMessage += ' because of an uncaught error!';
     }
 
-    CacheController.dumpCache();
+    esiCache.dumpCache();
 
     logger.info(quitMessage);
     if (client) {

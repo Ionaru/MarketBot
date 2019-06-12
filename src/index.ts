@@ -3,7 +3,10 @@ import Debug from 'debug';
 export const debug = Debug('market-bot');
 
 import { Configurator } from '@ionaru/configurator';
+import { CacheController, PublicESIService } from '@ionaru/esi-service';
 import * as Sentry from '@sentry/node';
+import { HttpsAgent } from 'agentkeepalive';
+import axios, { AxiosInstance } from 'axios';
 import * as elastic from 'elastic-apm-node';
 import 'reflect-metadata'; // Required for TypeORM
 import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
@@ -11,48 +14,87 @@ import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 import { version } from '../package.json';
 import { activate, deactivate } from './market-bot';
 
+export let configPath = 'config';
+export let configuration: Configurator;
+export let esiService: PublicESIService;
+export let esiCache: CacheController;
+export let axiosInstance: AxiosInstance;
+
 /**
  * The code in this file starts the bot by calling the async 'activate' function.
  * It also defines what to do on exit signals, unhandled exceptions and promise rejections.
  */
+(function start() {
 
-new WinstonPnPLogger({
-    announceSelf: false,
-    logDir: 'logs',
-});
-
-logger.info(`NodeJS version ${process.version}`);
-
-export const configuration = new Configurator('config', 'marketbot');
-
-Sentry.init({
-    dsn: configuration.getProperty('sentry.dsn') as string,
-    enabled: configuration.getProperty('sentry.enabled') as boolean,
-    release: version,
-});
-
-if (configuration.getProperty('elastic.enabled') === true) {
-    elastic.start({
-        secretToken: configuration.getProperty('elastic.token') as string,
-        serverUrl: configuration.getProperty('elastic.url') as string,
-        serviceName: 'marketbot',
+    new WinstonPnPLogger({
+        announceSelf: false,
+        logDir: 'logs',
     });
-    logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
-}
 
-activate().then();
+    logger.info(`NodeJS version ${process.version}`);
 
-process.stdin.resume();
-process.on('unhandledRejection', (reason, p): void => {
-    logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
-});
-process.on('uncaughtException', (error) => {
-    logger.error('Uncaught Exception!', error);
-    deactivate(true, true).then();
-});
-process.on('SIGINT', () => {
-    deactivate(true).then();
-});
-process.on('SIGTERM', () => {
-    deactivate(true).then();
-});
+    configuration = new Configurator(configPath, 'marketbot');
+
+    Sentry.init({
+        dsn: configuration.getProperty('sentry.dsn') as string,
+        enabled: configuration.getProperty('sentry.enabled') as boolean,
+        release: version,
+    });
+
+    debug('Creating axios instance');
+    axiosInstance = axios.create({
+        // 60 sec timeout
+        timeout: 60000,
+
+        // keepAlive pools and reuses TCP connections, so it's faster
+        httpsAgent: new HttpsAgent(),
+
+        // follow up to 10 HTTP 3xx redirects
+        maxRedirects: 10,
+
+        // cap the maximum content length we'll accept to 50MBs, just in case
+        maxContentLength: 50 * 1000 * 1000,
+    });
+
+    debug('Creating CacheController instance');
+    esiCache = new CacheController('data/responseCache.json');
+
+    debug('Creating PublicESIService instance');
+    esiService = new PublicESIService({
+        axiosInstance,
+        cacheController: esiCache,
+        onRouteWarning: (route, text) => {
+            Sentry.addBreadcrumb({
+                category: 'route',
+                message: route,
+            });
+            Sentry.captureMessage(text || 'Route warning', Sentry.Severity.Warning);
+        },
+    });
+
+    if (configuration.getProperty('elastic.enabled') === true) {
+        elastic.start({
+            secretToken: configuration.getProperty('elastic.token') as string,
+            serverUrl: configuration.getProperty('elastic.url') as string,
+            serviceName: 'marketbot',
+        });
+        logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
+    }
+
+    process.stdin.resume();
+    process.on('unhandledRejection', (reason, p): void => {
+        logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
+    });
+    process.on('uncaughtException', (error) => {
+        logger.error('Uncaught Exception!', error);
+        deactivate(true, true).then();
+    });
+    process.on('SIGINT', () => {
+        deactivate(true).then();
+    });
+    process.on('SIGTERM', () => {
+        deactivate(true).then();
+    });
+
+    activate().then();
+})();

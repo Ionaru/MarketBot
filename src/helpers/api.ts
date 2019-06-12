@@ -2,7 +2,7 @@ import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { DataService } from '../services/data.service';
+import { esiCache, esiService } from '../index';
 import {
     ICategory,
     ICitadelData,
@@ -24,14 +24,14 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
     const host = 'https://api.evemarketer.com/ec/';
     const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
 
-    return DataService.fetchESIData<IEVEMarketerData[]>(url, 900000);
+    return fetchData<IEVEMarketerData[]>(url);
 }
 
 export async function fetchMarketData(itemId: number, regionId: number): Promise<IMarketData[]> {
     const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
     const url = ccpHost + path;
 
-    const marketResponse = await DataService.fetchESIData<IMarketData[]>(url);
+    const marketResponse = await fetchData<IMarketData[]>(url);
     return marketResponse || [];
 }
 
@@ -54,7 +54,7 @@ export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, reg
 export async function fetchCitadelData(): Promise<ICitadelData> {
     const url = 'https://stop.hammerti.me.uk/api/citadel/all';
 
-    const citadelData = await DataService.fetchESIData<ICitadelData>(url);
+    const citadelData = await fetchData<ICitadelData>(url);
     return citadelData || {};
 }
 
@@ -108,7 +108,7 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
     let page = 1;
     let errors = 0;
     while (true) {
-        const typeData = await DataService.fetchESIData<number[]>(ccpHost + `v1/universe/types?page=${page}`);
+        const typeData = await fetchData<number[]>(ccpHost + `v1/universe/types?page=${page}`);
         if (typeData) {
             types.push(...typeData);
             if (typeData.length < 1000) {
@@ -126,33 +126,42 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
 }
 
 export async function fetchUniverseType(id: number): Promise<ITypeData | undefined> {
-    return DataService.fetchESIData<ITypeData>(ccpHost + `v3/universe/types/${id}`);
+    return fetchData<ITypeData>(ccpHost + `v3/universe/types/${id}`);
 }
 
 export async function fetchUniverseSystems(): Promise<number[] | undefined> {
-    return DataService.fetchESIData<number[]>(ccpHost + `v1/universe/systems`);
+    return fetchData<number[]>(ccpHost + `v1/universe/systems`);
 }
 
 export async function fetchUniverseRegions(): Promise<number[] | undefined> {
-    return DataService.fetchESIData<number[]>(ccpHost + `v1/universe/regions`);
+    return fetchData<number[]>(ccpHost + `v1/universe/regions`);
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number) {
-    return DataService.fetchESIData<IHistoryData[]>(ccpHost + `v1/markets/${regionId}/history/?type_id=${itemId}`);
+    return fetchData<IHistoryData[]>(ccpHost + `v1/markets/${regionId}/history/?type_id=${itemId}`);
 }
 
 export async function fetchGroup(groupId: number) {
-    return DataService.fetchESIData<IGroup>(ccpHost + `v1/universe/groups/${groupId}`);
+    return fetchData<IGroup>(ccpHost + `v1/universe/groups/${groupId}`);
 }
 
 export async function fetchMarketGroup(groupId: number) {
-    return DataService.fetchESIData<IMarketGroup>(ccpHost + `v1/markets/groups/${groupId}`);
+    return fetchData<IMarketGroup>(ccpHost + `v1/markets/groups/${groupId}`);
 }
 
 export async function fetchCategory(categoryId: number) {
-    return DataService.fetchESIData<ICategory>(ccpHost + `v1/universe/categories/${categoryId}`);
+    return fetchData<ICategory>(ccpHost + `v1/universe/categories/${categoryId}`);
 }
 
 export async function fetchServerStatus() {
-    return DataService.fetchESIData<IServerStatus>(ccpHost + 'v1/status/');
+    return fetchData<IServerStatus>(ccpHost + 'v1/status/');
+}
+
+async function fetchData<T>(url: string): Promise<T> {
+    return esiService.fetchESIData<T>(url).catch((error) => {
+        if (esiCache.responseCache[url]) {
+            return esiCache.responseCache[url]!.data;
+        }
+        throw error;
+    });
 }

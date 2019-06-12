@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Improved item guessing with unpublished items in the results.
+- Switched to esi-service package instead of local code.
 
 ## [2.3.0] - 2019-04-23
 ### Added
