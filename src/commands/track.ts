@@ -3,6 +3,7 @@ import { formatNumber } from '@ionaru/format-number';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
+import { Command } from '../chat-service/command';
 import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { items, regions } from '../helpers/cache';
@@ -13,6 +14,8 @@ import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helper
 import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
 import { IMarketData, INamesData } from '../typings';
+
+const debug = Command.debug.extend('track');
 
 @Entity('TrackingEntries')
 export class TrackingEntry extends BaseEntity {
@@ -61,7 +64,7 @@ interface ITrackCommandLogicReturn {
 }
 
 export function startTrackingCycle() {
-    logger.debug('Scheduled next tracking cycle');
+    debug('Scheduled next tracking cycle');
     trackingCycle = setInterval(() => {
         performTrackingCycle().then();
     }, 5 * 60 * 1000);
@@ -69,7 +72,7 @@ export function startTrackingCycle() {
 
 export function stopTrackingCycle() {
     if (trackingCycle !== undefined) {
-        logger.debug('Stopping tracking cycle');
+        debug('Stopping tracking cycle');
         clearInterval(trackingCycle);
         trackingCycle = undefined;
     }
@@ -214,7 +217,7 @@ function droppedRose(amount: number) {
 // tslint:disable-next-line:cognitive-complexity
 export async function performTrackingCycle() {
 
-    logger.debug('Executing tracking cycle');
+    debug('Executing tracking cycle');
 
     const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
 

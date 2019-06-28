@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { logger } from 'winston-pnp-logger';
 
+import { Command } from '../chat-service/command';
 import { Message } from '../chat-service/discord/message';
 import { configuration } from '../index';
 import { parseMessage } from './parsers';
@@ -53,7 +53,7 @@ export class LogEntry extends BaseEntity {
 }
 
 export function logCommand(commandType: string, message: Message, outputItem?: string, outputRegion?: string, transaction?: any) {
-    logger.debug(message.content);
+    Command.debug(message.content);
 
     const parsedMessage = parseMessage(message.content);
 

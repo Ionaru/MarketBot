@@ -16,7 +16,9 @@ export abstract class Command {
         return message.startsWith(Command.commandPrefix);
     }
 
-    protected static debug = debug.extend('command');
+    // TODO: Change back to protected when all commands are re-written.
+    // tslint:disable-next-line:member-ordering
+    public static debug = debug.extend('command');
 
     protected static parseMessage(messageContent: string) {
         const parsedMessage: IParsedMessage = {

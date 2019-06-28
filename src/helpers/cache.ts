@@ -4,6 +4,7 @@ import * as Fuse from 'fuse.js';
 import * as moment from 'moment';
 import { logger } from 'winston-pnp-logger';
 
+import { debug } from '../index';
 import { dataFolder } from '../market-bot';
 import { ICitadelData, INamesData } from '../typings';
 import {
@@ -31,6 +32,8 @@ interface IValidateCacheReturn {
     serverVersion?: string;
 }
 
+const cacheDebug = debug.extend('cache');
+
 const serverVersionFileName = 'server_version.txt';
 
 export async function checkAndUpdateCache() {
@@ -56,7 +59,7 @@ export async function checkAndUpdateCache() {
         noon = noon.add(1, 'day');
     }
     const timeUntilNextNoon = noon.valueOf() - Date.now();
-    logger.debug(`Next cache check in ${formatNumber(timeUntilNextNoon / 3600000, 2)} hours`);
+    cacheDebug(`Next cache check in ${formatNumber(timeUntilNextNoon / 3600000, 2)} hours`);
     setTimeout(() => {
         checkAndUpdateCache().catch((error: Error) => {
             logger.error(error.stack as string);

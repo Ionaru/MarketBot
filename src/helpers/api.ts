@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/node';
 import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { esiCache, esiService } from '../index';
+import { debug, esiCache, esiService } from '../index';
 import {
     ICategory,
     ICitadelData,
@@ -18,6 +18,8 @@ import {
 } from '../typings';
 
 const ccpHost = 'https://esi.evetech.net/';
+
+const apiDebug = debug.extend('api');
 
 export async function fetchPriceData(itemId: number, locationId: number): Promise<IEVEMarketerData[] | undefined> {
     const locationType = locationId < 30000000 ? 'regionlimit' : 'usesystem';
@@ -82,7 +84,7 @@ async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
     const headers = {'Content-Type': 'application/json'};
     const body = JSON.stringify(ids);
 
-    logger.debug(url, body);
+    apiDebug(url, body);
     const namesResponse: Response | undefined = await fetch(url, {body, method: 'POST', headers}).catch(
         (errorResponse: FetchError) => {
             logger.error('Request failed:', url, errorResponse);
