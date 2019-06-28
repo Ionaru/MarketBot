@@ -161,8 +161,6 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
 async function filterUnpublishedTypes(possibilities: INamesData[]): Promise<INamesData[]> {
 
-    const filteredPossibilities = [];
-
     for (const possibility of possibilities) {
 
         if (possibility.category === 'inventory_type') {
@@ -171,10 +169,10 @@ async function filterUnpublishedTypes(possibilities: INamesData[]): Promise<INam
                 continue;
             }
         }
-        filteredPossibilities.push(possibility);
+        return [possibility];
     }
 
-    return filteredPossibilities;
+    return [];
 }
 
 export function getGuessHint(guessReturn: IGuessReturn, userInput: string): string {
