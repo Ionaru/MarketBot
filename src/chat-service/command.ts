@@ -1,7 +1,10 @@
 import * as discord from 'discord.js';
 import { startTransaction } from 'elastic-apm-node';
 
+import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
+import { guessRegionInput, guessSystemInput } from '../helpers/guessers';
+import { regionFormat } from '../helpers/message-formatter';
 import { configuration, debug } from '../index';
 import { limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
 import { INamesData, IParsedMessage } from '../typings';
@@ -93,6 +96,9 @@ export abstract class Command {
     protected message: Message;
     protected parsedMessage: IParsedMessage;
     protected reply: {text?: string, options?: discord.MessageOptions} = {};
+    protected embed: discord.RichEmbed = new discord.RichEmbed();
+
+    protected logData: {item?: string, location?: string} = {};
 
     // Members that all derivative classes must implement.
     protected abstract initialReply: string;
@@ -115,20 +121,35 @@ export abstract class Command {
 
     public async execute() {
         await this.sendInitialReply();
-        await this.makeReply();
-        await this.sendReply(this.reply.text || '', this.reply.options || {});
+
+        if (!this.embed) {
+            throw new Error('Embed creation failed.');
+        }
+
+        this.reply.options = {embed: this.embed};
+
+        if (this.isCommandValid()) {
+            await this.processCommand();
+        }
+
+        await this.sendReply();
         // tslint:disable-next-line:no-commented-code
-        // this.logCommand('price');
+        this.logCommand();
     }
 
-    protected abstract async makeReply(): Promise<void>;
+    protected abstract async isCommandValid(): Promise<boolean>;
+    protected abstract async processCommand(): Promise<void>;
 
     protected async sendInitialReply() {
         Command.debug(`Sending initial reply`);
         this.replyPlaceHolder = await this.message.reply(this.initialReply);
     }
 
-    protected async sendReply(reply: string, options: discord.MessageOptions) {
+    protected async sendReply() {
+
+        const reply = this.reply.text || '';
+        const options = this.reply.options || {};
+
         if (this.replyPlaceHolder) {
             Command.debug(`Editing initial reply`);
             return this.replyPlaceHolder.edit(reply, options);
@@ -137,8 +158,34 @@ export abstract class Command {
         return this.message.reply(reply, options);
     }
 
-    protected logCommand(itemData?: INamesData, locationName?: string) {
-        const itemName = itemData ? itemData.name : undefined;
-        logCommand(this.commandName, this.message, itemName, locationName, this.transaction);
+    protected logCommand() {
+        logCommand(this.commandName, this.message, this.logData.item, this.logData.location, this.transaction);
+    }
+
+    protected async getLocation(allowSystem = false): Promise<INamesData> {
+        const defaultLocation = regions.filter((region) => region.name === 'The Forge')[0];
+        let location = defaultLocation;
+
+        if (this.parsedMessage.region) {
+            location = (await guessRegionInput(this.parsedMessage.region)).itemData;
+            if (!location.id) {
+                location = defaultLocation;
+                // tslint:disable-next-line:max-line-length
+                this.embed.addField('Warning', `I don't know of the "${this.parsedMessage.region}" region, defaulting to ${regionFormat(location.name)}`);
+            }
+        }
+
+        if (allowSystem && this.parsedMessage.system) {
+            location = (await guessSystemInput(this.parsedMessage.system)).itemData;
+            if (!location.id) {
+                location = defaultLocation;
+                // tslint:disable-next-line:max-line-length
+                this.embed.addField('Warning', `I don't know of the "${this.parsedMessage.system}" system, defaulting to ${regionFormat(location.name)}`);
+            }
+        }
+
+        this.logData.location = location.name;
+
+        return location;
     }
 }

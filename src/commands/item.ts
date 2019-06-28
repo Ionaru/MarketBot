@@ -50,7 +50,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
         return {reply, itemData: undefined};
     }
 
-    reply.setAuthor(itemData.name, `http://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`);
+    reply.setAuthor(itemData.name, `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`);
     reply.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 
     const item = await fetchUniverseType(itemData.id);

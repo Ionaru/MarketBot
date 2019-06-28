@@ -12,7 +12,6 @@ import { dataCommand } from './commands/data';
 import { historyCommand } from './commands/history';
 import { infoCommand } from './commands/info';
 import { itemCommand } from './commands/item';
-import { priceCommand } from './commands/price';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
@@ -176,10 +175,7 @@ async function processMessage(message: Message, transaction: any): Promise<void>
     const rootCommand = message.content.split(' ')[0];
     switch (true) {
         case PriceCommand.test(rootCommand):
-            if (process.env.NODE_ENV !== 'production') {
-                new PriceCommand(message).execute().then();
-            }
-            await priceCommand(message, transaction);
+            new PriceCommand(message).execute().then();
             break;
         case sellOrdersCommandRegex.test(rootCommand):
             await sellOrdersCommand(message, transaction);
