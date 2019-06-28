@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Test version of a new generic command class. 
+
 ### Changed
 - Improved item guessing with unpublished items in the results.
+- Optimized item guessing. Unpublished item filtering will exit on the first good item found.
+- Started switching to debug and native logging  instead of Winston
 - Switched to esi-service package instead of local code.
 
 ## [2.3.0] - 2019-04-23
