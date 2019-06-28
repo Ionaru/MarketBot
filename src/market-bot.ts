@@ -212,10 +212,7 @@ async function processMessage(message: Message, transaction: any): Promise<void>
 }
 
 export function handleError(message: Message, caughtError: Error) {
-    Sentry.addBreadcrumb({
-        category: 'command',
-        message: message.content,
-    });
+    Sentry.setContext('command', {command: message.content});
     Sentry.captureException(caughtError);
     message.sendError(caughtError).then();
 }

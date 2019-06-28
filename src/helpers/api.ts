@@ -1,4 +1,5 @@
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
+import * as Sentry from '@sentry/node';
 import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
 
@@ -162,6 +163,7 @@ async function fetchData<T>(url: string): Promise<T> {
         if (esiCache.responseCache[url]) {
             return esiCache.responseCache[url]!.data;
         }
+        Sentry.setContext('url', {url});
         throw error;
     });
 }
