@@ -1,9 +1,8 @@
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import * as Sentry from '@sentry/node';
-import fetch, { FetchError, Response } from 'node-fetch';
 import { logger } from 'winston-pnp-logger';
 
-import { debug, esiCache, esiService } from '../index';
+import { axiosInstance, debug, esiCache, esiService } from '../index';
 import {
     ICategory,
     ICitadelData,
@@ -81,28 +80,16 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
 async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
     const path = 'v2/universe/names/';
     const url = ccpHost + path;
-    const headers = {'Content-Type': 'application/json'};
     const body = JSON.stringify(ids);
 
     apiDebug(url, body);
-    const namesResponse: Response | undefined = await fetch(url, {body, method: 'POST', headers}).catch(
-        (errorResponse: FetchError) => {
+    const namesResponse = await axiosInstance.post<INamesData[]>(url, body).catch(
+        (errorResponse) => {
             logger.error('Request failed:', url, errorResponse);
             return undefined;
         });
 
-    if (namesResponse) {
-        if (namesResponse.ok) {
-            return namesResponse.json().catch((error) => {
-                logger.error('Unable to parse JSON:', error);
-                return [];
-            });
-        } else {
-            const text = await namesResponse.text();
-            logger.error('Request not OK:', url, namesResponse.status, namesResponse.statusText, text);
-        }
-    }
-    return [];
+    return namesResponse ? namesResponse.data : [];
 }
 
 export async function fetchUniverseTypes(): Promise<number[] | undefined> {
