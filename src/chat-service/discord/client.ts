@@ -17,9 +17,10 @@ export class Client {
         process.emitWarning('Discord:', warning);
     }
 
+    public readonly emitter: EventEmitter;
+
     private client: Discord.Client;
     private credentials: string;
-    private readonly _emitter: EventEmitter;
     private _name?: string;
     private _id?: string;
     private presenceInterval?: Timeout;
@@ -27,7 +28,7 @@ export class Client {
     constructor(credentials: string) {
         this.credentials = credentials;
         this.client = new Discord.Client();
-        this._emitter = new EventEmitter();
+        this.emitter = new EventEmitter();
 
         this.client.on('ready', () => {
             this.onReady();
@@ -96,10 +97,6 @@ export class Client {
         return undefined;
     }
 
-    get emitter(): EventEmitter {
-        return this._emitter;
-    }
-
     get name(): string | undefined {
         return this._name;
     }
@@ -110,10 +107,6 @@ export class Client {
 
     get serverCount(): number {
         return this.client.guilds.array().length;
-    }
-
-    get privateChannelCount(): number {
-        return this.client.channels.array().filter((clientChannel) => clientChannel.type === 'dm').length;
     }
 
     get upTime(): Date {

@@ -27,94 +27,63 @@ export class Message {
         return text;
     }
 
-    public _message: Discord.Message;
-    private readonly _origin: string;
-    private readonly _sender: string;
-    private readonly _author: { id: string, name: string };
-    private readonly _channel: { id: string, name?: string, type: channelType };
-    private readonly _server: IServer;
-    private readonly _content: string;
-    private readonly _id: string;
+    public readonly sender: string;
+    public readonly origin: string;
+    public readonly author: { id: string, name: string };
+    public readonly channel: { id: string, name?: string, type: channelType };
+    public readonly server: IServer;
+    public readonly content: string;
+    public readonly id: string;
+
+    private discordMessage: Discord.Message;
 
     constructor(message: Discord.Message) {
-        this._message = message;
-        this._sender = message.author.username;
-        this._content = message.content;
-        this._id = message.id;
-        this._author = {
+        this.discordMessage = message;
+        this.sender = message.author.username;
+        this.content = message.content;
+        this.id = message.id;
+        this.author = {
             id: message.author.id,
             name: message.author.tag,
         };
-        this._channel = {
+        this.channel = {
             id: message.channel.id,
             name: undefined,
             type: message.channel.type,
         };
 
-        this._server = {
+        this.server = {
             id: undefined,
             name: undefined,
         };
 
         if (message.guild) {
-            this._server.id = message.guild.id;
-            this._server.name = message.guild.name;
+            this.server.id = message.guild.id;
+            this.server.name = message.guild.name;
         }
 
         if (message.channel.type !== 'dm') {
             const channel = message.channel as Discord.TextChannel;
-            this._channel.name = channel.name;
+            this.channel.name = channel.name;
         }
 
-        this._origin = 'Discord';
-    }
-
-    get id(): string {
-        return this._id;
-    }
-
-    get server(): IServer {
-        return this._server;
-    }
-
-    get channel(): { id: string, name?: string, type: channelType } {
-        return this._channel;
+        this.origin = 'Discord';
     }
 
     get guild(): Discord.Guild | undefined {
-        if (this._message.channel.type === 'text') {
-            const channel = this._message.channel as Discord.TextChannel;
+        if (this.discordMessage.channel.type === 'text') {
+            const channel = this.discordMessage.channel as Discord.TextChannel;
             return channel.guild;
         }
 
         return undefined;
     }
 
-    get author(): { id: string, name: string } {
-        return this._author;
-    }
-
-    get sender(): string {
-        return this._sender;
-    }
-
-    get content(): string {
-        return this._content;
-    }
-
-    get origin(): string {
-        return this._origin;
-    }
-
-    get isPrivate(): boolean {
-        return this._channel.type === 'dm';
-    }
-
     public async reply(message: string, options: Discord.MessageOptions = {}): Promise<Message> {
         if (message.length > maxMessageLength) {
             throw new Error('MaxMessageLengthReached');
         }
-        const sent: any = await this._message.channel.send(message, options);
+        const sent: any = await this.discordMessage.channel.send(message, options);
         return new Message(sent[0] || sent);
     }
 
@@ -147,12 +116,12 @@ export class Message {
         if (message.length > maxMessageLength) {
             throw new Error('MaxMessageLengthReached');
         }
-        await this._message.edit(message, options);
+        await this.discordMessage.edit(message, options);
     }
 
     public async remove(timeout?: number): Promise<boolean> {
         try {
-            await this._message.delete(timeout);
+            await this.discordMessage.delete(timeout);
             return true;
         } catch {
             return false;
