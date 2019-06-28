@@ -14,7 +14,7 @@ export class Client {
     }
 
     private static onWarning(warning: string) {
-        logger.warn('Discord:', warning);
+        process.emitWarning('Discord:', warning);
     }
 
     private client: Discord.Client;
@@ -135,10 +135,10 @@ export class Client {
     }
 
     private onDisconnect(event: any) {
-        logger.warn('Connection closed unexpectedly');
-        logger.warn('Code:', event.code);
-        logger.warn('Reason:', event.reason);
-        logger.warn('Attempting reconnect...');
+        process.emitWarning('Connection closed unexpectedly');
+        process.emitWarning('Code:', event.code);
+        process.emitWarning('Reason:', event.reason);
+        process.emitWarning('Attempting reconnect...');
         this.reconnect().then();
     }
 

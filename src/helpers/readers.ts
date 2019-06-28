@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import { logger } from 'winston-pnp-logger';
 
 import { version } from '../../package.json';
 
@@ -12,14 +11,14 @@ export function readFileContents(filePath: string, deleteIfError = false): strin
         try {
             return fs.readFileSync(filePath).toString();
         } catch {
-            logger.warn(`The file ${filePath} could not be read.`);
+            process.emitWarning(`The file ${filePath} could not be read.`);
             if (deleteIfError) {
-                logger.warn(`Deleting the file ${filePath}.`);
+                process.emitWarning(`Deleting the file ${filePath}.`);
                 try {
                     fs.unlinkSync(filePath);
-                    logger.warn(`File ${filePath} deleted.`);
+                    process.emitWarning(`File ${filePath} deleted.`);
                 } catch (e) {
-                    logger.warn(`The file ${filePath} could not be deleted, please delete manually. Reason: ${e}`);
+                    process.emitWarning(`The file ${filePath} could not be deleted, please delete manually. Reason: ${e}`);
                 }
             }
         }
