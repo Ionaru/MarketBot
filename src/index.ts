@@ -31,7 +31,7 @@ export let axiosInstance: AxiosInstance;
         logDir: 'logs',
     });
 
-    logger.info(`NodeJS version ${process.version}`);
+    debug(`NodeJS version ${process.version}`);
 
     configuration = new Configurator(configPath, 'marketbot');
 
@@ -78,7 +78,7 @@ export let axiosInstance: AxiosInstance;
             serverUrl: configuration.getProperty('elastic.url') as string,
             serviceName: 'marketbot',
         });
-        logger.info(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
+        debug(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
     }
 
     process.stdin.resume();

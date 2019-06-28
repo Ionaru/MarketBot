@@ -19,7 +19,7 @@ import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache
 import { LogEntry } from './helpers/command-logger';
 import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
-import { configuration, esiCache } from './index';
+import { configuration, debug, esiCache } from './index';
 
 export const creator = 'Ionaru#3801';
 export let version: string;
@@ -82,11 +82,11 @@ export const systemCommandRegex = createCommandRegex(systemCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
-    logger.info('Starting bot activation');
+    debug('Starting bot activation');
 
     version = readVersion();
 
-    logger.info(`Bot version: ${version}`);
+    debug(`Bot version: ${version}`);
 
     esiCache.readCache();
 
@@ -106,17 +106,17 @@ export async function activate() {
         type: 'sqlite',
     });
 
-    logger.info(`Database connection created`);
+    debug(`Database connection created`);
 
     const token = configuration.getProperty('discord.token');
     if (token && typeof token === 'string') {
         client = new Client(token);
 
-        logger.info(`Logging in...`);
+        debug(`Logging in...`);
         client.login();
         client.emitter.once('ready', () => {
             if (client) {
-                logger.info(`Logged in as ${client.name}`);
+                debug(`Logged in as ${client.name}`);
                 finishActivation();
             }
         });
@@ -146,7 +146,7 @@ function finishActivation() {
             });
 
         });
-        logger.info(`Activation complete, ready for messages!`);
+        debug(`Activation complete, ready for messages!`);
     }
 }
 
@@ -158,14 +158,14 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
 
     esiCache.dumpCache();
 
-    logger.info(quitMessage);
+    debug(quitMessage);
     if (client) {
         await client.disconnect();
         client = undefined;
-        logger.info('Client destroyed');
+        debug('Client destroyed');
     }
 
-    logger.info('Done!');
+    debug('Done!');
 
     if (exitProcess) {
         process.exit(0);

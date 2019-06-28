@@ -84,11 +84,11 @@ async function validateCache(): Promise<IValidateCacheReturn> {
     }
 
     if (serverStatus.server_version === serverVersion) {
-        logger.info(`EVE Online server version matches saved version, using cache`);
+        cacheDebug(`EVE Online server version matches saved version, using cache`);
         return {useCache: true, serverVersion: serverStatus.server_version};
     }
 
-    logger.info(`EVE Online server version does not match saved version (or there is no saved version), cache invalid`);
+    cacheDebug(`EVE Online server version does not match saved version (or there is no saved version), cache invalid`);
     return {useCache: false, serverVersion: serverStatus.server_version};
 }
 
@@ -101,7 +101,7 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
             let cachedNames: INamesData[] = [];
             try {
                 cachedNames = JSON.parse(cachedData);
-                logger.info(`Loaded ${cachedNames.length} ${type} from cache into memory`);
+                cacheDebug(`Loaded ${cachedNames.length} ${type} from cache into memory`);
                 return cachedNames;
             } catch {
                 logger.error(`Could not parse cached ${type} data!`);
@@ -109,14 +109,14 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
         }
     }
 
-    logger.info(`No valid cached ${type} available, updating from API`);
+    cacheDebug(`No valid cached ${type} available, updating from API`);
 
     const data = await fetchFunction();
     if (data) {
         const names = await fetchUniverseNames(data).catch(() => []);
         if (names.length === data.length) {
             fs.writeFileSync(savePath, JSON.stringify(names));
-            logger.info(`Wrote ${names.length} ${type} to cache at ${savePath} and loaded into memory`);
+            cacheDebug(`Wrote ${names.length} ${type} to cache at ${savePath} and loaded into memory`);
             return names;
         } else {
             logger.error(`Name data for ${type} was incomplete!`);
@@ -133,7 +133,7 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
 }
 
 export async function checkAndUpdateCitadelCache(): Promise<void> {
-    logger.info(`Fetching known citadels from stop.hammerti.me API`);
+    cacheDebug(`Fetching known citadels from stop.hammerti.me API`);
 
     citadels = await fetchCitadelData().catch((error) => {
         logger.error(error);
@@ -147,9 +147,9 @@ export async function checkAndUpdateCitadelCache(): Promise<void> {
         });
         if (Object.keys(newCitadels).length && newCitadels.toString() !== citadels.toString()) {
             citadels = newCitadels;
-            logger.info('Citadel data updated');
+            cacheDebug('Citadel data updated');
         }
     }, 6 * 60 * 60 * 1000); // 6 hours
 
-    logger.info(`${Object.keys(citadels).length} citadels loaded into memory`);
+    cacheDebug(`${Object.keys(citadels).length} citadels loaded into memory`);
 }
