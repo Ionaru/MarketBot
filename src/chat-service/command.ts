@@ -101,7 +101,7 @@ export abstract class Command {
     protected logData: {item?: string, location?: string} = {};
 
     // Members that all derivative classes must implement.
-    protected abstract initialReply: string;
+    protected abstract initialReply?: string;
     protected abstract commandName: string;
 
     private readonly transaction: any;
@@ -140,8 +140,10 @@ export abstract class Command {
     protected abstract async processCommand(): Promise<void>;
 
     protected async sendInitialReply() {
-        Command.debug(`Sending initial reply`);
-        this.replyPlaceHolder = await this.message.reply(this.initialReply);
+        if (this.initialReply) {
+            Command.debug(`Sending initial reply`);
+            this.replyPlaceHolder = await this.message.reply(this.initialReply);
+        }
     }
 
     protected async sendReply() {
@@ -153,6 +155,7 @@ export abstract class Command {
             Command.debug(`Editing initial reply`);
             return this.replyPlaceHolder.edit(reply, options);
         }
+
         Command.debug(`Sending reply`);
         return this.message.reply(reply, options);
     }
