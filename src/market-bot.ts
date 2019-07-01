@@ -7,10 +7,10 @@ import { Command } from './chat-service/command';
 import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
+import { InfoCommand } from './chat-service/info-command';
 import { PriceCommand } from './chat-service/price-command';
 import { buyOrdersCommand } from './commands/buy-orders';
 import { historyCommand } from './commands/history';
-import { infoCommand } from './commands/info';
 import { itemCommand } from './commands/item';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
@@ -39,9 +39,6 @@ export const sellOrdersCommands = [
 export const buyOrdersCommands = [
     'buy-orders', 'buy', 'bo', 'b',
 ];
-export const infoCommands = [
-    'info', 'i', 'about', 'help',
-];
 export const regionCommands = [
     'region', 'r',
 ];
@@ -68,7 +65,6 @@ export const itemCommandRegex = createCommandRegex(itemCommands, true);
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
-export const infoCommandRegex = createCommandRegex(infoCommands, true);
 export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
 export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
 export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
@@ -176,8 +172,8 @@ async function processMessage(message: Message, transaction: any): Promise<void>
         case sellOrdersCommandRegex.test(rootCommand):
             await sellOrdersCommand(message, transaction);
             break;
-        case infoCommandRegex.test(rootCommand):
-            await infoCommand(message, transaction);
+        case InfoCommand.test(rootCommand):
+            new InfoCommand(message).execute().then();
             break;
         case buyOrdersCommandRegex.test(rootCommand):
             await buyOrdersCommand(message, transaction);

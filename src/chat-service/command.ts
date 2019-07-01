@@ -12,7 +12,7 @@ import { Message } from './discord/message';
 
 export abstract class Command {
 
-    public static commandPrefix = '/';
+    public static readonly commandPrefix = '/';
 
     public static test(message: string) {
         Command.debug(`Testing ${message}`);
@@ -21,7 +21,7 @@ export abstract class Command {
 
     // TODO: Change back to protected when all commands are re-written.
     // tslint:disable-next-line:member-ordering
-    public static debug = debug.extend('command');
+    public static readonly debug = debug.extend('command');
 
     protected static parseMessage(messageContent: string) {
         const parsedMessage: IParsedMessage = {
@@ -93,16 +93,16 @@ export abstract class Command {
         return message.trim();
     }
 
-    protected message: Message;
-    protected parsedMessage: IParsedMessage;
-    protected reply: {text?: string, options?: discord.MessageOptions} = {};
-    protected embed: discord.RichEmbed = new discord.RichEmbed();
+    protected readonly message: Message;
+    protected readonly parsedMessage: IParsedMessage;
+    protected readonly reply: {text?: string, options?: discord.MessageOptions} = {};
+    protected readonly embed: discord.RichEmbed = new discord.RichEmbed();
 
-    protected logData: {item?: string, location?: string} = {};
+    protected readonly logData: {item?: string, location?: string} = {};
 
     // Members that all derivative classes must implement.
-    protected abstract initialReply?: string;
-    protected abstract commandName: string;
+    protected abstract readonly initialReply?: string;
+    protected abstract readonly commandName: string;
 
     private readonly transaction: any;
     private replyPlaceHolder?: Message;

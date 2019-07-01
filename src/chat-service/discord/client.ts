@@ -3,7 +3,8 @@ import { EventEmitter } from 'events';
 import { logger } from 'winston-pnp-logger';
 import Timeout = NodeJS.Timeout;
 
-import { commandPrefix, infoCommands } from '../../market-bot';
+import { Command } from '../command';
+import { InfoCommand } from '../info-command';
 import { Message } from './message';
 import { maxMessageLength } from './misc';
 
@@ -114,7 +115,7 @@ export class Client {
     }
 
     private setDiscordPresence() {
-        this.client.user.setPresence({game: {name: `with ISK (try ${commandPrefix}${infoCommands[0]})`}}).then();
+        this.client.user.setPresence({game: {name: `with ISK (try ${Command.commandPrefix}${InfoCommand.commands[0]})`}}).then();
 
         // Re-set the presence every hour because of a known issue on Discord's side.
         // https://github.com/discordapp/discord-api-docs/issues/834
