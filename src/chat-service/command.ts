@@ -128,12 +128,11 @@ export abstract class Command {
 
         this.reply.options = {embed: this.embed};
 
-        if (this.isCommandValid()) {
+        if (await this.isCommandValid()) {
             await this.processCommand();
         }
 
         await this.sendReply();
-        // tslint:disable-next-line:no-commented-code
         this.logCommand();
     }
 

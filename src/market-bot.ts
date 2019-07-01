@@ -4,11 +4,11 @@ import { createConnection } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
 
 import { Command } from './chat-service/command';
+import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { PriceCommand } from './chat-service/price-command';
 import { buyOrdersCommand } from './commands/buy-orders';
-import { dataCommand } from './commands/data';
 import { historyCommand } from './commands/history';
 import { infoCommand } from './commands/info';
 import { itemCommand } from './commands/item';
@@ -32,9 +32,6 @@ export const commandPrefix = '/';
 
 export const historyCommands = [
     'history', 'h',
-];
-export const dataCommands = [
-    'data', 'd', 'stats',
 ];
 export const sellOrdersCommands = [
     'sell-orders', 'sell', 'so', 's',
@@ -69,7 +66,6 @@ export const clearTrackingCommands = [
 
 export const itemCommandRegex = createCommandRegex(itemCommands, true);
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
-export const dataCommandRegex = createCommandRegex(dataCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
 export const infoCommandRegex = createCommandRegex(infoCommands, true);
@@ -186,8 +182,8 @@ async function processMessage(message: Message, transaction: any): Promise<void>
         case buyOrdersCommandRegex.test(rootCommand):
             await buyOrdersCommand(message, transaction);
             break;
-        case dataCommandRegex.test(rootCommand):
-            await dataCommand(message, transaction);
+        case DataCommand.test(rootCommand):
+            new DataCommand(message).execute().then();
             break;
         case sellTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'sell', transaction);
