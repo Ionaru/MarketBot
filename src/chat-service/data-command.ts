@@ -11,7 +11,7 @@ import { Command } from './command';
 
 export class DataCommand extends Command {
 
-    public static debug = Command.debug.extend('data');
+    public static readonly debug = Command.debug.extend('data');
 
     public static test(command: string) {
         DataCommand.debug(`Testing ${command}`);
@@ -24,8 +24,8 @@ export class DataCommand extends Command {
 
     private static readonly commandRegex = createCommandRegex(DataCommand.commands, true);
 
-    protected initialReply = `Fetching data, one moment, ${this.message.sender}...`;
-    protected commandName = DataCommand.commands[0];
+    protected readonly initialReply = `Fetching data, one moment, ${this.message.sender}...`;
+    protected readonly commandName = DataCommand.commands[0];
 
     protected async isCommandValid() {
         return true;
