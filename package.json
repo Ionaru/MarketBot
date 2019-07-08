@@ -17,7 +17,7 @@
         "pretest": "npm run lint",
         "test": "jest src",
         "posttest": "codecov -f coverage/*.json",
-        "start": "npm run build && node dist/index.js",
+        "start": "npm run build && node dist/src/index.js",
         "start:ts": "TS_NODE_FILES=true node --require ts-node/register src/index.ts"
     },
     "jest": {
