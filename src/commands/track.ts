@@ -1,4 +1,5 @@
 import Timer = NodeJS.Timer;
+import { IMarketOrdersDataUnit, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { logger } from 'winston-pnp-logger';
@@ -13,7 +14,6 @@ import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '..
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
-import { IMarketData, INamesData } from '../typings';
 
 const debug = Command.debug.extend('track');
 
@@ -59,7 +59,7 @@ let trackingCycle: Timer | undefined;
 
 interface ITrackCommandLogicReturn {
     reply: string;
-    itemData?: INamesData;
+    itemData?: IUniverseNamesDataUnit;
     regionName?: string;
 }
 
@@ -226,12 +226,12 @@ export async function performTrackingCycle() {
         return;
     }
 
-    const entriesDone: Array<{ entry: TrackingEntry, order?: IMarketData }> = [];
+    const entriesDone: Array<{ entry: TrackingEntry, order?: IMarketOrdersDataUnit }> = [];
 
     for (const entry of trackingEntries) {
 
         let currentPrice: number = 0;
-        let currentOrder: IMarketData | undefined;
+        let currentOrder: IMarketOrdersDataUnit | undefined;
 
         // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
         const duplicateEntry = entriesDone.filter((entryDone) =>
@@ -276,7 +276,7 @@ export async function performTrackingCycle() {
     }
 }
 
-async function sendChangeMessage(channelId: string, currentOrder: IMarketData, entry: TrackingEntry, change: number) {
+async function sendChangeMessage(channelId: string, currentOrder: IMarketOrdersDataUnit, entry: TrackingEntry, change: number) {
     const oldPrice = formatNumber(entry.tracking_price) + ' ISK';
     const newPrice = formatNumber(currentOrder.price) + ' ISK';
     const isWord = pluralize('is', 'are', currentOrder.volume_remain);

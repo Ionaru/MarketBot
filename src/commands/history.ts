@@ -1,3 +1,4 @@
+import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import * as d3 from 'd3';
 import * as fs from 'fs';
@@ -11,11 +12,11 @@ import { createLineGraph, exportGraphImage } from '../helpers/graph';
 import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { INamesData, IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings';
 
 interface IHistoryCommandLogicReturn {
     reply: string;
-    itemData?: INamesData;
+    itemData?: IUniverseNamesDataUnit;
     regionName?: string;
     fileName?: string;
 }

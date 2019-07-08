@@ -1,24 +1,3 @@
-export interface INamesData {
-    category: string;
-    id: number;
-    name: string;
-    originalName?: string;
-}
-
-export interface IMarketData {
-    order_id: number;
-    type_id: number;
-    location_id: number;
-    volume_total: number;
-    volume_remain: number;
-    min_volume: number;
-    price: number;
-    is_buy_order: boolean;
-    duration: number;
-    issued: string;
-    range: string;
-}
-
 /** Returned from the ESI with historic market data for a single item in a single region */
 export interface IHistoryData {
     /** Date of the historic data */
@@ -38,57 +17,6 @@ export interface IHistoryData {
 
     /** ?? */
     lowest: number;
-}
-
-export interface ITypeData {
-    type_id: number;
-    name: string;
-    description: string;
-    published: boolean;
-    group_id: number;
-    market_group_id?: number;
-    radius?: number;
-    volume?: number;
-    icon_id?: number;
-    capacity?: number;
-    portion_size?: number;
-    mass?: number;
-    graphic_id?: number;
-    dogma_attributes: IDogmaAttributes[];
-    dogma_effects: IDogmaEffects[];
-}
-
-interface IDogmaAttributes {
-    attribute_id: number;
-    value: number;
-}
-
-interface IDogmaEffects {
-    effect_id: number;
-    is_default: boolean;
-}
-
-export interface IGroup {
-    group_id: number;
-    name: string;
-    published: boolean;
-    category_id: number;
-    types: number[];
-}
-
-export interface IMarketGroup {
-    market_group_id: number;
-    name: string;
-    description: boolean;
-    types: number[];
-    parent_group_id?: number;
-}
-
-export interface ICategory {
-    category_id: number;
-    name: string;
-    published: boolean;
-    types: number[];
 }
 
 export interface IEVEMarketerData {
@@ -145,10 +73,4 @@ export interface ICitadelData {
         firstSeen: string;
         regionName: string;
     };
-}
-
-export interface IServerStatus {
-    start_time: Date;
-    players: number;
-    server_version: string;
 }

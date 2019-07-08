@@ -1,3 +1,4 @@
+import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import * as discord from 'discord.js';
 import { startTransaction } from 'elastic-apm-node';
 
@@ -7,7 +8,7 @@ import { guessRegionInput, guessSystemInput } from '../helpers/guessers';
 import { regionFormat } from '../helpers/message-formatter';
 import { configuration, debug } from '../index';
 import { limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
-import { INamesData, IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings';
 import { Message } from './discord/message';
 
 export abstract class Command {
@@ -164,7 +165,7 @@ export abstract class Command {
         logCommand(this.commandName, this.message, this.logData.item, this.logData.location, this.transaction);
     }
 
-    protected async getLocation(allowSystem = false): Promise<INamesData> {
+    protected async getLocation(allowSystem = false): Promise<IUniverseNamesDataUnit> {
         const defaultLocation = regions.filter((region) => region.name === 'The Forge')[0];
         let location = defaultLocation;
 

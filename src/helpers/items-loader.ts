@@ -1,8 +1,7 @@
+import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import * as Fuse from 'fuse.js';
 
-import { INamesData } from '../typings';
-
-export function createFuse(possibilities: INamesData[]): Fuse<INamesData> {
+export function createFuse(possibilities: IUniverseNamesData): Fuse<IUniverseNamesDataUnit> {
     return new Fuse(possibilities, {
         distance: 100,
         keys: ['name'],

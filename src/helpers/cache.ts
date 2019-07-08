@@ -1,3 +1,4 @@
+import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import * as fs from 'fs';
 import * as Fuse from 'fuse.js';
@@ -6,7 +7,7 @@ import { logger } from 'winston-pnp-logger';
 
 import { debug } from '../index';
 import { dataFolder } from '../market-bot';
-import { ICitadelData, INamesData } from '../typings';
+import { ICitadelData } from '../typings';
 import {
     fetchCitadelData,
     fetchServerStatus,
@@ -18,12 +19,12 @@ import {
 import { createFuse } from './items-loader';
 import { readFileContents } from './readers';
 
-export let regions: INamesData[];
-export let systems: INamesData[];
-export let items: INamesData[];
+export let regions: IUniverseNamesData;
+export let systems: IUniverseNamesData;
+export let items: IUniverseNamesData;
 
-export let itemsFuse: Fuse<INamesData>;
-export let regionsFuse: Fuse<INamesData>;
+export let itemsFuse: Fuse<IUniverseNamesDataUnit>;
+export let regionsFuse: Fuse<IUniverseNamesDataUnit>;
 
 export let citadels: ICitadelData;
 
@@ -92,13 +93,13 @@ async function validateCache(): Promise<IValidateCacheReturn> {
     return {useCache: false, serverVersion: serverStatus.server_version};
 }
 
-async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () => Promise<number[] | undefined>): Promise<INamesData[]> {
+async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () => Promise<number[]>): Promise<IUniverseNamesData> {
     const savePath = `${dataFolder}/${type}.json`;
 
     if (useCache) {
         const cachedData = readFileContents(savePath, true);
         if (cachedData) {
-            let cachedNames: INamesData[] = [];
+            let cachedNames: IUniverseNamesData = [];
             try {
                 cachedNames = JSON.parse(cachedData);
                 cacheDebug(`Loaded ${cachedNames.length} ${type} from cache into memory`);

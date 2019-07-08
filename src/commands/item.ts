@@ -1,3 +1,4 @@
+import { IMarketGroupData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import * as Discord from 'discord.js';
 
@@ -7,11 +8,11 @@ import { logCommand } from '../helpers/command-logger';
 import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { makeCode, newLine } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { IMarketGroup, INamesData, IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings';
 
 interface IItemCommandLogicReturn {
     reply: Discord.RichEmbed;
-    itemData?: INamesData;
+    itemData?: IUniverseNamesDataUnit;
 }
 
 export async function itemCommand(message: Message, transaction: any) {
@@ -89,7 +90,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
         const marketGroups = [];
         let marketGroupId: number | undefined = item.market_group_id;
         while (marketGroupId !== undefined) {
-            const marketGroup: IMarketGroup | undefined = await fetchMarketGroup(marketGroupId);
+            const marketGroup: IMarketGroupData = await fetchMarketGroup(marketGroupId);
             if (marketGroup) {
                 marketGroups.unshift(marketGroup.name);
                 marketGroupId = marketGroup.parent_group_id ? marketGroup.parent_group_id : undefined;

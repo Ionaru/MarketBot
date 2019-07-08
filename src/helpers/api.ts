@@ -1,20 +1,20 @@
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
+import {
+    EVE,
+    IMarketGroupData,
+    IMarketOrdersData,
+    IMarketOrdersDataUnit,
+    IStatusData,
+    IUniverseCategoriesData,
+    IUniverseGroupsData,
+    IUniverseNamesData,
+    IUniverseTypesData,
+} from '@ionaru/eve-utils';
 import * as Sentry from '@sentry/node';
 import { logger } from 'winston-pnp-logger';
 
 import { axiosInstance, debug, esiCache, esiService } from '../index';
-import {
-    ICategory,
-    ICitadelData,
-    IEVEMarketerData,
-    IGroup,
-    IHistoryData,
-    IMarketData,
-    IMarketGroup,
-    INamesData,
-    IServerStatus,
-    ITypeData,
-} from '../typings';
+import { ICitadelData, IEVEMarketerData, IHistoryData } from '../typings';
 
 const ccpHost = 'https://esi.evetech.net/';
 
@@ -29,24 +29,21 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
     return fetchData<IEVEMarketerData[]>(url);
 }
 
-export async function fetchMarketData(itemId: number, regionId: number): Promise<IMarketData[]> {
-    const path = `v1/markets/${regionId}/orders/?type_id=${itemId}`;
-    const url = ccpHost + path;
-
-    const marketResponse = await fetchData<IMarketData[]>(url);
+export async function fetchMarketData(itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> {
+    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersURL(regionId, itemId, 1, orderType));
     return marketResponse || [];
 }
 
-export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketData | undefined> {
+export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketOrdersDataUnit | undefined> {
     const marketData = await fetchMarketData(itemId, regionId);
     if (marketData && marketData.length) {
         if (type === 'sell') {
             const sellOrders = marketData.filter((entry) => !entry.is_buy_order);
-            const sortedSellOrders: IMarketData[] = sortArrayByObjectProperty(sellOrders, 'price');
+            const sortedSellOrders: IMarketOrdersData = sortArrayByObjectProperty(sellOrders, 'price');
             return sortedSellOrders[0];
         } else if (type === 'buy') {
             const buyOrders = marketData.filter((entry) => entry.is_buy_order);
-            const sortedBuyOrders: IMarketData[] = sortArrayByObjectProperty(buyOrders, 'price', true);
+            const sortedBuyOrders: IMarketOrdersData = sortArrayByObjectProperty(buyOrders, 'price', true);
             return sortedBuyOrders[0];
         }
     }
@@ -60,9 +57,9 @@ export async function fetchCitadelData(): Promise<ICitadelData> {
     return citadelData || {};
 }
 
-export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
+export async function fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
 
-    const names: INamesData[] = [];
+    const names: IUniverseNamesData = [];
 
     const idsCopy = ids.slice();
 
@@ -77,13 +74,12 @@ export async function fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
     }
 }
 
-async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
-    const path = 'v2/universe/names/';
-    const url = ccpHost + path;
+async function _fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
+    const url = EVE.getUniverseNamesUrl();
     const body = JSON.stringify(ids);
 
     apiDebug(url, body);
-    const namesResponse = await axiosInstance.post<INamesData[]>(url, body).catch(
+    const namesResponse = await axiosInstance.post<IUniverseNamesData>(url, body).catch(
         (errorResponse) => {
             logger.error('Request failed:', url, errorResponse);
             return undefined;
@@ -92,7 +88,7 @@ async function _fetchUniverseNames(ids: number[]): Promise<INamesData[]> {
     return namesResponse ? namesResponse.data : [];
 }
 
-export async function fetchUniverseTypes(): Promise<number[] | undefined> {
+export async function fetchUniverseTypes(): Promise<number[]> {
 
     const types = [];
     let page = 1;
@@ -115,16 +111,16 @@ export async function fetchUniverseTypes(): Promise<number[] | undefined> {
     }
 }
 
-export async function fetchUniverseType(id: number): Promise<ITypeData | undefined> {
-    return fetchData<ITypeData>(ccpHost + `v3/universe/types/${id}`);
+export async function fetchUniverseType(id: number): Promise<IUniverseTypesData> {
+    return fetchData<IUniverseTypesData>(EVE.getUniverseTypesUrl(id));
 }
 
-export async function fetchUniverseSystems(): Promise<number[] | undefined> {
+export async function fetchUniverseSystems(): Promise<number[]> {
     return fetchData<number[]>(ccpHost + `v1/universe/systems`);
 }
 
-export async function fetchUniverseRegions(): Promise<number[] | undefined> {
-    return fetchData<number[]>(ccpHost + `v1/universe/regions`);
+export async function fetchUniverseRegions(): Promise<number[]> {
+    return fetchData<number[]>(EVE.getUniverseRegions());
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number) {
@@ -132,19 +128,19 @@ export async function fetchHistoryData(itemId: number, regionId: number) {
 }
 
 export async function fetchGroup(groupId: number) {
-    return fetchData<IGroup>(ccpHost + `v1/universe/groups/${groupId}`);
+    return fetchData<IUniverseGroupsData>(EVE.getUniverseGroupsUrl(groupId));
 }
 
 export async function fetchMarketGroup(groupId: number) {
-    return fetchData<IMarketGroup>(ccpHost + `v1/markets/groups/${groupId}`);
+    return fetchData<IMarketGroupData>(EVE.getMarketGroupUrl(groupId));
 }
 
 export async function fetchCategory(categoryId: number) {
-    return fetchData<ICategory>(ccpHost + `v1/universe/categories/${categoryId}`);
+    return fetchData<IUniverseCategoriesData>(EVE.getUniverseCategoriesUrl(categoryId));
 }
 
 export async function fetchServerStatus() {
-    return fetchData<IServerStatus>(ccpHost + 'v1/status/');
+    return fetchData<IStatusData>(EVE.getStatusUrl());
 }
 
 async function fetchData<T>(url: string): Promise<T> {

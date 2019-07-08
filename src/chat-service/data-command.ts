@@ -1,11 +1,11 @@
 import * as countdown from 'countdown';
-import escapeStringRegexp = require('escape-string-regexp');
 
 import { TrackingEntry } from '../commands/track';
 import { LogEntry } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { itemFormat, makeBold, makeCode, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
+import { debug } from '../index';
 import { client, commandPrefix } from '../market-bot';
 import { Command } from './command';
 
@@ -78,7 +78,8 @@ export class DataCommand extends Command {
             const timesWord = pluralize('time', 'times', searchTimes);
             reply += newLine();
             const itemAmount = row.item_output;
-            reply += `${iter}. ${itemFormat(escapeStringRegexp(itemAmount))}, searched ${makeCode(searchTimes)} ${timesWord}.`;
+            debug(itemAmount);
+            reply += `${iter}. ${itemFormat(itemAmount)}, searched ${makeCode(searchTimes)} ${timesWord}.`;
             escape(reply);
         }
 

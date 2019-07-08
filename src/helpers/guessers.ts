@@ -1,7 +1,7 @@
+import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import * as escapeStringRegexp from 'escape-string-regexp';
 import * as Fuse from 'fuse.js';
 
-import { INamesData } from '../typings';
 import { fetchUniverseType } from './api';
 import { sortArrayByObjectPropertyLength } from './arrays';
 import { items, itemsFuse, regions, regionsFuse, systems } from './cache';
@@ -28,7 +28,7 @@ export const shortcuts: IShortcuts = {
 };
 
 export interface IGuessReturn {
-    itemData: INamesData;
+    itemData: IUniverseNamesDataUnit;
     guess: boolean;
     id: boolean;
 }
@@ -49,24 +49,24 @@ export async function guessItemInput(input: string) {
     return guessUserInput(input, items, itemsFuse);
 }
 
-export function matchWithRegex(possibility: INamesData, regex: RegExp) {
+export function matchWithRegex(possibility: IUniverseNamesDataUnit, regex: RegExp) {
     return possibility.name ? possibility.name.match(regex) || undefined : undefined;
 }
 
-// tslint:disable-next-line:cognitive-complexity
-export async function guessUserInput(itemString: string, possibilitiesList: INamesData[], fuse?: Fuse<INamesData>, raw = true):
+// tslint:disable-next-line:cognitive-complexity max-line-length
+export async function guessUserInput(itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit>, raw = true):
     Promise<IGuessReturn> {
 
     itemString = escapeStringRegexp(itemString);
 
     let regex: RegExp;
     let guess = false;
-    let itemData: INamesData = {
+    let itemData: IUniverseNamesDataUnit = {
         category: '',
         id: 0,
         name: '',
     };
-    let possibilities: INamesData[] = [];
+    let possibilities: IUniverseNamesData = [];
 
     const itemWords = itemString.split(' ');
 
@@ -120,7 +120,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
 
     if (!possibilities.length && fuse) {
         // Use Fuse to search (slow but fuzzy).
-        const fuseGuess = fuse.search(itemString)[0] as INamesData | undefined;
+        const fuseGuess = fuse.search(itemString)[0] as IUniverseNamesDataUnit | undefined;
 
         if (fuseGuess) {
             possibilities.push(fuseGuess);
@@ -151,15 +151,10 @@ export async function guessUserInput(itemString: string, possibilitiesList: INam
         itemData = (await guessUserInput(itemString, list, fuse, false)).itemData;
     }
 
-    if (itemData.originalName) {
-        itemData.name = itemData.originalName;
-        delete itemData.originalName;
-    }
-
     return {itemData, guess, id: false};
 }
 
-async function filterUnpublishedTypes(possibilities: INamesData[]): Promise<INamesData[]> {
+async function filterUnpublishedTypes(possibilities: IUniverseNamesData): Promise<IUniverseNamesData> {
 
     for (const possibility of possibilities) {
 

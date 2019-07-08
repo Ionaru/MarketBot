@@ -1,4 +1,5 @@
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
+import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 
 import { Message } from '../chat-service/discord/message';
@@ -10,11 +11,11 @@ import { pluralize } from '../helpers/formatters';
 import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { IMarketData, INamesData, IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings';
 
 interface ISellOrdersCommandLogicReturn {
     reply: string;
-    itemData?: INamesData;
+    itemData?: IUniverseNamesDataUnit;
     regionName?: string;
 }
 
@@ -73,14 +74,12 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
 
     const itemId = itemData.id;
 
-    const marketData = await fetchMarketData(itemId, selectedRegion.id);
+    let sellOrders = await fetchMarketData(itemId, selectedRegion.id, 'sell');
 
-    if (!marketData) {
+    if (!sellOrders) {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
         return {reply, itemData, regionName};
     }
-
-    let sellOrders: IMarketData[] = marketData.filter((order) => !order.is_buy_order);
 
     if (!(sellOrders && sellOrders.length)) {
         reply += `I couldn't find any sell orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
@@ -96,7 +95,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
 
     locationIds = [...new Set(locationIds)];
 
-    let locationNames: INamesData[] = [];
+    let locationNames: IUniverseNamesData = [];
     if (locationIds.length) {
         locationNames = await fetchUniverseNames(locationIds);
     }

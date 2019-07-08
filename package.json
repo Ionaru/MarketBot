@@ -35,6 +35,7 @@
         "@ionaru/array-utils": "^1.1.0",
         "@ionaru/configurator": "^2.0.0",
         "@ionaru/esi-service": "^3.1.1",
+        "@ionaru/eve-utils": "^3.2.0",
         "@ionaru/format-number": "^2.0.0",
         "@sentry/node": "^5.4.3",
         "agentkeepalive": "^4.0.2",
