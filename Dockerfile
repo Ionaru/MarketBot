@@ -14,40 +14,29 @@ RUN apt-get update && apt-get install -y wget git --no-install-recommends \
     && apt-get purge --auto-remove -y curl \
     && rm -rf /src/*.deb
 
-RUN mkdir /app/
-RUN mkdir /app/logs
-RUN mkdir /app/data
-RUN mkdir /app/config
+RUN mkdir -p /app/config /app/data /app/logs
 WORKDIR /app
 
 # Copy needed build files
-COPY ./package.json .
-COPY ./package-lock.json .
-COPY ./tsconfig.json .
-
-# Copy source files
-COPY ./src ./src
+COPY ./config ./config
+COPY ./package.json ./package-lock.json ./tsconfig.json ./
 
 # Install dependencies
 RUN npm install
 
-# Build the project
-RUN npm run build
+# Copy source files
+COPY ./src ./src
 
-# Add volumes
-VOLUME /app/logs
-VOLUME /app/data
-VOLUME /app/config
-
-# Install production packages
+# Build the project for production use
 ENV NODE_ENV production
+RUN npm run build
 RUN npm ci
 RUN npm cache clean --force
+
+# Add volumes
+VOLUME /app/config /app/data /app/logs
 
 
 ## RUN
 
-EXPOSE  80
-EXPOSE  443
-ENV LEVEL debug
-CMD ["node", "./dist/src/index.js"]
+CMD ["node", "dist/src/index.js"]

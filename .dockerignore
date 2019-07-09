@@ -18,7 +18,6 @@ data/*.png
 data/*.json
 data/*.txt
 logs/
-.env
 
 # System files
 *.db

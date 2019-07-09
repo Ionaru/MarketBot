@@ -58,8 +58,15 @@ It is possible to self-host this bot, it requires NodeJS 8 or greater.
 5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot`
 6. Paste the link in your web browser and follow the steps on the Discord website.
 
-#### Step two: Installing the bot
-1. Install [NodeJS](https://nodejs.org/en/download/current/).
+#### Step two (Docker): Installing the bot
+1. Install [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/install/).
+2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
+4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
+5. Create a `.env` file containing the variables `MARKETBOT_CONFIG_VOLUME`, `MARKETBOT_DATA_VOLUME` and `MARKETBOT_LOG_VOLUME` pointing to the relevant directories (or leave them empty).
+6. Run `docker-compose up`. 
+
+#### Step two (Node.js): Installing the bot
+1. Install [Node.js](https://nodejs.org/en/download/current/).
 2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
 3. Install dependencies with `npm install`.
 4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
