@@ -2,6 +2,7 @@ import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import {
     EVE,
     IMarketGroupData,
+    IMarketHistoryData,
     IMarketOrdersData,
     IMarketOrdersDataUnit,
     IStatusData,
@@ -14,7 +15,7 @@ import * as Sentry from '@sentry/node';
 import { logger } from 'winston-pnp-logger';
 
 import { axiosInstance, debug, esiCache, esiService } from '../index';
-import { ICitadelData, IEVEMarketerData, IHistoryData } from '../typings';
+import { ICitadelData, IEVEMarketerData } from '../typings';
 
 const apiDebug = debug.extend('api');
 
@@ -122,7 +123,7 @@ export async function fetchUniverseRegions(): Promise<number[]> {
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number) {
-    return fetchData<IHistoryData[]>(EVE.getMarketHistoryUrl(regionId, itemId));
+    return fetchData<IMarketHistoryData>(EVE.getMarketHistoryUrl(regionId, itemId));
 }
 
 export async function fetchGroup(groupId: number) {

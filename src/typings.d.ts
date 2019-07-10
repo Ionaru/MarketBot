@@ -1,24 +1,3 @@
-/** Returned from the ESI with historic market data for a single item in a single region */
-export interface IHistoryData {
-    /** Date of the historic data */
-    date: string;
-
-    /** Amount of completed transactions */
-    order_count: number;
-
-    /** Amount of items traded hands */
-    volume: number;
-
-    /** ?? */
-    highest: number;
-
-    /** Average price of the item during the day */
-    average: number;
-
-    /** ?? */
-    lowest: number;
-}
-
 export interface IEVEMarketerData {
     'buy': IPriceData;
     'sell': IPriceData;
