@@ -5,18 +5,16 @@ import {
     IMarketOrdersData,
     IMarketOrdersDataUnit,
     IStatusData,
-    IUniverseCategoriesData,
-    IUniverseGroupsData,
+    IUniverseCategoryData,
+    IUniverseGroupData,
     IUniverseNamesData,
-    IUniverseTypesData,
+    IUniverseTypeData,
 } from '@ionaru/eve-utils';
 import * as Sentry from '@sentry/node';
 import { logger } from 'winston-pnp-logger';
 
 import { axiosInstance, debug, esiCache, esiService } from '../index';
 import { ICitadelData, IEVEMarketerData, IHistoryData } from '../typings';
-
-const ccpHost = 'https://esi.evetech.net/';
 
 const apiDebug = debug.extend('api');
 
@@ -30,7 +28,7 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
 }
 
 export async function fetchMarketData(itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> {
-    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersURL(regionId, itemId, 1, orderType));
+    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersUrl(regionId, itemId, 1, orderType));
     return marketResponse || [];
 }
 
@@ -94,7 +92,7 @@ export async function fetchUniverseTypes(): Promise<number[]> {
     let page = 1;
     let errors = 0;
     while (true) {
-        const typeData = await fetchData<number[]>(ccpHost + `v1/universe/types?page=${page}`);
+        const typeData = await fetchData<number[]>(EVE.getUniverseTypesUrl(page));
         if (typeData) {
             types.push(...typeData);
             if (typeData.length < 1000) {
@@ -111,24 +109,24 @@ export async function fetchUniverseTypes(): Promise<number[]> {
     }
 }
 
-export async function fetchUniverseType(id: number): Promise<IUniverseTypesData> {
-    return fetchData<IUniverseTypesData>(EVE.getUniverseTypesUrl(id));
+export async function fetchUniverseType(id: number): Promise<IUniverseTypeData> {
+    return fetchData<IUniverseTypeData>(EVE.getUniverseTypesUrl(id));
 }
 
 export async function fetchUniverseSystems(): Promise<number[]> {
-    return fetchData<number[]>(ccpHost + `v1/universe/systems`);
+    return fetchData<number[]>(EVE.getUniverseSystemsUrl());
 }
 
 export async function fetchUniverseRegions(): Promise<number[]> {
-    return fetchData<number[]>(EVE.getUniverseRegions());
+    return fetchData<number[]>(EVE.getUniverseRegionsUrl());
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number) {
-    return fetchData<IHistoryData[]>(ccpHost + `v1/markets/${regionId}/history/?type_id=${itemId}`);
+    return fetchData<IHistoryData[]>(EVE.getMarketHistoryUrl(regionId, itemId));
 }
 
 export async function fetchGroup(groupId: number) {
-    return fetchData<IUniverseGroupsData>(EVE.getUniverseGroupsUrl(groupId));
+    return fetchData<IUniverseGroupData>(EVE.getUniverseGroupUrl(groupId));
 }
 
 export async function fetchMarketGroup(groupId: number) {
@@ -136,7 +134,7 @@ export async function fetchMarketGroup(groupId: number) {
 }
 
 export async function fetchCategory(categoryId: number) {
-    return fetchData<IUniverseCategoriesData>(EVE.getUniverseCategoriesUrl(categoryId));
+    return fetchData<IUniverseCategoryData>(EVE.getUniverseCategoryUrl(categoryId));
 }
 
 export async function fetchServerStatus() {
