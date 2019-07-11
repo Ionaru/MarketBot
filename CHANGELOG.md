@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - A new generic command class.
-- Ported price command to new command class. 
+- Ported price command to new command class.
+- Ported info command to new command class.
+- Ported data command to new command class.
 
 ### Changed
 - Improved item guessing with unpublished items in the results.
