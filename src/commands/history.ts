@@ -53,7 +53,7 @@ async function historyCommandLogic(messageData: IParsedMessage): Promise<IHistor
         return {reply, itemData: undefined, regionName};
     }
 
-    const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+    const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
     let selectedRegion = defaultRegion;
 
     if (messageData.region) {

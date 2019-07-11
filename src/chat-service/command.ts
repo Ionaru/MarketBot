@@ -166,7 +166,7 @@ export abstract class Command {
     }
 
     protected async getLocation(allowSystem = false): Promise<IUniverseNamesDataUnit> {
-        const defaultLocation = regions.filter((region) => region.name === 'The Forge')[0];
+        const defaultLocation = regions.find((region) => region.name === 'The Forge')!;
         let location = defaultLocation;
 
         if (this.parsedMessage.region) {

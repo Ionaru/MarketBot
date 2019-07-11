@@ -81,7 +81,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
 
     // Check if word is defined as a shortcut.
     regex = new RegExp(`^${itemWords[0]}`, 'i');
-    const shortcut = Object.keys(shortcuts).filter((shortcutText) => shortcutText.match(regex))[0];
+    const shortcut = Object.keys(shortcuts).find((shortcutText) => shortcutText.match(regex));
 
     if (shortcut) {
         itemWords[0] = shortcuts[shortcut];
@@ -97,9 +97,11 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
         }
     }));
 
-    // Check in start of the words.
-    regex = new RegExp(`^${itemString}`, 'i');
-    possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | undefined => matchWithRegex(possibility, regex)));
+    if (!possibilities.length) {
+        // Check in start of the words.
+        regex = new RegExp(`^${itemString}`, 'i');
+        possibilities.push(...possibilitiesList.filter((possibility): RegExpMatchArray | undefined => matchWithRegex(possibility, regex)));
+    }
 
     if (!possibilities.length) {
         // Check at end of the words.
@@ -111,7 +113,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
         // Check in middle of words.
         possibilities.push(...possibilitiesList.filter((possibility): boolean | void => {
             if (possibility.name) {
-                return possibility.name.toUpperCase().indexOf(itemString.toUpperCase()) !== -1;
+                return possibility.name.toUpperCase().includes(itemString.toUpperCase());
             }
         }));
     }

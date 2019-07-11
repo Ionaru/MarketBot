@@ -70,7 +70,7 @@ export class Client {
             throw new Error('MaxMessageLengthReached');
         }
         try {
-            const channel: Discord.Channel = this.client.channels.array().filter((clientChannel) => clientChannel.id === id)[0];
+            const channel = this.client.channels.array().find((clientChannel) => clientChannel.id === id);
             if (channel) {
                 if (channel.type === 'dm' || channel.type === 'text') {
                     const textChannel = channel as Discord.TextChannel | Discord.DMChannel;
@@ -78,7 +78,7 @@ export class Client {
                 }
             } else {
                 // Try to create a DM channel with the user, this might not always succeed depending on their privacy settings.
-                const user: Discord.User = this.client.users.array().filter((discordUser) => discordUser.id === userId)[0];
+                const user = this.client.users.array().find((discordUser) => discordUser.id === userId);
                 if (user) {
                     const dmChannel: Discord.DMChannel = await user.createDM();
                     await dmChannel.send(message).catch((error) => {throw new Error(error); });

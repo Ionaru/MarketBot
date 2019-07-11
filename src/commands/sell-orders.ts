@@ -34,7 +34,7 @@ export async function sellOrdersCommand(message: Message, transaction: any) {
 }
 
 async function getSelectedRegion(input: string, reply: string) {
-    const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+    const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
     let selectedRegion = defaultRegion;
 
     if (input) {
@@ -107,7 +107,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     for (const order of sellOrders) {
         const orderPrice = formatNumber(order.price);
 
-        const locationNameData = locationNames.filter((locationName) => locationName.id === order.location_id)[0];
+        const locationNameData = locationNames.find((locationName) => locationName.id === order.location_id);
         const locationText = locationNameData ? locationNameData.name : `an unknown location with ID ${order.location_id}`;
 
         const volume = formatNumber(order.volume_remain, 0);

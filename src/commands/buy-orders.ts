@@ -52,7 +52,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
         return {reply, itemData: undefined, regionName};
     }
 
-    const defaultRegion = regions.filter((region) => region.name === 'The Forge')[0];
+    const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
     let selectedRegion = defaultRegion;
 
     if (messageData.region) {
@@ -102,7 +102,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
 
     for (const order of buyOrders) {
         const orderPrice = formatNumber(order.price);
-        const location = locationNames.filter((locationName) => locationName.id === order.location_id)[0];
+        const location = locationNames.find((locationName) => locationName.id === order.location_id);
         let locationText = `an unknown location with ID ${order.location_id}`;
         if (location) {
             locationText = location.name;
