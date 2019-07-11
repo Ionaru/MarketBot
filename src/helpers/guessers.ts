@@ -74,6 +74,8 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
     const possibleId = Number(itemWords[0]);
     if (!isNaN(possibleId)) {
         possibilities.push(...possibilitiesList.filter((possibility): boolean | void => possibility.id === possibleId));
+        possibilities = await filterUnpublishedTypes(possibilities);
+        sortArrayByObjectPropertyLength(possibilities, 'name');
         if (possibilities.length) {
             return {itemData: possibilities[0], guess: false, id: true};
         }
