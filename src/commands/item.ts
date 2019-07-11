@@ -57,20 +57,20 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
     const item = await fetchUniverseType(itemData.id);
 
     let itemInfo = '';
-    itemInfo += `* ID: ${itemData.id}`;
+    itemInfo += `• ID: ${itemData.id}`;
     itemInfo += newLine();
-    itemInfo += `* Name: ${itemData.name}`;
+    itemInfo += `• Name: ${itemData.name}`;
     itemInfo += newLine();
     if (item && item.group_id) {
         const group = await fetchGroup(item.group_id);
         if (group) {
-            itemInfo += `* Group: ${group.name}`;
+            itemInfo += `• Group: ${group.name}`;
             itemInfo += newLine();
 
             if (group.category_id) {
                 const category = await fetchCategory(group.category_id);
                 if (category) {
-                    itemInfo += `* Category: ${category.name}`;
+                    itemInfo += `• Category: ${category.name}`;
                     itemInfo += newLine();
                 }
             }
@@ -79,7 +79,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
 
     if (item && item.volume) {
         const volume = formatNumber(item.volume, Infinity);
-        itemInfo += `* Volume: ${makeCode(volume + ' m³')}`;
+        itemInfo += `• Volume: ${makeCode(volume + ' m³')}`;
         itemInfo += newLine();
     }
 
@@ -97,8 +97,8 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
             }
         }
 
-        marketInfo += `* Market location:`;
-        const indent = '    ';
+        marketInfo += `• Market location:`;
+        const indent = ' > ';
         let deepness = 1;
         for (const marketGroup of marketGroups) {
             marketInfo += newLine();
@@ -111,9 +111,9 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
             const sellData = formatNumber(json[0].sell.avg);
             const buyData = formatNumber(json[0].buy.avg);
             marketInfo += newLine(2);
-            marketInfo += `* Average Jita **sell** price: ${makeCode(sellData + ' ISK')}`;
+            marketInfo += `• Average Jita **sell** price: ${makeCode(sellData + ' ISK')}`;
             marketInfo += newLine();
-            marketInfo += `* Average Jita **buy** price: ${makeCode(buyData + ' ISK')}`;
+            marketInfo += `• Average Jita **buy** price: ${makeCode(buyData + ' ISK')}`;
         }
 
         marketInfo += newLine();

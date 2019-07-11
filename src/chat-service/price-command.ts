@@ -89,19 +89,19 @@ export class PriceCommand extends Command {
 
         let sellInfo = '';
         if (sellPrice !== 'unknown') {
-            sellInfo += `* Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();
-            sellInfo += `* Average selling price is ${itemFormat(sellPrice)}` + newLine();
+            sellInfo += `• Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();
+            sellInfo += `• Average selling price is ${itemFormat(sellPrice)}` + newLine();
         } else {
-            sellInfo += '* Selling price data is unavailable' + newLine();
+            sellInfo += '• Selling price data is unavailable' + newLine();
         }
         this.embed.addField('Sell', sellInfo);
 
         let buyInfo = '';
         if (buyPrice !== 'unknown') {
-            buyInfo += `* Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
-            buyInfo += `* Average buying price is ${itemFormat(buyPrice)}` + newLine();
+            buyInfo += `• Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
+            buyInfo += `• Average buying price is ${itemFormat(buyPrice)}` + newLine();
         } else {
-            buyInfo += '* Buying price data is unavailable' + newLine();
+            buyInfo += '• Buying price data is unavailable' + newLine();
         }
         this.embed.addField('Buy', buyInfo);
     }
