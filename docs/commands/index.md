@@ -103,6 +103,16 @@ This will enable buy price tracking for an item in a specific region, you will g
 `/track-buy-order <item-name> [/region <region-name>] [/limit <limit-number>]`
 
 
+## /track-list
+[More information](track-clear)
+
+##### Description
+List all orders that are being tracked by MarketBot for you.
+
+##### Syntax
+`/track-list`
+
+
 ## /track-clear
 [More information](track-clear)
 

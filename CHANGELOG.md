@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ported price command to new command class.
 - Ported info command to new command class.
 - Ported data command to new command class.
+- /track-list command.
 
 ### Changed
 - Improved item guessing with unpublished items in the results.

@@ -9,6 +9,7 @@ import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { InfoCommand } from './chat-service/info-command';
 import { PriceCommand } from './chat-service/price-command';
+import { TrackListCommand } from './chat-service/track-list-command';
 import { buyOrdersCommand } from './commands/buy-orders';
 import { historyCommand } from './commands/history';
 import { itemCommand } from './commands/item';
@@ -195,6 +196,9 @@ async function processMessage(message: Message, transaction: any): Promise<void>
             break;
         case buyTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'buy', transaction);
+            break;
+        case TrackListCommand.test(rootCommand):
+            new TrackListCommand(message).execute().then();
             break;
     }
 }
