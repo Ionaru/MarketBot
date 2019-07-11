@@ -18,7 +18,6 @@ RUN mkdir -p /app/config /app/data /app/logs
 WORKDIR /app
 
 # Copy needed build files
-COPY ./config ./config
 COPY ./package.json ./package-lock.json ./tsconfig.json ./
 
 # Install dependencies
@@ -32,6 +31,8 @@ ENV NODE_ENV production
 RUN npm run build
 RUN npm ci
 RUN npm cache clean --force
+
+COPY ./config ./config
 
 # Add volumes
 VOLUME /app/config /app/data /app/logs
