@@ -110,16 +110,16 @@ export async function fetchUniverseTypes(): Promise<number[]> {
     }
 }
 
-export async function fetchUniverseType(id: number): Promise<IUniverseTypeData> {
+export async function fetchUniverseType(id: number) {
     return fetchData<IUniverseTypeData>(EVE.getUniverseTypeUrl(id));
 }
 
 export async function fetchUniverseSystems(): Promise<number[]> {
-    return fetchData<number[]>(EVE.getUniverseSystemsUrl());
+    return await fetchData<number[]>(EVE.getUniverseSystemsUrl()) || [];
 }
 
-export async function fetchUniverseRegions(): Promise<number[]> {
-    return fetchData<number[]>(EVE.getUniverseRegionsUrl());
+export async function fetchUniverseRegions() {
+    return await fetchData<number[]>(EVE.getUniverseRegionsUrl()) || [];
 }
 
 export async function fetchHistoryData(itemId: number, regionId: number) {
@@ -142,12 +142,16 @@ export async function fetchServerStatus() {
     return fetchData<IStatusData>(EVE.getStatusUrl());
 }
 
-async function fetchData<T>(url: string): Promise<T> {
+async function fetchData<T>(url: string): Promise<T | undefined> {
     return esiService.fetchESIData<T>(url).catch((error) => {
-        if (esiCache.responseCache[url]) {
-            return esiCache.responseCache[url]!.data;
-        }
         Sentry.setContext('url', {url});
-        throw error;
+        Sentry.captureException(error);
+
+        if (esiCache.responseCache[url]) {
+            process.emitWarning(`Request failed: ${url} using cached data.`);
+            return esiCache.responseCache[url]!.data as T;
+        }
+        process.emitWarning(`Request failed: ${url}`);
+        return;
     });
 }

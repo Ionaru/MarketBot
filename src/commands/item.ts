@@ -90,7 +90,7 @@ async function itemCommandLogic(messageData: IParsedMessage): Promise<IItemComma
         const marketGroups = [];
         let marketGroupId: number | undefined = item.market_group_id;
         while (marketGroupId !== undefined) {
-            const marketGroup: IMarketGroupData = await fetchMarketGroup(marketGroupId);
+            const marketGroup: IMarketGroupData | undefined = await fetchMarketGroup(marketGroupId);
             if (marketGroup) {
                 marketGroups.unshift(marketGroup.name);
                 marketGroupId = marketGroup.parent_group_id ? marketGroup.parent_group_id : undefined;
