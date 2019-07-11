@@ -111,7 +111,7 @@ export async function fetchUniverseTypes(): Promise<number[]> {
 }
 
 export async function fetchUniverseType(id: number): Promise<IUniverseTypeData> {
-    return fetchData<IUniverseTypeData>(EVE.getUniverseTypesUrl(id));
+    return fetchData<IUniverseTypeData>(EVE.getUniverseTypeUrl(id));
 }
 
 export async function fetchUniverseSystems(): Promise<number[]> {
