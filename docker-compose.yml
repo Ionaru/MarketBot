@@ -10,9 +10,7 @@ services:
         volumes:
             - ${MARKETBOT_CONFIG_VOLUME:-config-volume}:/app/config
             - ${MARKETBOT_DATA_VOLUME:-data-volume}:/app/data
-            - ${MARKETBOT_LOG_VOLUME:-log-volume}:/app/logs
 
 volumes:
     config-volume:
     data-volume:
-    log-volume:

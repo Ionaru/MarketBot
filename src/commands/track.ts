@@ -2,7 +2,6 @@ import Timer = NodeJS.Timer;
 import { IMarketOrdersDataUnit, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { logger } from 'winston-pnp-logger';
 
 import { Command } from '../chat-service/command';
 import { Message } from '../chat-service/discord/message';
@@ -263,7 +262,7 @@ export async function performTrackingCycle() {
                         entry.save().then();
                     }
                 }).catch((error) => {
-                    logger.error('Cannot send message', error);
+                    process.stderr.write(`Cannot send message: \n${error}\n`);
                     entry.remove().then();
                 });
             }

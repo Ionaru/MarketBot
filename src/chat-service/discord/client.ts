@@ -1,6 +1,5 @@
 import * as Discord from 'discord.js';
 import { EventEmitter } from 'events';
-import { logger } from 'winston-pnp-logger';
 import Timeout = NodeJS.Timeout;
 
 import { Command } from '../command';
@@ -11,11 +10,11 @@ import { maxMessageLength } from './misc';
 export class Client {
 
     private static onError(error: Error) {
-        logger.error('Discord:', error.message);
+        process.stderr.write(`Discord: \n${error.message}\n`);
     }
 
     private static onWarning(warning: string) {
-        process.emitWarning('Discord:', warning);
+        process.emitWarning(`Discord: \n${warning}`);
     }
 
     public readonly emitter: EventEmitter;
@@ -85,7 +84,7 @@ export class Client {
                 }
             }
         } catch (error) {
-            logger.error('Cannot send message:', error);
+            process.stderr.write(`Cannot send message: \n${error}\n`);
         }
     }
 

@@ -3,7 +3,6 @@ import { formatNumber } from '@ionaru/format-number';
 import * as fs from 'fs';
 import * as Fuse from 'fuse.js';
 import * as moment from 'moment';
-import { logger } from 'winston-pnp-logger';
 
 import { debug } from '../index';
 import { dataFolder } from '../market-bot';
@@ -63,8 +62,8 @@ export async function checkAndUpdateCache() {
     cacheDebug(`Next cache check in ${formatNumber(timeUntilNextNoon / 3600000, 2)} hours`);
     setTimeout(() => {
         checkAndUpdateCache().catch((error: Error) => {
-            logger.error(error.stack as string);
-            logger.error('An error prevented a cache update, attempting to re-use the old cache');
+            process.stderr.write(error.stack as string + '\n');
+            process.stderr.write('An error prevented a cache update, attempting to re-use the old cache\n');
         });
     }, timeUntilNextNoon);
 
@@ -79,7 +78,7 @@ async function validateCache(): Promise<IValidateCacheReturn> {
     const serverStatus = await fetchServerStatus();
 
     if (!serverStatus) {
-        logger.error('Could not get EVE Online server status, using cache if possible');
+        process.stderr.write('Could not get EVE Online server status, using cache if possible\n');
         // Return true so the cache is used.
         return {useCache: true, serverVersion: undefined};
     }
@@ -105,7 +104,7 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
                 cacheDebug(`Loaded ${cachedNames.length} ${type} from cache into memory`);
                 return cachedNames;
             } catch {
-                logger.error(`Could not parse cached ${type} data!`);
+                process.stderr.write(`Could not parse cached ${type} data!\n`);
             }
         }
     }
@@ -120,13 +119,13 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
             cacheDebug(`Wrote ${names.length} ${type} to cache at ${savePath} and loaded into memory`);
             return names;
         } else {
-            logger.error(`Name data for ${type} was incomplete!`);
+            process.stderr.write(`Name data for ${type} was incomplete!\n`);
         }
     } else {
-        logger.error(`Could not get ${type} from EVE Online API`);
+        process.stderr.write(`Could not get ${type} from EVE Online API\n`);
         if (!useCache) {
             // Attempt to load from cache if we didn't try that already.
-            logger.error(`Attempting to get ${type} from cache`);
+            process.emitWarning(`Attempting to get ${type} from cache`);
             return cacheUniverse(true, type, fetchFunction).catch(() => []);
         }
     }
@@ -137,7 +136,7 @@ export async function checkAndUpdateCitadelCache(): Promise<void> {
     cacheDebug(`Fetching known citadels from stop.hammerti.me API`);
 
     citadels = await fetchCitadelData().catch((error) => {
-        logger.error(error);
+        process.stderr.write(error + '\n');
         return {};
     });
 

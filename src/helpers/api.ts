@@ -12,7 +12,6 @@ import {
     IUniverseTypeData,
 } from '@ionaru/eve-utils';
 import * as Sentry from '@sentry/node';
-import { logger } from 'winston-pnp-logger';
 
 import { axiosInstance, debug, esiCache, esiService } from '../index';
 import { ICitadelData, IEVEMarketerData } from '../typings';
@@ -80,7 +79,9 @@ async function _fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
     apiDebug(url, body);
     const namesResponse = await axiosInstance.post<IUniverseNamesData>(url, body).catch(
         (errorResponse) => {
-            logger.error('Request failed:', url, errorResponse);
+            Sentry.setContext('url', {url});
+            Sentry.captureException(errorResponse);
+            process.emitWarning(`Request failed: ${url}`);
             return undefined;
         });
 

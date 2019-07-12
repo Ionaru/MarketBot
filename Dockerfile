@@ -35,7 +35,7 @@ RUN npm cache clean --force
 COPY ./config ./config
 
 # Add volumes
-VOLUME /app/config /app/data /app/logs
+VOLUME /app/config /app/data
 
 
 ## RUN

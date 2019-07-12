@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/node';
 import * as elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
-import { logger } from 'winston-pnp-logger';
 
 import { Command } from './chat-service/command';
 import { DataCommand } from './chat-service/data-command';
@@ -83,9 +82,8 @@ export async function activate() {
     esiCache.readCache();
 
     await checkAndUpdateCache().catch((error: Error) => {
-        logger.error(error.stack as string);
-        logger.error('Unable to create initial cache, bot cannot function!');
-        deactivate(true, true).then();
+        process.stderr.write('Unable to create initial cache, bot cannot function!\n');
+        throw error;
     });
     await checkAndUpdateCitadelCache();
 
@@ -113,7 +111,7 @@ export async function activate() {
             }
         });
     } else {
-        logger.error(`Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`);
+        throw new Error(`Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`);
     }
 }
 

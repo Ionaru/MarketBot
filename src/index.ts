@@ -9,7 +9,6 @@ import { HttpsAgent } from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
 import * as elastic from 'elastic-apm-node';
 import 'reflect-metadata'; // Required for TypeORM
-import { logger, WinstonPnPLogger } from 'winston-pnp-logger';
 
 import { version } from '../package.json';
 import { activate, deactivate } from './market-bot';
@@ -25,11 +24,6 @@ export let axiosInstance: AxiosInstance;
  * It also defines what to do on exit signals, unhandled exceptions and promise rejections.
  */
 (function start() {
-
-    new WinstonPnPLogger({
-        announceSelf: false,
-        logDir: 'logs',
-    });
 
     debug(`NodeJS version ${process.version}`);
 
@@ -83,10 +77,10 @@ export let axiosInstance: AxiosInstance;
 
     process.stdin.resume();
     process.on('unhandledRejection', (reason, p): void => {
-        logger.error('Unhandled Rejection at: Promise', p, '\nreason:', reason);
+        process.stderr.write(`Unhandled Rejection at: \nPromise ${p} \nReason: ${reason}\n`);
     });
     process.on('uncaughtException', (error) => {
-        logger.error('Uncaught Exception!', error);
+        process.stderr.write(`Uncaught Exception! \n${error}\n`);
         deactivate(true, true).then();
     });
     process.on('SIGINT', () => {

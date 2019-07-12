@@ -1,5 +1,4 @@
 import * as Discord from 'discord.js';
-import { logger } from 'winston-pnp-logger';
 
 import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
@@ -16,8 +15,8 @@ export class Message {
 
     public static processError(caughtError: Error, command: string, errorText = `I'm sorry, it appears I have developed a fault`) {
         const time = Date.now();
-        logger.error(`Caught error @ ${time}` + newLine(), caughtError);
-        logger.error(`Error triggered by command:`, command);
+        process.stderr.write(`Caught error @ ${time} \n${caughtError}\n`);
+        process.stderr.write(`Error triggered by command: \n${command}\n`);
         let text = `${errorText}.`;
         text += newLine();
         text += `Please let ${makeCode(creator)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
@@ -103,11 +102,11 @@ export class Message {
 
         this.reply(replyMessage)
             .then().catch(async (error: Discord.DiscordAPIError) => {
-            logger.error(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'`);
+            process.stderr.write(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'\n`);
             if (error.stack) {
-                logger.error(error.stack.toString());
+                process.stderr.write(error.stack.toString() + '\n');
             } else {
-                logger.error(error.toString());
+                process.stderr.write(error.toString() + '\n');
             }
         });
     }

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### BREAKING CHANGES
+- Removed Winston logging from the bot, fully using stderr, stdout and `debug` now.
+
 ### Added
 - A new generic command class.
 - Ported price command to new command class.
