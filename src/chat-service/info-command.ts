@@ -1,6 +1,7 @@
+import { version } from '../../package.json';
 import { makeBold, makeCode, makeURL, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
-import { botName, client, creator, version } from '../market-bot';
+import { botName, client, creator } from '../market-bot';
 import { Command } from './command';
 
 export class InfoCommand extends Command {

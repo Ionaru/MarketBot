@@ -1,11 +1,5 @@
 import * as fs from 'fs';
 
-import { version } from '../../package.json';
-
-export function readVersion(): string {
-    return version;
-}
-
 export function readFileContents(filePath: string, deleteIfError = false): string | undefined {
     if (fs.existsSync(filePath)) {
         try {

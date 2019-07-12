@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 import * as elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 
+import { version } from '../package.json';
 import { Command } from './chat-service/command';
 import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
@@ -16,12 +17,10 @@ import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
-import { readVersion } from './helpers/readers';
 import { createCommandRegex } from './helpers/regex';
 import { configuration, debug, esiCache } from './index';
 
 export const creator = 'Ionaru#3801';
-export let version: string;
 export const botName = 'MarketBot';
 
 export let client: Client | undefined;
@@ -74,8 +73,6 @@ export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export async function activate() {
     debug('Starting bot activation');
-
-    version = readVersion();
 
     debug(`Bot version: ${version}`);
 
