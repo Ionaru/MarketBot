@@ -15,14 +15,14 @@ export class PriceCommand extends Command {
         return PriceCommand.commandRegex.test(command);
     }
 
-    private static readonly priceCommands = [
+    private static readonly commands = [
         'price', 'p', 'value',
     ];
 
-    private static readonly commandRegex = createCommandRegex(PriceCommand.priceCommands, true);
+    private static readonly commandRegex = createCommandRegex(PriceCommand.commands, true);
 
     protected initialReply = `Checking price, one moment, ${this.message.sender}...`;
-    protected commandName = PriceCommand.priceCommands[0];
+    protected commandName = PriceCommand.commands[0];
 
     protected async isCommandValid() {
 
