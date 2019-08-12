@@ -8,11 +8,11 @@ import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { InfoCommand } from './chat-service/info-command';
+import { ItemCommand } from './chat-service/item-command';
 import { PriceCommand } from './chat-service/price-command';
 import { TrackListCommand } from './chat-service/track-list-command';
 import { buyOrdersCommand } from './commands/buy-orders';
 import { historyCommand } from './commands/history';
-import { itemCommand } from './commands/item';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
@@ -44,9 +44,6 @@ export const regionCommands = [
 export const systemCommands = [
     'system',
 ];
-export const itemCommands = [
-    'item', 'id', 'lookup',
-];
 export const limitCommands = [
     'limit', 'l', 'max',
 ];
@@ -60,7 +57,6 @@ export const clearTrackingCommands = [
     'track-clear', 'tc',
 ];
 
-export const itemCommandRegex = createCommandRegex(itemCommands, true);
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
@@ -180,8 +176,8 @@ async function processMessage(message: Message, transaction: any): Promise<void>
         case sellTrackingCommandRegex.test(rootCommand):
             await trackCommand(message, 'sell', transaction);
             break;
-        case itemCommandRegex.test(rootCommand):
-            await itemCommand(message, transaction);
+        case ItemCommand.test(rootCommand):
+            new ItemCommand(message).execute().then();
             break;
         case historyCommandRegex.test(rootCommand):
             await historyCommand(message, transaction);
