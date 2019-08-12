@@ -10,7 +10,7 @@ export class InfoCommand extends Command {
         'info', 'i', 'about', 'help',
     ];
 
-    public static readonly debug = Command.debug.extend('data');
+    public static readonly debug = Command.debug.extend('info');
 
     public static test(command: string) {
         InfoCommand.debug(`Testing ${command}`);
