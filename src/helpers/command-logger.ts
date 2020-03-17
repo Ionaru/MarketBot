@@ -73,19 +73,19 @@ export function logCommand(commandType: string, message: Message, outputItem?: s
     newLogEntry.sender_name = message.author.name;
 
     if (configuration.getProperty('elastic.enabled') === true && transaction) {
-        transaction.setTag('channel_id', newLogEntry.channel_id);
-        transaction.setTag('channel_name', newLogEntry.channel_name);
-        transaction.setTag('channel_type', newLogEntry.channel_type);
-        transaction.setTag('command_full', newLogEntry.command_full);
-        transaction.setTag('command_type', newLogEntry.command_type);
-        transaction.setTag('guild_id', newLogEntry.guild_id);
-        transaction.setTag('guild_name', newLogEntry.guild_name);
-        transaction.setTag('item_input', newLogEntry.item_input);
-        transaction.setTag('item_output', newLogEntry.item_output);
-        transaction.setTag('region_input', newLogEntry.region_input);
-        transaction.setTag('region_output', newLogEntry.region_output);
-        transaction.setTag('sender_id', newLogEntry.sender_id);
-        transaction.setTag('sender_name', newLogEntry.sender_name);
+        transaction.setLabel('channel_id', newLogEntry.channel_id);
+        transaction.setLabel('channel_name', newLogEntry.channel_name);
+        transaction.setLabel('channel_type', newLogEntry.channel_type);
+        transaction.setLabel('command_full', newLogEntry.command_full);
+        transaction.setLabel('command_type', newLogEntry.command_type);
+        transaction.setLabel('guild_id', newLogEntry.guild_id);
+        transaction.setLabel('guild_name', newLogEntry.guild_name);
+        transaction.setLabel('item_input', newLogEntry.item_input);
+        transaction.setLabel('item_output', newLogEntry.item_output);
+        transaction.setLabel('region_input', newLogEntry.region_input);
+        transaction.setLabel('region_output', newLogEntry.region_output);
+        transaction.setLabel('sender_id', newLogEntry.sender_id);
+        transaction.setLabel('sender_name', newLogEntry.sender_name);
         transaction.end();
     }
 
