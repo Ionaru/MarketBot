@@ -225,7 +225,7 @@ export async function performTrackingCycle() {
         return;
     }
 
-    const entriesDone: Array<{ entry: TrackingEntry, order?: IMarketOrdersDataUnit }> = [];
+    const entriesDone: { entry: TrackingEntry, order?: IMarketOrdersDataUnit }[] = [];
 
     for (const entry of trackingEntries) {
 

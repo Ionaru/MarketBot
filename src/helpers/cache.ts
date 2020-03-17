@@ -22,8 +22,8 @@ export let regions: IUniverseNamesData;
 export let systems: IUniverseNamesData;
 export let items: IUniverseNamesData;
 
-export let itemsFuse: Fuse<IUniverseNamesDataUnit>;
-export let regionsFuse: Fuse<IUniverseNamesDataUnit>;
+export let itemsFuse: Fuse<IUniverseNamesDataUnit, {}>;
+export let regionsFuse: Fuse<IUniverseNamesDataUnit, {}>;
 
 export let citadels: ICitadelData;
 
