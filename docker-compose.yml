@@ -2,10 +2,7 @@ version: '3'
 services:
 
     marketbot:
-        build:
-            context: ./
-        env_file:
-            - .env
+        build: .
         restart: unless-stopped
         volumes:
             - ${MARKETBOT_CONFIG_VOLUME:-config-volume}:/app/config
