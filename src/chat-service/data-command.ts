@@ -38,34 +38,34 @@ export class DataCommand extends Command {
             .groupBy('item_output')
             .orderBy('count', 'DESC')
             .limit(5)
-            .getRawMany() as Array<{ count: number, item_output: string }>;
+            .getRawMany();
 
         const topCommands = await LogEntry.createQueryBuilder()
             .select('COUNT(`command_type`)', 'count')
             .addSelect('command_type')
             .groupBy('command_type')
             .orderBy('count', 'DESC')
-            .getRawMany() as Array<{ count: number, command_type: string }>;
+            .getRawMany();
 
         const commandCount: number = await LogEntry.count();
 
         const userCount = await LogEntry.createQueryBuilder()
             .select('COUNT(DISTINCT(`sender_id`))', 'count')
-            .getRawOne() as { count: number };
+            .getRawOne();
 
         const serverCount = await LogEntry.createQueryBuilder()
             .select('COUNT(DISTINCT(`guild_id`))', 'count')
-            .getRawOne() as { count: number };
+            .getRawOne();
 
         const channelCount = await LogEntry.createQueryBuilder()
             .select('COUNT(DISTINCT(`channel_id`))', 'count')
-            .getRawOne() as { count: number };
+            .getRawOne();
 
         const trackingCount = await TrackingEntry.count();
 
         const trackingUsers = await TrackingEntry.createQueryBuilder()
             .select('COUNT(DISTINCT(`sender_id`))', 'count')
-            .getRawOne() as { count: number };
+            .getRawOne();
 
         let reply = '';
 

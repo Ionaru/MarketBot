@@ -54,7 +54,7 @@ export function matchWithRegex(possibility: IUniverseNamesDataUnit, regex: RegEx
 }
 
 // tslint:disable-next-line:cognitive-complexity max-line-length
-export async function guessUserInput(itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit>, raw = true):
+export async function guessUserInput(itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit, {}>, raw = true):
     Promise<IGuessReturn> {
 
     itemString = escapeStringRegexp(itemString);
@@ -73,7 +73,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
     // Check if the item is an ID
     const possibleId = Number(itemWords[0]);
     if (!isNaN(possibleId)) {
-        possibilities.push(...possibilitiesList.filter((possibility): boolean | void => possibility.id === possibleId));
+        possibilities.push(...possibilitiesList.filter((possibility): boolean => possibility.id === possibleId));
         possibilities = await filterUnpublishedTypes(possibilities);
         sortArrayByObjectPropertyLength(possibilities, 'name');
         if (possibilities.length) {
