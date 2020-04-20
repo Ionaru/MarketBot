@@ -160,18 +160,19 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
 
 async function filterUnpublishedTypes(possibilities: IUniverseNamesData): Promise<IUniverseNamesData> {
 
-    for (const possibility of possibilities) {
+    const filteredPossibilities: IUniverseNamesData = [];
 
+    await Promise.all(possibilities.map(async (possibility) => {
         if (possibility.category === 'inventory_type') {
             const type = await fetchUniverseType(possibility.id);
             if (!type || !type.published) {
-                continue;
+                return;
             }
         }
-        return [possibility];
-    }
+        filteredPossibilities.push(possibility);
+    }));
 
-    return [];
+    return filteredPossibilities;
 }
 
 export function getGuessHint(guessReturn: IGuessReturn, userInput: string): string {
