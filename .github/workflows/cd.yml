@@ -22,8 +22,8 @@ jobs:
               with:
                   node-version: '12.x'
 
-            # - name: Audit
-            #   run: npm audit
+            - name: Audit
+              run: npm audit
 
             - name: Install packages
               run: npm install
