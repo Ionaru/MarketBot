@@ -1,8 +1,8 @@
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
-import * as fs from 'fs';
-import * as Fuse from 'fuse.js';
-import * as moment from 'moment';
+import fs from 'fs';
+import Fuse from 'fuse.js';
+import moment from 'moment';
 
 import { debug } from '../index';
 import { dataFolder } from '../market-bot';
@@ -133,7 +133,7 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
 }
 
 export async function checkAndUpdateCitadelCache(): Promise<void> {
-    cacheDebug(`Fetching known citadels from stop.hammerti.me API`);
+    cacheDebug(`Fetching known citadels from kalkoken.org API`);
 
     citadels = await fetchCitadelData().catch((error) => {
         process.stderr.write(error + '\n');

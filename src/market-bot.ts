@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/node';
+import { setContext, captureException } from '@sentry/node';
 import * as elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 
@@ -195,7 +195,7 @@ async function processMessage(message: Message, transaction: any): Promise<void>
 }
 
 export function handleError(message: Message, caughtError: Error) {
-    Sentry.setContext('command', {command: message.content});
-    Sentry.captureException(caughtError);
+    setContext('command', {command: message.content});
+    captureException(caughtError);
     message.sendError(caughtError).then();
 }

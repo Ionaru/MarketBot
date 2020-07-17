@@ -1,5 +1,5 @@
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
-import * as Fuse from 'fuse.js';
+import Fuse from 'fuse.js';
 
 export function createFuse(possibilities: IUniverseNamesData): Fuse<IUniverseNamesDataUnit, {}> {
     return new Fuse(possibilities, {

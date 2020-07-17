@@ -1,4 +1,4 @@
-import * as countdown from 'countdown';
+import countdown from 'countdown';
 
 import { TrackingEntry } from '../commands/track';
 import { LogEntry } from '../helpers/command-logger';

@@ -1,6 +1,6 @@
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
-import * as escapeStringRegexp from 'escape-string-regexp';
-import * as Fuse from 'fuse.js';
+import escapeStringRegexp from 'escape-string-regexp';
+import Fuse from 'fuse.js';
 
 import { fetchUniverseType } from './api';
 import { sortArrayByObjectPropertyLength } from './arrays';
@@ -124,7 +124,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
 
     if (!possibilities.length && fuse) {
         // Use Fuse to search (slow but fuzzy).
-        const fuseGuess = fuse.search(itemString)[0] as IUniverseNamesDataUnit | undefined;
+        const fuseGuess = fuse.search(itemString)[0].item as IUniverseNamesDataUnit | undefined;
 
         if (fuseGuess) {
             possibilities.push(fuseGuess);

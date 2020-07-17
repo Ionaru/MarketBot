@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import fs from 'fs';
 
 export function readFileContents(filePath: string, deleteIfError = false): string | undefined {
     if (fs.existsSync(filePath)) {

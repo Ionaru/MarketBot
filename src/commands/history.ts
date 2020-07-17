@@ -2,7 +2,7 @@ import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import * as d3 from 'd3';
 import * as fs from 'fs';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';

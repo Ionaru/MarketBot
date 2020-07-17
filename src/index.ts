@@ -4,7 +4,7 @@ export const debug = Debug('market-bot');
 
 import { Configurator } from '@ionaru/configurator';
 import { CacheController, PublicESIService } from '@ionaru/esi-service';
-import * as Sentry from '@sentry/node';
+import { init, addBreadcrumb, captureMessage, Severity } from '@sentry/node';
 import { HttpsAgent } from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
 import * as elastic from 'elastic-apm-node';
@@ -29,7 +29,7 @@ export let axiosInstance: AxiosInstance;
 
     configuration = new Configurator(configPath, 'marketbot');
 
-    Sentry.init({
+    init({
         dsn: configuration.getProperty('sentry.dsn') as string,
         enabled: configuration.getProperty('sentry.enabled') as boolean,
         release: version,
@@ -58,11 +58,11 @@ export let axiosInstance: AxiosInstance;
         axiosInstance,
         cacheController: esiCache,
         onRouteWarning: (route, text) => {
-            Sentry.addBreadcrumb({
+            addBreadcrumb({
                 category: 'route',
                 message: route,
             });
-            Sentry.captureMessage(text || 'Route warning', Sentry.Severity.Warning);
+            captureMessage(text || 'Route warning', Severity.Warning);
         },
     });
 

@@ -47,7 +47,7 @@
         "discord.js": "^12.2.0",
         "elastic-apm-node": "^3.6.1",
         "escape-string-regexp": "^4.0.0",
-        "fuse.js": "^3.6.1",
+        "fuse.js": "^6.4.0",
         "moment": "^2.27.0",
         "puppeteer": "^5.1.0",
         "reflect-metadata": "^0.1.13",

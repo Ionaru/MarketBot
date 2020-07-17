@@ -11,7 +11,7 @@ import {
     IUniverseNamesData,
     IUniverseTypeData,
 } from '@ionaru/eve-utils';
-import * as Sentry from '@sentry/node';
+import { captureException, setContext } from '@sentry/node';
 
 import { axiosInstance, debug, esiCache, esiService } from '../index';
 import { ICitadelData, IEVEMarketerData } from '../typings';
@@ -79,8 +79,8 @@ async function _fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
     apiDebug(url, body);
     const namesResponse = await axiosInstance.post<IUniverseNamesData>(url, body).catch(
         (errorResponse) => {
-            Sentry.setContext('url', {url});
-            Sentry.captureException(errorResponse);
+            setContext('url', {url});
+            captureException(errorResponse);
             process.emitWarning(`Request failed: ${url}`);
             return undefined;
         });
@@ -145,8 +145,8 @@ export async function fetchServerStatus() {
 
 async function fetchData<T>(url: string): Promise<T | undefined> {
     return esiService.fetchESIData<T>(url).catch((error) => {
-        Sentry.setContext('url', {url});
-        Sentry.captureException(error);
+        setContext('url', {url});
+        captureException(error);
 
         if (esiCache.responseCache[url]) {
             process.emitWarning(`Request failed: ${url} using cached data.`);

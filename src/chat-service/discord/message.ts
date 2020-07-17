@@ -1,4 +1,4 @@
-import * as Discord from 'discord.js';
+import Discord from 'discord.js';
 
 import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
