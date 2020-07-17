@@ -91,7 +91,7 @@ export class Client {
     public getNickname(message: Message): string | undefined {
         const guild = message.guild;
         if (guild) {
-            return guild.member(this.client.user).nickname;
+            return guild.member(this.client.user).nickname || undefined;
         }
 
         return undefined;

@@ -62,7 +62,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
     let regex: RegExp;
     let guess = false;
     let itemData: IUniverseNamesDataUnit = {
-        category: '',
+        category: '' as any,
         id: 0,
         name: '',
     };

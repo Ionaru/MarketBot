@@ -28,7 +28,7 @@ export async function fetchPriceData(itemId: number, locationId: number): Promis
 }
 
 export async function fetchMarketData(itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> {
-    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersUrl(regionId, itemId, 1, orderType));
+    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersUrl({regionId, typeId: itemId, page: 1, orderType}));
     return marketResponse || [];
 }
 

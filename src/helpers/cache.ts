@@ -67,7 +67,7 @@ export async function checkAndUpdateCache() {
         });
     }, timeUntilNextNoon);
 
-    fs.writeFileSync(`${dataFolder}/${serverVersionFileName}`, serverVersion);
+    fs.writeFileSync(`${dataFolder}/${serverVersionFileName}`, serverVersion || '');
 }
 
 async function validateCache(): Promise<IValidateCacheReturn> {
