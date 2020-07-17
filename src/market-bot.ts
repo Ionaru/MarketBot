@@ -143,7 +143,7 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
 
     debug(quitMessage);
     if (client) {
-        await client.disconnect();
+        client.disconnect();
         client = undefined;
         debug('Client destroyed');
     }

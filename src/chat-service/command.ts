@@ -1,5 +1,5 @@
 import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
-import * as discord from 'discord.js';
+import { MessageEditOptions, MessageEmbed, MessageOptions } from 'discord.js';
 import { startTransaction } from 'elastic-apm-node';
 
 import { regions } from '../helpers/cache';
@@ -96,8 +96,8 @@ export abstract class Command {
 
     protected readonly message: Message;
     protected readonly parsedMessage: IParsedMessage;
-    protected readonly reply: {text?: string, options?: discord.MessageOptions} = {};
-    protected readonly embed: discord.RichEmbed = new discord.RichEmbed();
+    protected readonly reply: {text?: string, options?: MessageOptions | MessageEditOptions} = {};
+    protected readonly embed: MessageEmbed = new MessageEmbed();
 
     protected readonly logData: {item?: string, location?: string} = {};
 
@@ -154,11 +154,11 @@ export abstract class Command {
 
         if (this.replyPlaceHolder) {
             Command.debug(`Editing initial reply`);
-            return this.replyPlaceHolder.edit(reply, options);
+            return this.replyPlaceHolder.edit(reply, options as MessageEditOptions);
         }
 
         Command.debug(`Sending reply`);
-        return this.message.reply(reply, options);
+        return this.message.reply(reply, options as MessageOptions);
     }
 
     protected logCommand() {

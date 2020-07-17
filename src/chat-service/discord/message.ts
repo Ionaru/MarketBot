@@ -71,7 +71,7 @@ export class Message {
 
     get guild(): Discord.Guild | undefined {
         if (this.discordMessage.channel.type === 'text') {
-            const channel = this.discordMessage.channel as Discord.TextChannel;
+            const channel = this.discordMessage.channel;
             return channel.guild;
         }
 
@@ -111,7 +111,7 @@ export class Message {
         });
     }
 
-    public async edit(message: string, options: Discord.MessageOptions = {}): Promise<void> {
+    public async edit(message: string, options: Discord.MessageEditOptions = {}): Promise<void> {
         if (message.length > maxMessageLength) {
             throw new Error('MaxMessageLengthReached');
         }
@@ -120,7 +120,7 @@ export class Message {
 
     public async remove(timeout?: number): Promise<boolean> {
         try {
-            await this.discordMessage.delete(timeout);
+            await this.discordMessage.delete({timeout});
             return true;
         } catch {
             return false;
