@@ -1,5 +1,5 @@
 import { setContext, captureException } from '@sentry/node';
-import * as elastic from 'elastic-apm-node';
+import elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 
 import { version } from '../package.json';

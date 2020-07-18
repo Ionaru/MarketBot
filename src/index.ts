@@ -7,7 +7,7 @@ import { CacheController, PublicESIService } from '@ionaru/esi-service';
 import { init, addBreadcrumb, captureMessage, Severity } from '@sentry/node';
 import { HttpsAgent } from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
-import * as elastic from 'elastic-apm-node';
+import elastic from 'elastic-apm-node';
 import 'reflect-metadata'; // Required for TypeORM
 
 import { version } from '../package.json';
