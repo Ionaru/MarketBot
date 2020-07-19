@@ -1,7 +1,7 @@
 import { IMarketGroupData } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 
-import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData2, fetchUniverseType } from '../helpers/api';
+import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
 import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { makeCode, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
@@ -106,7 +106,7 @@ export class ItemCommand extends Command {
                 deepness++;
             }
 
-            const json = await fetchPriceData2(itemData, 'jita');
+            const json = await fetchPriceData(itemData, 'jita');
             if (json) {
                 const sellData = formatNumber(json.appraisal.items[0].prices.sell.percentile);
                 const buyData = formatNumber(json.appraisal.items[0].prices.buy.percentile);

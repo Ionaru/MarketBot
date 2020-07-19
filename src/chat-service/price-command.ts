@@ -1,6 +1,6 @@
 import { formatNumber } from '@ionaru/format-number';
 
-import { fetchPriceData2 } from '../helpers/api';
+import { fetchPriceData } from '../helpers/api';
 import { getGuessHint, guessItemInput } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
@@ -51,7 +51,7 @@ export class PriceCommand extends Command {
 
         const location = this.getMarket();
 
-        const json = await fetchPriceData2(itemData, location);
+        const json = await fetchPriceData(itemData, location);
 
         if (!json) {
             this.embed.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);

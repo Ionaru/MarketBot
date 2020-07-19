@@ -15,6 +15,7 @@ import {
 import { captureException, setContext } from '@sentry/node';
 import { URLSearchParams } from 'url';
 
+import { version } from '../../package.json';
 import { axiosInstance, debug, esiCache, esiService } from '../index';
 import { ICitadelData, IEVEPraisalData } from '../typings';
 
@@ -28,7 +29,7 @@ function captureRequestError(url: string, errorResponse: any) {
     return undefined;
 }
 
-export async function fetchPriceData2(item: IUniverseNamesDataUnit, market: string): Promise<IEVEPraisalData | undefined> {
+export async function fetchPriceData(item: IUniverseNamesDataUnit, market: string): Promise<IEVEPraisalData | undefined> {
 
     const host = 'https://evepraisal.com';
 
@@ -40,7 +41,11 @@ export async function fetchPriceData2(item: IUniverseNamesDataUnit, market: stri
 
     const url = `${ host }/appraisal.json?${ params.toString() }`;
 
-    const result = await axiosInstance.post<IEVEPraisalData>(url)
+    const result = await axiosInstance.post<IEVEPraisalData>(url, undefined, {
+        headers: {
+            'User-Agent': `MarketBot/${version} Ionaru#3801`,
+        },
+    })
         .catch((errorResponse) => captureRequestError(url, errorResponse));
 
     return result?.data;
