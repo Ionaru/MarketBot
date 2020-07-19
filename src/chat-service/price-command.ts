@@ -1,6 +1,6 @@
 import { formatNumber } from '@ionaru/format-number';
 
-import { fetchPriceData } from '../helpers/api';
+import { fetchPriceData2 } from '../helpers/api';
 import { getGuessHint, guessItemInput } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
@@ -49,60 +49,69 @@ export class PriceCommand extends Command {
 
         this.logData.item = itemData.name;
 
-        const location = await this.getLocation(true);
+        const location = this.getMarket();
 
-        const json = await fetchPriceData(itemData.id, location.id);
+        const json = await fetchPriceData2(itemData, location);
 
-        if (!(json && json.length)) {
+        if (!json) {
             this.embed.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);
             this.embed.setThumbnail(`https://data.saturnserver.org/eve/Icons/items/9_64_12.ZH.png`);
             return;
         }
 
-        const sellData = json[0].sell;
-        const buyData = json[0].buy;
+        const sellData = json.appraisal.items[0].prices.sell;
+        const buyData = json.appraisal.items[0].prices.buy;
+
+        const sellMeta: string[] = [
+            formatNumber(json.appraisal.items[0].prices.sell.order_count, 0) + ' orders',
+                formatNumber(json.appraisal.items[0].prices.sell.volume, 0) + ' items',
+        ];
+        const buyMeta: string[] = [
+            formatNumber(json.appraisal.items[0].prices.buy.order_count, 0) + ' orders',
+            formatNumber(json.appraisal.items[0].prices.buy.volume, 0) + ' items',
+        ];
 
         let sellPrice = 'unknown';
         let lowestSellPrice = 'unknown';
-        if (sellData.fivePercent && sellData.fivePercent !== 0) {
-            sellPrice = formatNumber(sellData.wavg) + ' ISK';
-            lowestSellPrice = formatNumber(sellData.fivePercent) + ' ISK';
+        if (sellData.percentile && sellData.order_count !== 0) {
+            sellPrice = formatNumber(sellData.percentile) + ' ISK';
+            lowestSellPrice = formatNumber(sellData.min) + ' ISK';
         }
 
         let buyPrice = 'unknown';
         let highestBuyPrice = 'unknown';
-        if (buyData.fivePercent && buyData.fivePercent !== 0) {
-            buyPrice = formatNumber(buyData.wavg) + ' ISK';
-            highestBuyPrice = formatNumber(buyData.fivePercent) + ' ISK';
+        if (buyData.percentile && buyData.order_count !== 0) {
+            buyPrice = formatNumber(buyData.percentile) + ' ISK';
+            highestBuyPrice = formatNumber(buyData.max) + ' ISK';
         }
 
         if (sellPrice === 'unknown' && buyPrice === 'unknown') {
             const itemName = itemFormat(itemData.name);
-            const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(location.name)}, sorry.`;
+            const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(location)}, sorry.`;
             this.embed.addField('No data', replyText);
             return;
         }
 
         this.embed.setAuthor(itemData.name, `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
-        this.embed.setDescription(`Price information for ${regionFormat(location.name)}`);
+        this.embed.setDescription(`Price information for ${regionFormat(location)}`);
         this.embed.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 
         let sellInfo = '';
         if (sellPrice !== 'unknown') {
-            sellInfo += `• Lowest selling price is ${itemFormat(lowestSellPrice)}` + newLine();
-            sellInfo += `• Average selling price is ${itemFormat(sellPrice)}` + newLine();
+            sellInfo += `• Lowest: ${itemFormat(lowestSellPrice)}` + newLine();
+            sellInfo += `• Average: ${itemFormat(sellPrice)}` + newLine();
         } else {
-            sellInfo += '• Selling price data is unavailable' + newLine();
+            sellInfo += '• Sell price data is unavailable' + newLine();
         }
-        this.embed.addField('Sell', sellInfo);
+        this.embed.addField(`Sell ( ${sellMeta.join(', ')} )`, sellInfo);
 
         let buyInfo = '';
         if (buyPrice !== 'unknown') {
-            buyInfo += `• Highest buying price is ${itemFormat(highestBuyPrice)}` + newLine();
-            buyInfo += `• Average buying price is ${itemFormat(buyPrice)}` + newLine();
+            buyInfo += `• Highest: ${itemFormat(highestBuyPrice)}` + newLine();
+            buyInfo += `• Average: ${itemFormat(buyPrice)}` + newLine();
         } else {
-            buyInfo += '• Buying price data is unavailable' + newLine();
+            buyInfo += '• Buy price data is unavailable' + newLine();
         }
-        this.embed.addField('Buy', buyInfo);
+        this.embed.addField(`Buy ( ${buyMeta.join(', ')} )`, buyInfo);
     }
 }

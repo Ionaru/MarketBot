@@ -1,30 +1,3 @@
-export interface IEVEMarketerData {
-    'buy': IPriceData;
-    'sell': IPriceData;
-}
-
-export interface IPriceData {
-    forQuery: {
-        bid: boolean;
-        types: number[];
-        regions: number[];
-        systems: number[];
-        hours: number;
-        minq: number;
-    };
-    volume: number;
-    wavg: number;
-    avg: number;
-    variance: number;
-    stdDev: number;
-    median: number;
-    fivePercent: number;
-    max: number;
-    min: number;
-    highToLow: boolean;
-    generated: number;
-}
-
 export interface IParsedMessage {
     content: string;
     item: string;
@@ -52,4 +25,65 @@ export interface ICitadelData {
         firstSeen: string;
         regionName: string;
     };
+}
+
+export interface IEVEPraisalData {
+    appraisal: {
+        created: number,
+        items: [
+            {
+                meta: {
+                    bpc: boolean,
+                },
+                name: string;
+                prices: {
+                    all: {
+                        avg: number;
+                        max: number;
+                        median: number;
+                        min: number;
+                        order_count: number;
+                        percentile: number;
+                        stddev: number;
+                        volume: number;
+                    },
+                    buy: {
+                        avg: number;
+                        max: number;
+                        median: number;
+                        min: number;
+                        order_count: number;
+                        percentile: number;
+                        stddev: number;
+                        volume: number;
+                    },
+                    sell: {
+                        avg: number;
+                        max: number;
+                        median: number;
+                        min: number;
+                        order_count: number;
+                        percentile: number;
+                        stddev: number;
+                        volume: number;
+                    },
+                    strategy: string;
+                    updated: string;
+                },
+                quantity: number;
+                typeID: number;
+                typeName: string;
+                typeVolume: number;
+            }
+        ],
+        kind: string;
+        market_name: string;
+        raw: string;
+        totals: {
+            buy: number;
+            sell: number;
+            volume: number;
+        },
+        unparsed: {},
+    }
 }

@@ -1,17 +1,15 @@
-import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { MessageEditOptions, MessageEmbed, MessageOptions } from 'discord.js';
 import { startTransaction } from 'elastic-apm-node';
 
-import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
-import { guessRegionInput, guessSystemInput } from '../helpers/guessers';
-import { regionFormat } from '../helpers/message-formatter';
 import { configuration, debug } from '../index';
 import { limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
 import { IParsedMessage } from '../typings';
 import { Message } from './discord/message';
 
 export abstract class Command {
+
+    private static readonly allowedMarkets = ['Jita', 'Amarr', 'Dodixie', 'Hek', 'Rens'];
 
     public static readonly commandPrefix = '/';
 
@@ -165,30 +163,31 @@ export abstract class Command {
         logCommand(this.commandName, this.message, this.logData.item, this.logData.location, this.transaction);
     }
 
-    protected async getLocation(allowSystem = false): Promise<IUniverseNamesDataUnit> {
-        const defaultLocation = regions.find((region) => region.name === 'The Forge')!;
-        let location = defaultLocation;
+    protected getMarket(): string {
+        const defaultLocation = 'Jita';
+        this.logData.location = defaultLocation;
 
         if (this.parsedMessage.region) {
-            location = (await guessRegionInput(this.parsedMessage.region)).itemData;
-            if (!location.id) {
-                location = defaultLocation;
-                // tslint:disable-next-line:max-line-length
-                this.embed.addField('Warning', `I don't know of the "${this.parsedMessage.region}" region, defaulting to ${regionFormat(location.name)}`);
-            }
+            this.embed.addField('Warning',
+                `The '/region' parameter is no longer supported, please use '/system' with one of the following values:
+                ${Command.allowedMarkets.join(', ')}.
+                Alternatively use the '/sell' or '/buy' commands.`,
+            );
         }
 
-        if (allowSystem && this.parsedMessage.system) {
-            location = (await guessSystemInput(this.parsedMessage.system)).itemData;
-            if (!location.id) {
-                location = defaultLocation;
-                // tslint:disable-next-line:max-line-length
-                this.embed.addField('Warning', `I don't know of the "${this.parsedMessage.system}" system, defaulting to ${regionFormat(location.name)}`);
+        if (this.parsedMessage.system) {
+            if (!Command.allowedMarkets.map(market => market.toLowerCase()).includes(this.parsedMessage.system)) {
+                this.embed.addField('Warning',
+                    `Use '/system' with one of the following values:
+                    ${Command.allowedMarkets.join(', ')}.`,
+                );
+                return defaultLocation;
             }
+
+            this.logData.location = this.parsedMessage.system;
+            return this.parsedMessage.system.charAt(0).toUpperCase() + this.parsedMessage.system.slice(1);
         }
 
-        this.logData.location = location.name;
-
-        return location;
+        return defaultLocation;
     }
 }

@@ -9,22 +9,41 @@ import {
     IUniverseCategoryData,
     IUniverseGroupData,
     IUniverseNamesData,
+    IUniverseNamesDataUnit,
     IUniverseTypeData,
 } from '@ionaru/eve-utils';
 import { captureException, setContext } from '@sentry/node';
+import { URLSearchParams } from 'url';
 
 import { axiosInstance, debug, esiCache, esiService } from '../index';
-import { ICitadelData, IEVEMarketerData } from '../typings';
+import { ICitadelData, IEVEPraisalData } from '../typings';
 
 const apiDebug = debug.extend('api');
 
-export async function fetchPriceData(itemId: number, locationId: number): Promise<IEVEMarketerData[] | undefined> {
-    const locationType = locationId < 30000000 ? 'regionlimit' : 'usesystem';
+function captureRequestError(url: string, errorResponse: any) {
+    setContext('url', {url});
+    captureException(errorResponse);
+    process.emitWarning(`Request failed: ${ url }`);
+    process.emitWarning(errorResponse);
+    return undefined;
+}
 
-    const host = 'https://api.evemarketer.com/ec/';
-    const url = `${host}marketstat/json?typeid=${itemId}&${locationType}=${locationId}`;
+export async function fetchPriceData2(item: IUniverseNamesDataUnit, market: string): Promise<IEVEPraisalData | undefined> {
 
-    return fetchData<IEVEMarketerData[]>(url);
+    const host = 'https://evepraisal.com';
+
+    const params = new URLSearchParams({
+        market: market.toLowerCase(),
+        persist: 'no',
+        raw_textarea: item.name.toLowerCase(),
+    });
+
+    const url = `${ host }/appraisal.json?${ params.toString() }`;
+
+    const result = await axiosInstance.post<IEVEPraisalData>(url)
+        .catch((errorResponse) => captureRequestError(url, errorResponse));
+
+    return result?.data;
 }
 
 export async function fetchMarketData(itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> {
@@ -77,13 +96,8 @@ async function _fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
     const body = JSON.stringify(ids);
 
     apiDebug(url, body);
-    const namesResponse = await axiosInstance.post<IUniverseNamesData>(url, body).catch(
-        (errorResponse) => {
-            setContext('url', {url});
-            captureException(errorResponse);
-            process.emitWarning(`Request failed: ${url}`);
-            return undefined;
-        });
+    const namesResponse = await axiosInstance.post<IUniverseNamesData>(url, body)
+        .catch((errorResponse) => captureRequestError(url, errorResponse));
 
     return namesResponse ? namesResponse.data : [];
 }
@@ -149,10 +163,10 @@ async function fetchData<T>(url: string): Promise<T | undefined> {
         captureException(error);
 
         if (esiCache.responseCache[url]) {
-            process.emitWarning(`Request failed: ${url} using cached data.`);
+            process.emitWarning(`Request failed: ${ url } using cached data.`);
             return esiCache.responseCache[url]!.data as T;
         }
-        process.emitWarning(`Request failed: ${url}`);
+        process.emitWarning(`Request failed: ${ url }`);
         return;
     });
 }
