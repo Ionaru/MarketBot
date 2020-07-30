@@ -5,7 +5,7 @@ import Fuse from 'fuse.js';
 import { fetchUniverseType } from './api';
 import { sortArrayByObjectPropertyLength } from './arrays';
 import { items, itemsFuse, regions, regionsFuse, systems } from './cache';
-import { itemFormat, newLine } from './message-formatter';
+import { itemFormat, newLine, regionFormat } from './message-formatter';
 
 interface IShortcuts {
     [shortcut: string]: string;
@@ -191,4 +191,20 @@ export function getGuessHint(guessReturn: IGuessReturn, userInput: string): stri
     }
 
     return returnString;
+}
+
+export async function getSelectedRegion(input: string, reply: string) {
+    const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
+    let selectedRegion = defaultRegion;
+
+    if (input) {
+        selectedRegion = (await guessRegionInput(input)).itemData;
+        if (!selectedRegion.id) {
+            selectedRegion = defaultRegion;
+            reply += `I don't know of the "${input}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
+            reply += newLine(2);
+        }
+    }
+
+    return {selectedRegion, regionReply: reply};
 }

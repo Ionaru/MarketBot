@@ -5,10 +5,10 @@ import { formatNumber } from '@ionaru/format-number';
 import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
-import { citadels, regions } from '../helpers/cache';
+import { citadels } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
-import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, getSelectedRegion, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { IParsedMessage } from '../typings';
@@ -52,17 +52,8 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
         return {reply, itemData: undefined, regionName};
     }
 
-    const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
-    let selectedRegion = defaultRegion;
-
-    if (messageData.region) {
-        selectedRegion = (await guessRegionInput(messageData.region)).itemData;
-        if (!selectedRegion.id) {
-            selectedRegion = defaultRegion;
-            reply += `I don't know of the "${messageData.region}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
-            reply += newLine(2);
-        }
-    }
+    const {selectedRegion, regionReply} = await getSelectedRegion(messageData.region, reply);
+    reply = regionReply;
 
     regionName = selectedRegion.name;
 

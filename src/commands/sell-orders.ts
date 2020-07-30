@@ -5,10 +5,9 @@ import { formatNumber } from '@ionaru/format-number';
 import { Message } from '../chat-service/discord/message';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
-import { regions } from '../helpers/cache';
 import { logCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
-import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
+import { getGuessHint, getSelectedRegion, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
 import { IParsedMessage } from '../typings';
@@ -33,22 +32,6 @@ export async function sellOrdersCommand(message: Message, transaction: any) {
     logCommand('sell-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
 }
 
-async function getSelectedRegion(input: string, reply: string) {
-    const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
-    let selectedRegion = defaultRegion;
-
-    if (input) {
-        selectedRegion = (await guessRegionInput(input)).itemData;
-        if (!selectedRegion.id) {
-            selectedRegion = defaultRegion;
-            reply += `I don't know of the "${input}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
-            reply += newLine(2);
-        }
-    }
-
-    return {selectedRegion, regionReply: reply};
-}
-
 async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> {
 
     let regionName = '';
@@ -68,7 +51,7 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
     }
 
     const {selectedRegion, regionReply} = await getSelectedRegion(messageData.region, reply);
-    reply += regionReply;
+    reply = regionReply;
 
     regionName = selectedRegion.name;
 
