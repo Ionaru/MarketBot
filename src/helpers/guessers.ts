@@ -54,7 +54,7 @@ export function matchWithRegex(possibility: IUniverseNamesDataUnit, regex: RegEx
 }
 
 // tslint:disable-next-line:cognitive-complexity max-line-length
-export async function guessUserInput(itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit, {}>, raw = true):
+export async function guessUserInput(itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit>, raw = true):
     Promise<IGuessReturn> {
 
     itemString = escapeStringRegexp(itemString);
