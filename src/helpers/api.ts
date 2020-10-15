@@ -1,3 +1,4 @@
+import Bugsnag from '@bugsnag/js';
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import {
     EVE,
@@ -12,7 +13,6 @@ import {
     IUniverseNamesDataUnit,
     IUniverseTypeData,
 } from '@ionaru/eve-utils';
-import { captureException, setContext } from '@sentry/node';
 import { URLSearchParams } from 'url';
 
 import { version } from '../../package.json';
@@ -22,8 +22,8 @@ import { ICitadelData, IEVEPraisalData } from '../typings';
 const apiDebug = debug.extend('api');
 
 function captureRequestError(url: string, errorResponse: any) {
-    setContext('url', {url});
-    captureException(errorResponse);
+    Bugsnag.addMetadata('url', {url});
+    Bugsnag.notify(errorResponse);
     process.emitWarning(`Request failed: ${ url }`);
     process.emitWarning(errorResponse);
     return undefined;
@@ -164,8 +164,8 @@ export async function fetchServerStatus() {
 
 async function fetchData<T>(url: string): Promise<T | undefined> {
     return esiService.fetchESIData<T>(url).catch((error) => {
-        setContext('url', {url});
-        captureException(error);
+        Bugsnag.addMetadata('url', {url});
+        Bugsnag.notify(error);
 
         if (esiCache.responseCache[url]) {
             process.emitWarning(`Request failed: ${ url } using cached data.`);

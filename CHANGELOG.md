@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### BREAKING CHANGES
 - Removed Winston logging from the bot, fully using stderr, stdout and `debug` now.
+- Switched from Sentry to Bugsnag for error logging.
 
 ### Added
 - A new generic command class.

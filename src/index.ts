@@ -2,9 +2,9 @@
 import Debug from 'debug';
 export const debug = Debug('market-bot');
 
+import Bugsnag from '@bugsnag/js';
 import { Configurator } from '@ionaru/configurator';
 import { CacheController, PublicESIService } from '@ionaru/esi-service';
-import { init, addBreadcrumb, captureMessage, Severity } from '@sentry/node';
 import { HttpsAgent } from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
 import elastic from 'elastic-apm-node';
@@ -29,11 +29,12 @@ export let axiosInstance: AxiosInstance;
 
     configuration = new Configurator(configPath, 'marketbot');
 
-    init({
-        dsn: configuration.getProperty('sentry.dsn') as string,
-        enabled: configuration.getProperty('sentry.enabled') as boolean,
-        release: version,
-    });
+    if (configuration.getProperty('bugsnag.enabled') as boolean) {
+        Bugsnag.start({
+            apiKey: configuration.getProperty('bugsnag.api') as string,
+            appVersion: version,
+        });
+    }
 
     debug('Creating axios instance');
     axiosInstance = axios.create({
@@ -58,11 +59,10 @@ export let axiosInstance: AxiosInstance;
         axiosInstance,
         cacheController: esiCache,
         onRouteWarning: (route, text) => {
-            addBreadcrumb({
-                category: 'route',
-                message: route,
-            });
-            captureMessage(text || 'Route warning', Severity.Warning);
+            Bugsnag.leaveBreadcrumb('route', {route})
+            Bugsnag.notify(text || 'Route warning', (event) => {
+                event.severity = 'warning';
+            })
         },
     });
 

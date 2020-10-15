@@ -32,12 +32,12 @@
         "testEnvironment": "node"
     },
     "dependencies": {
+        "@bugsnag/js": "^7.4.0",
         "@ionaru/array-utils": "^3.2.0",
         "@ionaru/configurator": "^3.0.0",
         "@ionaru/esi-service": "^4.0.0",
         "@ionaru/eve-utils": "^7.3.1",
         "@ionaru/format-number": "^3.0.1",
-        "@sentry/node": "^5.20.1",
         "agentkeepalive": "^4.1.3",
         "axios": "^0.19.2",
         "countdown": "^2.6.0",
