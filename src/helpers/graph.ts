@@ -64,7 +64,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
     const yScale = d3.scaleLinear().rangeRound([graphHeight, 0]);
     const yAxis = d3.axisLeft(yScale).tickSize(tickSize).tickPadding(tickPadding);
 
-    const lineChart = d3.line().x((d: any) => xScale(d.x)).y((d: any) => yScale(d.y));
+    const lineChart = d3.line().x((d: any) => xScale(d.x)!).y((d: any) => yScale(d.y)!);
 
     function make_x_gridlines(height: number) {
         return d3.axisBottom(xScale)
