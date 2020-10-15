@@ -71,7 +71,7 @@ async function buyOrdersCommandLogic(messageData: IParsedMessage): Promise<IBuyO
         return {reply, itemData, regionName};
     }
 
-    buyOrders = sortArrayByObjectProperty(buyOrders, 'price', true).slice(0, messageData.limit);
+    buyOrders = sortArrayByObjectProperty(buyOrders, (order) => order.price, true).slice(0, messageData.limit);
 
     let locationIds = [];
     for (const order of buyOrders) {
