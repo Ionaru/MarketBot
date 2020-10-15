@@ -89,3 +89,6 @@ Just follow these steps to get started:
 1. Fork this repository and clone the fork into a directory of your choice.
 2. Follow the Self-hosting steps to get a development version of the bot up and running
 3. Make your changes, test them and create a pull request.
+
+# Special thanks
+[![Bugsnag](https://images.typeform.com/images/QKuaAssrFCq7/image/default)](https://bugsnag.com)
