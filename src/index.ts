@@ -52,10 +52,11 @@ export let axiosInstance: AxiosInstance;
     });
 
     debug('Creating CacheController instance');
-    esiCache = new CacheController('data/responseCache.json');
+    esiCache = new CacheController('data/responseCache.json', undefined, debug);
 
     debug('Creating PublicESIService instance');
     esiService = new PublicESIService({
+        debug,
         axiosInstance,
         cacheController: esiCache,
         onRouteWarning: (route, text) => {

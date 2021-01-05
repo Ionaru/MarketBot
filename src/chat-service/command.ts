@@ -135,8 +135,8 @@ export abstract class Command {
         this.logCommand();
     }
 
-    protected abstract async isCommandValid(): Promise<boolean>;
-    protected abstract async processCommand(): Promise<void>;
+    protected abstract isCommandValid(): Promise<boolean>;
+    protected abstract processCommand(): Promise<void>;
 
     protected async sendInitialReply() {
         if (this.initialReply) {
