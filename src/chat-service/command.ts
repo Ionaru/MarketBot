@@ -176,7 +176,10 @@ export abstract class Command {
         }
 
         if (this.parsedMessage.system) {
-            if (!Command.allowedMarkets.map(market => market.toLowerCase()).includes(this.parsedMessage.system)) {
+            const location = Command.allowedMarkets.find(
+                (market) => market.toUpperCase() === this.parsedMessage.system.toUpperCase(),
+            );
+            if (!location) {
                 this.embed.addField('Warning',
                     `Use '/system' with one of the following values:
                     ${Command.allowedMarkets.join(', ')}.`,
@@ -184,8 +187,8 @@ export abstract class Command {
                 return defaultLocation;
             }
 
-            this.logData.location = this.parsedMessage.system;
-            return this.parsedMessage.system.charAt(0).toUpperCase() + this.parsedMessage.system.slice(1);
+            this.logData.location = location;
+            return location;
         }
 
         return defaultLocation;
