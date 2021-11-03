@@ -1,12 +1,14 @@
+import fs from 'fs';
+
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
-import fs from 'fs';
 import Fuse from 'fuse.js';
 import moment from 'moment';
 
-import { debug } from '../index';
+import { debug } from '../debug';
 import { dataFolder } from '../market-bot';
-import { ICitadelData } from '../typings';
+import { ICitadelData } from '../typings.d';
+
 import {
     fetchCitadelData,
     fetchServerStatus,
@@ -36,7 +38,7 @@ const cacheDebug = debug.extend('cache');
 
 const serverVersionFileName = 'server_version.txt';
 
-export async function checkAndUpdateCache() {
+export const checkAndUpdateCache = async () => {
     const {useCache, serverVersion}: IValidateCacheReturn = await validateCache();
 
     const newRegions = await cacheUniverse(useCache, 'regions', fetchUniverseRegions);
@@ -68,9 +70,9 @@ export async function checkAndUpdateCache() {
     }, timeUntilNextNoon);
 
     fs.writeFileSync(`${dataFolder}/${serverVersionFileName}`, serverVersion || '');
-}
+};
 
-async function validateCache(): Promise<IValidateCacheReturn> {
+const validateCache = async (): Promise<IValidateCacheReturn> => {
     const serverVersionFilePath = `${dataFolder}/${serverVersionFileName}`;
 
     const serverVersion = readFileContents(serverVersionFilePath, true);
@@ -80,19 +82,19 @@ async function validateCache(): Promise<IValidateCacheReturn> {
     if (!serverStatus) {
         process.stderr.write('Could not get EVE Online server status, using cache if possible\n');
         // Return true so the cache is used.
-        return {useCache: true, serverVersion: undefined};
+        return {serverVersion: undefined, useCache: true};
     }
 
     if (serverStatus.server_version === serverVersion) {
         cacheDebug(`EVE Online server version matches saved version, using cache`);
-        return {useCache: true, serverVersion: serverStatus.server_version};
+        return {serverVersion: serverStatus.server_version, useCache: true};
     }
 
     cacheDebug(`EVE Online server version does not match saved version (or there is no saved version), cache invalid`);
-    return {useCache: false, serverVersion: serverStatus.server_version};
-}
+    return {serverVersion: serverStatus.server_version, useCache: false};
+};
 
-async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () => Promise<number[]>): Promise<IUniverseNamesData> {
+const cacheUniverse = async (useCache: boolean, type: string, fetchFunction: () => Promise<number[]>): Promise<IUniverseNamesData> => {
     const savePath = `${dataFolder}/${type}.json`;
 
     if (useCache) {
@@ -130,9 +132,9 @@ async function cacheUniverse(useCache: boolean, type: string, fetchFunction: () 
         }
     }
     return [];
-}
+};
 
-export async function checkAndUpdateCitadelCache(): Promise<void> {
+export const checkAndUpdateCitadelCache = async (): Promise<void> => {
     cacheDebug(`Fetching known citadels from kalkoken.org API`);
 
     citadels = await fetchCitadelData().catch((error) => {
@@ -142,9 +144,7 @@ export async function checkAndUpdateCitadelCache(): Promise<void> {
 
     // Schedule a refresh of the citadel list every 6 hours.
     setInterval(async () => {
-        const newCitadels = await fetchCitadelData().catch(() => {
-            return {};
-        });
+        const newCitadels = await fetchCitadelData().catch(() => ({}));
         if (Object.keys(newCitadels).length && newCitadels.toString() !== citadels.toString()) {
             citadels = newCitadels;
             cacheDebug('Citadel data updated');
@@ -152,4 +152,4 @@ export async function checkAndUpdateCitadelCache(): Promise<void> {
     }, 6 * 60 * 60 * 1000); // 6 hours
 
     cacheDebug(`${Object.keys(citadels).length} citadels loaded into memory`);
-}
+};

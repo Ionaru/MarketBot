@@ -3,6 +3,7 @@ import elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 
 import { version } from '../package.json';
+
 import { Command } from './chat-service/command';
 import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
@@ -15,10 +16,12 @@ import { buyOrdersCommand } from './commands/buy-orders';
 import { historyCommand } from './commands/history';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
+import { debug } from './debug';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
 import { createCommandRegex } from './helpers/regex';
-import { configuration, debug, esiCache } from './index';
+
+import { configuration, esiCache } from './index';
 
 export const creator = 'Ionaru#3801';
 export const botName = 'MarketBot';
@@ -67,7 +70,7 @@ export const regionCommandRegex = createCommandRegex(regionCommands);
 export const systemCommandRegex = createCommandRegex(systemCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
 
-export async function activate() {
+export const activate = async () => {
     debug('Starting bot activation');
 
     debug(`Bot version: ${version}`);
@@ -106,9 +109,9 @@ export async function activate() {
     } else {
         throw new Error(`Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`);
     }
-}
+};
 
-function finishActivation() {
+const finishActivation = () => {
     performTrackingCycle().then(() => {
         startTrackingCycle();
     });
@@ -131,9 +134,9 @@ function finishActivation() {
         });
         debug(`Activation complete, ready for messages!`);
     }
-}
+};
 
-export async function deactivate(exitProcess: boolean, error = false): Promise<void> {
+export const deactivate = async (exitProcess: boolean, error = false): Promise<void> => {
     let quitMessage = 'Quitting';
     if (error) {
         quitMessage += ' because of an uncaught error!';
@@ -153,9 +156,9 @@ export async function deactivate(exitProcess: boolean, error = false): Promise<v
     if (exitProcess) {
         process.exit(0);
     }
-}
+};
 
-async function processMessage(message: Message, transaction: any): Promise<void> {
+const processMessage = async (message: Message, transaction: any): Promise<void> => {
     const rootCommand = message.content.split(' ')[0];
     switch (true) {
         case PriceCommand.test(rootCommand):
@@ -192,10 +195,10 @@ async function processMessage(message: Message, transaction: any): Promise<void>
             new TrackListCommand(message).execute().then();
             break;
     }
-}
+};
 
-export function handleError(message: Message, caughtError: Error) {
+export const handleError = (message: Message, caughtError: Error) => {
     Bugsnag.addMetadata('command', {command: message.content});
     Bugsnag.notify(caughtError);
     message.sendError(caughtError).then();
-}
+};

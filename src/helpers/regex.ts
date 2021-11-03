@@ -1,12 +1,11 @@
-import escapeStringRegexp = require('escape-string-regexp');
+import escapeStringRegexp from 'escape-string-regexp';
 
 import { Command } from '../chat-service/command';
 
-export function createCommandRegex(commands: string[], rootCommand = false): RegExp {
+export const createCommandRegex = (commands: string[], rootCommand = false): RegExp => {
     const beginning = rootCommand ? '^' : '';
     const end = rootCommand ? '$' : '';
 
-    return new RegExp(`${beginning}(${commands.map((element) => {
-        return escapeStringRegexp(Command.commandPrefix) + element + '\\b';
-    }).join('|')})${end}`, 'i');
-}
+    const commandsRegex = commands.map((element) => `${escapeStringRegexp(Command.commandPrefix)}${element}\\b`);
+    return new RegExp(`${beginning}(${commandsRegex.join('|')})${end}`, 'i');
+};

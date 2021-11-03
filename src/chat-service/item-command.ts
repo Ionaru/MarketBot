@@ -5,16 +5,12 @@ import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUnive
 import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { makeCode, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
+
 import { Command } from './command';
 
 export class ItemCommand extends Command {
 
     public static debug = Command.debug.extend('item');
-
-    public static test(command: string) {
-        this.debug(`Testing ${command}`);
-        return this.commandRegex.test(command);
-    }
 
     private static readonly commands = [
         'item', 'id', 'lookup',
@@ -24,6 +20,11 @@ export class ItemCommand extends Command {
 
     protected initialReply = `Gathering information about the item, one moment, ${this.message.sender}...`;
     protected commandName = ItemCommand.commands[0];
+
+    public static test(command: string) {
+        this.debug(`Testing ${command}`);
+        return this.commandRegex.test(command);
+    }
 
     protected async isCommandValid() {
 
@@ -35,11 +36,11 @@ export class ItemCommand extends Command {
         return true;
     }
 
-    // tslint:disable-next-line:cognitive-complexity
+    // eslint-disable-next-line sonarjs/cognitive-complexity
     protected async processCommand() {
         const {itemData, guess, id}: IGuessReturn = await guessItemInput(this.parsedMessage.item);
 
-        const guessHint = getGuessHint({itemData, guess, id}, this.parsedMessage.item);
+        const guessHint = getGuessHint({guess, id, itemData}, this.parsedMessage.item);
         if (guessHint) {
             this.embed.addField('Warning', guessHint);
         }

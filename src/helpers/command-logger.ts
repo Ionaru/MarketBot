@@ -1,11 +1,12 @@
+/* eslint-disable camelcase */
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Command } from '../chat-service/command';
 import { Message } from '../chat-service/discord/message';
 import { configuration } from '../index';
+
 import { parseMessage } from './parsers';
 
-// tslint:disable:variable-name
 @Entity('LogEntries')
 export class LogEntry extends BaseEntity {
 
@@ -52,7 +53,7 @@ export class LogEntry extends BaseEntity {
     public command_full!: string;
 }
 
-export function logCommand(commandType: string, message: Message, outputItem?: string, outputRegion?: string, transaction?: any) {
+export const logCommand = (commandType: string, message: Message, outputItem?: string, outputRegion?: string, transaction?: any) => {
     Command.debug(message.content);
 
     const parsedMessage = parseMessage(message.content);
@@ -92,4 +93,4 @@ export function logCommand(commandType: string, message: Message, outputItem?: s
     if (configuration.getProperty('logging.enabled') === true) {
         newLogEntry.save().then();
     }
-}
+};

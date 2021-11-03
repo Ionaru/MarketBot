@@ -1,21 +1,16 @@
-import Discord from 'discord.js';
 import { EventEmitter } from 'events';
-import Timeout = NodeJS.Timeout;
+
+import Discord from 'discord.js';
 
 import { Command } from '../command';
 import { InfoCommand } from '../info-command';
+
 import { Message } from './message';
 import { maxMessageLength } from './misc';
 
+import Timeout = NodeJS.Timeout;
+
 export class Client {
-
-    private static onError(error: Error) {
-        process.stderr.write(`Discord: \n${error.message}\n`);
-    }
-
-    private static onWarning(warning: string) {
-        process.emitWarning(`Discord: \n${warning}`);
-    }
 
     public readonly emitter: EventEmitter;
 
@@ -25,7 +20,7 @@ export class Client {
     private _id?: string;
     private presenceInterval?: Timeout;
 
-    constructor(credentials: string) {
+    public constructor(credentials: string) {
         this.credentials = credentials;
         this.client = new Discord.Client();
         this.emitter = new EventEmitter();
@@ -51,6 +46,32 @@ export class Client {
         });
     }
 
+    public get name(): string | undefined {
+        // eslint-disable-next-line no-underscore-dangle
+        return this._name;
+    }
+
+    public get id(): string | undefined {
+        // eslint-disable-next-line no-underscore-dangle
+        return this._id;
+    }
+
+    public get serverCount(): number {
+        return this.client.guilds.cache.array().length;
+    }
+
+    public get upTime(): Date | undefined {
+        return this.client.readyAt || undefined;
+    }
+
+    private static onError(error: Error) {
+        process.stderr.write(`Discord: \n${error.message}\n`);
+    }
+
+    private static onWarning(warning: string) {
+        process.emitWarning(`Discord: \n${warning}`);
+    }
+
     public login() {
         this.client.login(this.credentials).then();
     }
@@ -73,14 +94,18 @@ export class Client {
             if (channel) {
                 if (channel.type === 'dm' || channel.type === 'text') {
                     const textChannel = channel as Discord.TextChannel | Discord.DMChannel;
-                    await textChannel.send(message).catch((error) => {throw new Error(error); });
+                    await textChannel.send(message).catch((error) => {
+                        throw new Error(error);
+                    });
                 }
             } else {
                 // Try to create a DM channel with the user, this might not always succeed depending on their privacy settings.
                 const user = this.client.users.cache.array().find((discordUser) => discordUser.id === userId);
                 if (user) {
                     const dmChannel: Discord.DMChannel = await user.createDM();
-                    await dmChannel.send(message).catch((error) => {throw new Error(error); });
+                    await dmChannel.send(message).catch((error) => {
+                        throw new Error(error);
+                    });
                 }
             }
         } catch (error) {
@@ -97,29 +122,13 @@ export class Client {
         return undefined;
     }
 
-    get name(): string | undefined {
-        return this._name;
-    }
-
-    get id(): string | undefined {
-        return this._id;
-    }
-
-    get serverCount(): number {
-        return this.client.guilds.cache.array().length;
-    }
-
-    get upTime(): Date | undefined {
-        return this.client.readyAt || undefined;
-    }
-
     private setDiscordPresence() {
         this.client.user?.setPresence({
-            status: 'online',
             activity: {
-                type: 'PLAYING',
                 name: `with ISK (try ${Command.commandPrefix}${InfoCommand.commands[0]})`,
+                type: 'PLAYING',
             },
+            status: 'online',
         }).then();
 
         // Re-set the presence every hour because of a known issue on Discord's side.
@@ -142,7 +151,9 @@ export class Client {
     }
 
     private onReady() {
+        // eslint-disable-next-line no-underscore-dangle
         this._name = this.client.user?.username;
+        // eslint-disable-next-line no-underscore-dangle
         this._id = this.client.user?.id;
         this.setDiscordPresence();
         this.emitter.emit('ready');

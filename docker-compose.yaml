@@ -1,0 +1,13 @@
+version: "3"
+services:
+
+  marketbot:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ${MARKETBOT_CONFIG_VOLUME:-config-volume}:/app/config
+      - ${MARKETBOT_DATA_VOLUME:-data-volume}:/app/data
+
+volumes:
+  config-volume:
+  data-volume:

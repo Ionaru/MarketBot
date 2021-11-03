@@ -1,4 +1,4 @@
-import Timer = NodeJS.Timer;
+/* eslint-disable camelcase */
 import { IMarketOrdersDataUnit, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
@@ -14,12 +14,12 @@ import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helper
 import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
 
+import Timer = NodeJS.Timer;
+
 const debug = Command.debug.extend('track');
 
 @Entity('TrackingEntries')
 export class TrackingEntry extends BaseEntity {
-
-    // tslint:disable:variable-name
 
     @PrimaryGeneratedColumn()
     public id!: number;
@@ -27,31 +27,23 @@ export class TrackingEntry extends BaseEntity {
     @Column()
     public item_id!: number;
 
-    // noinspection TsLint
     @Column()
     public channel_id!: string;
 
-    // noinspection TsLint
     @Column()
     public sender_id!: string;
 
-    // noinspection TsLint
     @Column()
     public region_id!: number;
 
-    // noinspection TsLint
     @Column({type: 'decimal'})
     public tracking_limit!: number;
 
-    // noinspection TsLint
     @Column({type: 'decimal'})
     public tracking_price!: number;
 
-    // noinspection TsLint
     @Column()
     public tracking_type!: 'buy' | 'sell';
-
-    // tslint:enable:variable-name
 }
 
 let trackingCycle: Timer | undefined;
@@ -62,31 +54,31 @@ interface ITrackCommandLogicReturn {
     regionName?: string;
 }
 
-export function startTrackingCycle() {
+export const startTrackingCycle = () => {
     debug('Scheduled next tracking cycle');
     trackingCycle = setInterval(() => {
         performTrackingCycle().then();
     }, 5 * 60 * 1000);
-}
+};
 
-export function stopTrackingCycle() {
+export const stopTrackingCycle = () => {
     if (trackingCycle !== undefined) {
         debug('Stopping tracking cycle');
         clearInterval(trackingCycle);
         trackingCycle = undefined;
     }
-}
+};
 
-export async function trackCommand(message: Message, type: 'buy' | 'sell', transaction: any): Promise<void> {
+export const trackCommand = async (message: Message, type: 'buy' | 'sell', transaction: any): Promise<void> => {
     const replyPlaceHolder = await message.reply(`Setting up for price tracking, one moment, ${message.sender}...`);
 
     const {reply, itemData, regionName} = await trackCommandLogic(message, type);
 
     await replyPlaceHolder.edit(reply);
     logCommand(`track-${type}-order`, message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
-}
+};
 
-async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> {
+const trackCommandLogic = async (message: Message, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> => {
     const maxEntries = 3;
 
     let regionName = '';
@@ -96,17 +88,18 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
 
     if (!(messageData.item && messageData.item.length)) {
         reply += 'You need to give me an item to track.';
-        return {reply, itemData: undefined, regionName};
+        return {itemData: undefined, regionName, reply};
     }
 
     const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
-    reply += getGuessHint({itemData, guess, id}, messageData.item);
+    reply += getGuessHint({guess, id, itemData}, messageData.item);
 
     if (!itemData.id) {
-        return {reply, itemData: undefined, regionName};
+        return {itemData: undefined, regionName, reply};
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
     let selectedRegion = defaultRegion;
 
@@ -133,7 +126,7 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     const dupEntries = trackingEntries.filter((trackingEntry) => trackingEntry.sender_id === message.author.id);
     if (dupEntries.length >= maxEntries) {
         reply += `You've reached the maximum of ${makeBold(maxEntries)} tracking entries.`;
-        return {reply, itemData, regionName};
+        return {itemData, regionName, reply};
     }
 
     const channelItemDup = dupEntries.some((duplicate) =>
@@ -142,13 +135,13 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     );
     if (channelItemDup) {
         reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name)} in this channel.`;
-        return {reply, itemData, regionName};
+        return {itemData, regionName, reply};
     }
 
     const originalOrder = await getCheapestOrder(type, itemData.id, selectedRegion.id);
     if (!originalOrder) {
         reply += `I couldn't find any ${makeBold(type)} orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
-        return {reply, itemData, regionName};
+        return {itemData, regionName, reply};
     }
 
     const originalPrice = originalOrder.price;
@@ -171,10 +164,10 @@ async function trackCommandLogic(message: Message, type: 'buy' | 'sell'): Promis
     if (trackingCycle === undefined) {
         startTrackingCycle();
     }
-    return {reply, itemData, regionName};
-}
+    return {itemData, regionName, reply};
+};
 
-export async function clearTrackingCommand(message: Message, transaction: any): Promise<void> {
+export const clearTrackingCommand = async (message: Message, transaction: any): Promise<void> => {
     let reply = `All entries cleared from this channel, ${message.sender}.`;
 
     const messageData = parseMessage(message.content);
@@ -201,20 +194,15 @@ export async function clearTrackingCommand(message: Message, transaction: any): 
     }
     await message.reply(reply);
     logCommand(`track-clear`, message, undefined, undefined, transaction);
-}
+};
 
-function droppedRose(amount: number) {
-    if (amount < 0) {
-        return 'dropped';
-    }
-    return 'rose';
-}
+const droppedRose = (amount: number) => amount < 0 ? 'dropped' : 'rose';
 
 /**
  * The main tracking cycle, it will fetch prices for all items in the TrackingEntries array and send messages.
  */
-// tslint:disable-next-line:cognitive-complexity
-export async function performTrackingCycle() {
+// eslint-disable-next-line sonarjs/cognitive-complexity
+export const performTrackingCycle = async () => {
 
     debug('Executing tracking cycle');
 
@@ -225,19 +213,18 @@ export async function performTrackingCycle() {
         return;
     }
 
-    const entriesDone: { entry: TrackingEntry, order?: IMarketOrdersDataUnit }[] = [];
+    const entriesDone: Array<{ entry: TrackingEntry; order?: IMarketOrdersDataUnit }> = [];
 
     for (const entry of trackingEntries) {
 
-        let currentPrice: number = 0;
-        let currentOrder: IMarketOrdersDataUnit | undefined;
+        let currentPrice = 0;
 
         // It is inefficient to fetch prices for the same item/region combo twice, check if the combo exists in duplicateEntries.
         const duplicateEntry = entriesDone.find((entryDone) =>
             (entryDone.entry.item_id === entry.item_id && entryDone.entry.region_id === entry.region_id),
         );
 
-        currentOrder = (duplicateEntry && duplicateEntry.order) ?
+        const currentOrder = (duplicateEntry && duplicateEntry.order) ?
             duplicateEntry.order : await getCheapestOrder(entry.tracking_type, entry.item_id, entry.region_id);
 
         if (currentOrder) {
@@ -257,10 +244,8 @@ export async function performTrackingCycle() {
             if (roundedChange >= entry.tracking_limit) {
                 await sendChangeMessage(entry.channel_id, currentOrder, entry, changeAbsolute).then(() => {
                     // Update the tracking_price so we don't notify twice for the same price change
-                    if (entry && currentOrder) {
-                        entry.tracking_price = currentOrder.price;
-                        entry.save().then();
-                    }
+                    entry.tracking_price = currentOrder.price;
+                    entry.save().then();
                 }).catch((error) => {
                     process.stderr.write(`Cannot send message: \n${error}\n`);
                     entry.remove().then();
@@ -273,9 +258,9 @@ export async function performTrackingCycle() {
             order: currentOrder ? currentOrder : undefined,
         });
     }
-}
+};
 
-async function sendChangeMessage(channelId: string, currentOrder: IMarketOrdersDataUnit, entry: TrackingEntry, change: number) {
+const sendChangeMessage = async (channelId: string, currentOrder: IMarketOrdersDataUnit, entry: TrackingEntry, change: number) => {
     const oldPrice = formatNumber(entry.tracking_price) + ' ISK';
     const newPrice = formatNumber(currentOrder.price) + ' ISK';
     const isWord = pluralize('is', 'are', currentOrder.volume_remain);
@@ -283,7 +268,9 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketOrdersD
     const droppedRoseWord = droppedRose(currentOrder.price - entry.tracking_price);
     const changeText = makeCode(`${formatNumber(change)} ISK`);
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const itemName = items.find((item) => item.id === entry.item_id)!.name;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const regionName = regions.find((region) => region.id === entry.region_id)!.name;
 
     let reply = `Attention, change detected in ${makeBold(entry.tracking_type)} price `;
@@ -296,4 +283,4 @@ async function sendChangeMessage(channelId: string, currentOrder: IMarketOrdersD
     if (client) {
         await client.sendToChannel(channelId, reply);
     }
-}
+};

@@ -4,16 +4,12 @@ import { fetchPriceData } from '../helpers/api';
 import { getGuessHint, guessItemInput } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
+
 import { Command } from './command';
 
 export class PriceCommand extends Command {
 
     public static debug = Command.debug.extend('price');
-
-    public static test(command: string) {
-        PriceCommand.debug(`Testing ${command}`);
-        return PriceCommand.commandRegex.test(command);
-    }
 
     private static readonly commands = [
         'price', 'p', 'value',
@@ -23,6 +19,11 @@ export class PriceCommand extends Command {
 
     protected initialReply = `Checking price, one moment, ${this.message.sender}...`;
     protected commandName = PriceCommand.commands[0];
+
+    public static test(command: string) {
+        PriceCommand.debug(`Testing ${command}`);
+        return PriceCommand.commandRegex.test(command);
+    }
 
     protected async isCommandValid() {
 
@@ -37,7 +38,7 @@ export class PriceCommand extends Command {
     protected async processCommand() {
         const {itemData, guess, id} = await guessItemInput(this.parsedMessage.item);
 
-        const guessHint = getGuessHint({itemData, guess, id}, this.parsedMessage.item);
+        const guessHint = getGuessHint({guess, id, itemData}, this.parsedMessage.item);
         if (guessHint) {
             this.embed.addField('Warning', guessHint);
         }
@@ -64,7 +65,7 @@ export class PriceCommand extends Command {
 
         const sellMeta: string[] = [
             formatNumber(json.appraisal.items[0].prices.sell.order_count, 0) + ' orders',
-                formatNumber(json.appraisal.items[0].prices.sell.volume, 0) + ' items',
+            formatNumber(json.appraisal.items[0].prices.sell.volume, 0) + ' items',
         ];
         const buyMeta: string[] = [
             formatNumber(json.appraisal.items[0].prices.buy.order_count, 0) + ' orders',

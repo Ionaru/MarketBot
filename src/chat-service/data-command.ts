@@ -1,22 +1,18 @@
 import countdown from 'countdown';
 
 import { TrackingEntry } from '../commands/track';
+import { debug } from '../debug';
 import { LogEntry } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { itemFormat, makeBold, makeCode, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
-import { debug } from '../index';
 import { client, commandPrefix } from '../market-bot';
+
 import { Command } from './command';
 
 export class DataCommand extends Command {
 
     public static readonly debug = Command.debug.extend('data');
-
-    public static test(command: string) {
-        DataCommand.debug(`Testing ${command}`);
-        return DataCommand.commandRegex.test(command);
-    }
 
     private static readonly commands = [
         'data', 'd', 'stats',
@@ -26,6 +22,11 @@ export class DataCommand extends Command {
 
     protected readonly initialReply = `Fetching data, one moment, ${this.message.sender}...`;
     protected readonly commandName = DataCommand.commands[0];
+
+    public static test(command: string) {
+        DataCommand.debug(`Testing ${command}`);
+        return DataCommand.commandRegex.test(command);
+    }
 
     protected async isCommandValid() {
         return true;

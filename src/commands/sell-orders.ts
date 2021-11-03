@@ -10,7 +10,7 @@ import { pluralize } from '../helpers/formatters';
 import { getGuessHint, getSelectedRegion, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
 import { parseMessage } from '../helpers/parsers';
-import { IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings.d';
 
 interface ISellOrdersCommandLogicReturn {
     reply: string;
@@ -18,7 +18,7 @@ interface ISellOrdersCommandLogicReturn {
     regionName?: string;
 }
 
-export async function sellOrdersCommand(message: Message, transaction: any) {
+export const sellOrdersCommand = async (message: Message, transaction: any) => {
     const messageData = parseMessage(message.content);
 
     messageData.limit = messageData.limit || 5;
@@ -30,24 +30,24 @@ export async function sellOrdersCommand(message: Message, transaction: any) {
 
     await replyPlaceHolder.edit(reply);
     logCommand('sell-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
-}
+};
 
-async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> {
+const sellOrdersCommandLogic = async (messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> => {
 
     let regionName = '';
     let reply = '';
 
     if (!(messageData.item && messageData.item.length)) {
         reply += 'You need to give me an item to search for.';
-        return {reply, itemData: undefined, regionName};
+        return {itemData: undefined, regionName, reply};
     }
 
     const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
 
-    reply += getGuessHint({itemData, guess, id}, messageData.item);
+    reply += getGuessHint({guess, id, itemData}, messageData.item);
 
     if (!itemData.id) {
-        return {reply, itemData: undefined, regionName};
+        return {itemData: undefined, regionName, reply};
     }
 
     const {selectedRegion, regionReply} = await getSelectedRegion(messageData.region, reply);
@@ -61,12 +61,12 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
 
     if (!sellOrders) {
         reply += `My apologies, I was unable to fetch the required data from the web, please try again later.`;
-        return {reply, itemData, regionName};
+        return {itemData, regionName, reply};
     }
 
     if (!(sellOrders && sellOrders.length)) {
         reply += `I couldn't find any sell orders for ${itemFormat(itemData.name)} in ${regionFormat(regionName)}.`;
-        return {reply, itemData, regionName};
+        return {itemData, regionName, reply};
     }
 
     sellOrders = sortArrayByObjectProperty(sellOrders, (order) => order.price).slice(0, messageData.limit);
@@ -109,5 +109,5 @@ async function sellOrdersCommandLogic(messageData: IParsedMessage): Promise<ISel
             break;
         }
     }
-    return {reply, itemData, regionName};
-}
+    return {itemData, regionName, reply};
+};

@@ -2,6 +2,7 @@ import Discord from 'discord.js';
 
 import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
+
 import { maxMessageLength } from './misc';
 
 interface IServer {
@@ -13,30 +14,17 @@ type channelType = 'dm' | 'text' | 'voice' | 'group' | 'category' | 'news' | 'st
 
 export class Message {
 
-    public static processError(caughtError: Error, command: string, errorText = `I'm sorry, it appears I have developed a fault`) {
-        const time = Date.now();
-        process.stderr.write(`Caught error @ ${time} \n${caughtError}\n`);
-        process.stderr.write(`Error triggered by command: \n${command}\n`);
-        let text = `${errorText}.`;
-        text += newLine();
-        text += `Please let ${makeCode(creator)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
-        text += newLine(2);
-        const errorMessage = `${caughtError.message} @ ${time}`;
-        text += `Technical information: ${makeCode(errorMessage)}`;
-        return text;
-    }
-
     public readonly sender: string;
     public readonly origin: string;
-    public readonly author: { id: string, name: string };
-    public readonly channel: { id: string, name?: string, type: channelType };
+    public readonly author: { id: string; name: string };
+    public readonly channel: { id: string; name?: string; type: channelType };
     public readonly server: IServer;
     public readonly content: string;
     public readonly id: string;
 
     private discordMessage: Discord.Message;
 
-    constructor(message: Discord.Message) {
+    public constructor(message: Discord.Message) {
         this.discordMessage = message;
         this.sender = message.author.username;
         this.content = message.content;
@@ -69,13 +57,26 @@ export class Message {
         this.origin = 'Discord';
     }
 
-    get guild(): Discord.Guild | undefined {
+    public get guild(): Discord.Guild | undefined {
         if (this.discordMessage.channel.type === 'text') {
             const channel = this.discordMessage.channel;
             return channel.guild;
         }
 
         return undefined;
+    }
+
+    public static processError(caughtError: Error, command: string, errorText = `I'm sorry, it appears I have developed a fault`) {
+        const time = Date.now();
+        process.stderr.write(`Caught error @ ${time} \n${caughtError}\n`);
+        process.stderr.write(`Error triggered by command: \n${command}\n`);
+        let text = `${errorText}.`;
+        text += newLine();
+        text += `Please let ${makeCode(creator)} (${makeURL('https://discord.gg/k9tAX94')}) know about this error.`;
+        text += newLine(2);
+        const errorMessage = `${caughtError.message} @ ${time}`;
+        text += `Technical information: ${makeCode(errorMessage)}`;
+        return text;
     }
 
     public async reply(message: string, options: Discord.MessageOptions = {}): Promise<Message> {
@@ -102,13 +103,13 @@ export class Message {
 
         this.reply(replyMessage)
             .then().catch(async (error: Discord.DiscordAPIError) => {
-            process.stderr.write(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'\n`);
-            if (error.stack) {
-                process.stderr.write(error.stack.toString() + '\n');
-            } else {
-                process.stderr.write(error.toString() + '\n');
-            }
-        });
+                process.stderr.write(`Unable to send error message to channel '${this.channel.name} (${this.channel.id})'\n`);
+                if (error.stack) {
+                    process.stderr.write(error.stack.toString() + '\n');
+                } else {
+                    process.stderr.write(error.toString() + '\n');
+                }
+            });
     }
 
     public async edit(message: string, options: Discord.MessageEditOptions = {}): Promise<void> {

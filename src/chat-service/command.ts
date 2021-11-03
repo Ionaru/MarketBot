@@ -1,26 +1,53 @@
 import { MessageEditOptions, MessageEmbed, MessageOptions } from 'discord.js';
 import { startTransaction } from 'elastic-apm-node';
 
+import { debug } from '../debug';
 import { logCommand } from '../helpers/command-logger';
-import { configuration, debug } from '../index';
+import { configuration } from '../index';
 import { limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
-import { IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings.d';
+
 import { Message } from './discord/message';
 
 export abstract class Command {
 
+    public static readonly commandPrefix = '/';
+
+    // TODO: Change back to protected when all commands are re-written.
+    public static readonly debug = debug.extend('command');
+
     private static readonly allowedMarkets = ['Jita', 'Amarr', 'Dodixie', 'Hek', 'Rens'];
 
-    public static readonly commandPrefix = '/';
+    protected readonly message: Message;
+    protected readonly parsedMessage: IParsedMessage;
+    protected readonly reply: {text?: string; options?: MessageOptions | MessageEditOptions} = {};
+    protected readonly embed: MessageEmbed = new MessageEmbed();
+
+    protected readonly logData: {item?: string; location?: string} = {};
+
+    private readonly transaction: any;
+    private replyPlaceHolder?: Message;
+
+    // Members that all derivative classes must implement.
+    protected abstract readonly initialReply?: string;
+    protected abstract readonly commandName: string;
+
+    public constructor(message: Message) {
+        this.message = message;
+        this.parsedMessage = Command.parseMessage(message.content);
+
+        Command.debug(message.content);
+
+        if (configuration.getProperty('elastic.enabled') === true) {
+            Command.debug(`Starting elastic transaction`);
+            this.transaction = startTransaction();
+        }
+    }
 
     public static test(message: string) {
         Command.debug(`Testing ${message}`);
         return message.startsWith(Command.commandPrefix);
     }
-
-    // TODO: Change back to protected when all commands are re-written.
-    // tslint:disable-next-line:member-ordering
-    public static readonly debug = debug.extend('command');
 
     protected static parseMessage(messageContent: string) {
         const parsedMessage: IParsedMessage = {
@@ -92,32 +119,6 @@ export abstract class Command {
         return message.trim();
     }
 
-    protected readonly message: Message;
-    protected readonly parsedMessage: IParsedMessage;
-    protected readonly reply: {text?: string, options?: MessageOptions | MessageEditOptions} = {};
-    protected readonly embed: MessageEmbed = new MessageEmbed();
-
-    protected readonly logData: {item?: string, location?: string} = {};
-
-    // Members that all derivative classes must implement.
-    protected abstract readonly initialReply?: string;
-    protected abstract readonly commandName: string;
-
-    private readonly transaction: any;
-    private replyPlaceHolder?: Message;
-
-    constructor(message: Message) {
-        this.message = message;
-        this.parsedMessage = Command.parseMessage(message.content);
-
-        Command.debug(message.content);
-
-        if (configuration.getProperty('elastic.enabled') === true) {
-            Command.debug(`Starting elastic transaction`);
-            this.transaction = startTransaction();
-        }
-    }
-
     public async execute() {
         await this.sendInitialReply();
 
@@ -134,9 +135,6 @@ export abstract class Command {
         await this.sendReply();
         this.logCommand();
     }
-
-    protected abstract isCommandValid(): Promise<boolean>;
-    protected abstract processCommand(): Promise<void>;
 
     protected async sendInitialReply() {
         if (this.initialReply) {
@@ -193,4 +191,7 @@ export abstract class Command {
 
         return defaultLocation;
     }
+
+    protected abstract isCommandValid(): Promise<boolean>;
+    protected abstract processCommand(): Promise<void>;
 }

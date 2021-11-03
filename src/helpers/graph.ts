@@ -7,7 +7,7 @@ interface IData {
     y: number;
 }
 
-export function createLineGraph(data: IData[], chartName = 'Line graph', extraText = '') {
+export const createLineGraph = (data: IData[], chartName = 'Line graph', extraText = '') => {
 
     const backgroundColor = '#36393e';
     const textColor = '#939597';
@@ -37,7 +37,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
         selector,
     });
 
-    const margin = {top: 0, right: 75, bottom: 125, left: 75};
+    const margin = {bottom: 125, left: 75, right: 75, top: 0};
     const pageWidth = 1200;
     const pageHeight = 600;
     const tickSize = 5;
@@ -64,20 +64,19 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
     const yScale = d3.scaleLinear().rangeRound([graphHeight, 0]);
     const yAxis = d3.axisLeft(yScale).tickSize(tickSize).tickPadding(tickPadding);
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const lineChart = d3.line().x((d: any) => xScale(d.x)!).y((d: any) => yScale(d.y)!);
 
-    function make_x_gridlines(height: number) {
-        return d3.axisBottom(xScale)
-            .ticks(data.length)
-            .tickFormat(timeFormat as any)
-            .tickSize(-height);
-    }
+    // eslint-disable-next-line camelcase
+    const makeXGridlines = (height: number) => d3.axisBottom(xScale)
+        .ticks(data.length)
+        .tickFormat(timeFormat as any)
+        .tickSize(-height);
 
-    function make_y_gridlines(width: number) {
-        return d3.axisLeft(yScale)
-            .ticks(10)
-            .tickSize(-width);
-    }
+    // eslint-disable-next-line camelcase
+    const makeYGridlines = (width: number) => d3.axisLeft(yScale)
+        .ticks(10)
+        .tickSize(-width);
 
     // Set scope of X-axis.
     const startDate = new Date(data[data.length - 1].x);
@@ -95,7 +94,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
     g.append('g')
         .attr('transform', `translate(0, ${graphHeight})`)
         .call(xAxis)
-        .call(make_x_gridlines(graphHeight));
+        .call(makeXGridlines(graphHeight));
 
     g.selectAll('text')
         .attr('y', 0)
@@ -106,7 +105,7 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
 
     g.append('g')
         .call(yAxis)
-        .call(make_y_gridlines(graphWidth));
+        .call(makeYGridlines(graphWidth));
 
     g.selectAll('line')
         .attr('stroke', textColor);
@@ -125,20 +124,20 @@ export function createLineGraph(data: IData[], chartName = 'Line graph', extraTe
         .attr('d', lineChart);
 
     return d3n;
-}
+};
 
-export async function exportGraphImage(graph: any, path: string) {
+export const exportGraphImage = async (graph: any, path: string) => {
 
     const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
     const page = await browser.newPage();
     await page.setContent(graph.html());
 
-    const viewport = {width: graph.width, height: graph.height};
+    const viewport = {height: graph.height, width: graph.width};
     await page.setViewport(viewport);
 
-    const type = 'png' as 'png';
-    const screenShotOptions = {viewport, type, path};
+    const type = 'png' as const;
+    const screenShotOptions = {path, type, viewport};
     await page.screenshot(screenShotOptions);
 
     browser.close().then();
-}
+};

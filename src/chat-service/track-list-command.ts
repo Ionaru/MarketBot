@@ -4,16 +4,12 @@ import { TrackingEntry } from '../commands/track';
 import { items } from '../helpers/cache';
 import { makeBold, makeCode, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
+
 import { Command } from './command';
 
 export class TrackListCommand extends Command {
 
     public static readonly debug = Command.debug.extend('track-list');
-
-    public static test(command: string) {
-        TrackListCommand.debug(`Testing ${command}`);
-        return TrackListCommand.commandRegex.test(command);
-    }
 
     private static readonly commands = [
         'track-list', 'tl',
@@ -23,6 +19,11 @@ export class TrackListCommand extends Command {
 
     protected readonly initialReply = `Fetching tracking information, one moment, ${this.message.sender}...`;
     protected readonly commandName = TrackListCommand.commands[0];
+
+    public static test(command: string) {
+        TrackListCommand.debug(`Testing ${command}`);
+        return TrackListCommand.commandRegex.test(command);
+    }
 
     protected async isCommandValid() {
         return true;
@@ -45,6 +46,7 @@ export class TrackListCommand extends Command {
 
             let entryText = '';
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const trackingItem = items.find((item) => item.id === entry.item_id)!;
 
             entryText += `• ${makeBold('Type')}: ${entry.tracking_type}`;

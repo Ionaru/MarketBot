@@ -1,7 +1,7 @@
 import { commandPrefix, limitCommandRegex, regionCommandRegex, systemCommandRegex } from '../market-bot';
-import { IParsedMessage } from '../typings';
+import { IParsedMessage } from '../typings.d';
 
-export function parseMessage(message: string): IParsedMessage {
+export const parseMessage = (message: string): IParsedMessage => {
     const parsedMessage: IParsedMessage = {
         content: message,
         item: '',
@@ -12,10 +12,9 @@ export function parseMessage(message: string): IParsedMessage {
 
     // Remove double spaces because that confuses the input guessing system
     let messageText = message.replace(/ +(?= )/g, '');
-    let messageWords: string[];
 
     // Split the message into separate words and remove the first word (the command tag)
-    messageWords = messageText.split(' ');
+    const messageWords = messageText.split(' ');
     messageWords.shift();
 
     if (messageWords) {
@@ -29,35 +28,21 @@ export function parseMessage(message: string): IParsedMessage {
     }
     parsedMessage.item = itemText;
 
-    // Search for the region text
-    const regionMatch = messageText.match(regionCommandRegex);
-    if (regionMatch && regionMatch.index) {
-        let sep1 = messageText.substring(regionMatch.index + regionMatch[0].length).trim();
-        if (sep1.indexOf(commandPrefix) !== -1) {
-            sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
-        }
-        parsedMessage.region = sep1;
-    }
+    const matcher = (regex: RegExp, key: keyof IParsedMessage, parser?: (input: string) => string | number) => {
+        const match = messageText.match(regex);
+        if (match && match.index) {
+            let sep1 = messageText.substring(match.index + match[0].length).trim();
+            if (sep1.indexOf(commandPrefix) !== -1) {
+                sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
+            }
 
-    // Search for the system text
-    const systemMatch = messageText.match(systemCommandRegex);
-    if (systemMatch && systemMatch.index) {
-        let sep1 = messageText.substring(systemMatch.index + systemMatch[0].length).trim();
-        if (sep1.indexOf(commandPrefix) !== -1) {
-            sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
+            (parsedMessage[key] as any) = parser ? parser(sep1) : sep1;
         }
-        parsedMessage.system = sep1;
-    }
+    };
 
-    // Search for the limit text
-    const limitMatch = messageText.match(limitCommandRegex);
-    if (limitMatch && limitMatch.index) {
-        let sep1 = messageText.substring(limitMatch.index + limitMatch[0].length).trim();
-        if (sep1.indexOf(commandPrefix) !== -1) {
-            sep1 = sep1.substring(0, sep1.indexOf(commandPrefix)).trim();
-        }
-        parsedMessage.limit = Number(sep1);
-    }
+    matcher(regionCommandRegex, 'region');
+    matcher(systemCommandRegex, 'system');
+    matcher(limitCommandRegex, 'limit', (input) => Number(input));
 
     return parsedMessage;
-}
+};

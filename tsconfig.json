@@ -10,6 +10,7 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
+        "removeComments": true,
         "resolveJsonModule": true,
         "lib": [
             "esnext"
@@ -18,17 +19,14 @@
         "moduleResolution": "node",
         "outDir": "./dist",
         "sourceMap": true,
-        "target": "es2018",
+        "target": "es2021",
         "typeRoots": [
-            "./node_modules/@types"
+            "node_modules/@types"
         ]
     },
-    "exclude": [
-        "./node_modules",
-        "./src/__mocks__",
-        "./src/**/*.spec.ts"
-    ],
-    "include": [
-        "./src/**/*.ts"
+    "files": [
+        "src/modules.d.ts",
+        "src/typings.d.ts",
+        "src/index.ts"
     ]
 }

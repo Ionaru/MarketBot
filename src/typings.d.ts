@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 export interface IParsedMessage {
     content: string;
     item: string;
@@ -20,7 +21,7 @@ export interface ICitadelData {
         systemId: number;
         lastSeen: string;
         systemName: string;
-        //noinspection ReservedWordAsName
+        // noinspection ReservedWordAsName
         public: boolean;
         firstSeen: string;
         regionName: string;
@@ -29,12 +30,12 @@ export interface ICitadelData {
 
 export interface IEVEPraisalData {
     appraisal: {
-        created: number,
+        created: number;
         items: [
             {
                 meta: {
-                    bpc: boolean,
-                },
+                    bpc: boolean;
+                };
                 name: string;
                 prices: {
                     all: {
@@ -46,7 +47,7 @@ export interface IEVEPraisalData {
                         percentile: number;
                         stddev: number;
                         volume: number;
-                    },
+                    };
                     buy: {
                         avg: number;
                         max: number;
@@ -56,7 +57,7 @@ export interface IEVEPraisalData {
                         percentile: number;
                         stddev: number;
                         volume: number;
-                    },
+                    };
                     sell: {
                         avg: number;
                         max: number;
@@ -66,16 +67,16 @@ export interface IEVEPraisalData {
                         percentile: number;
                         stddev: number;
                         volume: number;
-                    },
+                    };
                     strategy: string;
                     updated: string;
-                },
+                };
                 quantity: number;
                 typeID: number;
                 typeName: string;
                 typeVolume: number;
             }
-        ],
+        ];
         kind: string;
         market_name: string;
         raw: string;
@@ -83,7 +84,7 @@ export interface IEVEPraisalData {
             buy: number;
             sell: number;
             volume: number;
-        },
-        unparsed: {},
-    }
+        };
+        unparsed: Record<string, unknown>;
+    };
 }

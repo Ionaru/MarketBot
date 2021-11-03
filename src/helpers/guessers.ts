@@ -1,9 +1,9 @@
+import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import escapeStringRegexp from 'escape-string-regexp';
 import Fuse from 'fuse.js';
 
 import { fetchUniverseType } from './api';
-import { sortArrayByObjectPropertyLength } from './arrays';
 import { items, itemsFuse, regions, regionsFuse, systems } from './cache';
 import { itemFormat, newLine, regionFormat } from './message-formatter';
 
@@ -33,29 +33,19 @@ export interface IGuessReturn {
     id: boolean;
 }
 
-function replaceQuotes(text: string): string {
-    return text.replace(/'/g, '').replace(/"/g, '');
-}
+const replaceQuotes = (text: string): string => text.replace(/'/g, '').replace(/"/g, '');
 
-export async function guessSystemInput(input: string) {
-    return guessUserInput(input, systems);
-}
+export const guessSystemInput = async (input: string) => guessUserInput(input, systems);
 
-export async function guessRegionInput(input: string) {
-    return guessUserInput(input, regions, regionsFuse);
-}
+export const guessRegionInput = async (input: string) => guessUserInput(input, regions, regionsFuse);
 
-export async function guessItemInput(input: string) {
-    return guessUserInput(input, items, itemsFuse);
-}
+export const guessItemInput = async (input: string) => guessUserInput(input, items, itemsFuse);
 
-export function matchWithRegex(possibility: IUniverseNamesDataUnit, regex: RegExp) {
-    return possibility.name ? possibility.name.match(regex) || undefined : undefined;
-}
+export const matchWithRegex = (possibility: IUniverseNamesDataUnit, regex: RegExp) =>
+    possibility.name ? possibility.name.match(regex) || undefined : undefined;
 
-// tslint:disable-next-line:cognitive-complexity max-line-length
-export async function guessUserInput(itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit>, raw = true):
-    Promise<IGuessReturn> {
+// eslint-disable-next-line sonarjs/cognitive-complexity,max-len
+export const guessUserInput = async (itemString: string, possibilitiesList: IUniverseNamesData, fuse?: Fuse<IUniverseNamesDataUnit>, raw = true): Promise<IGuessReturn> => {
 
     itemString = escapeStringRegexp(itemString);
 
@@ -75,9 +65,9 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
     if (!isNaN(possibleId)) {
         possibilities.push(...possibilitiesList.filter((possibility): boolean => possibility.id === possibleId));
         possibilities = await filterUnpublishedTypes(possibilities);
-        sortArrayByObjectPropertyLength(possibilities, 'name');
+        sortArrayByObjectProperty(possibilities, (possibility) => possibility.name.length);
         if (possibilities.length) {
-            return {itemData: possibilities[0], guess: false, id: true};
+            return {guess: false, id: true, itemData: possibilities[0]};
         }
     }
 
@@ -135,7 +125,7 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
 
     if (possibilities.length) {
         // Sort by word length, shortest is usually the correct one.
-        let sortedPossibilities = sortArrayByObjectPropertyLength(possibilities, 'name');
+        let sortedPossibilities = sortArrayByObjectProperty(possibilities, (possibility) => possibility.name.length);
         sortedPossibilities = await filterUnpublishedTypes(sortedPossibilities);
         if (sortedPossibilities.length) {
             itemData = sortedPossibilities[0];
@@ -144,21 +134,19 @@ export async function guessUserInput(itemString: string, possibilitiesList: IUni
 
     if (!itemData.id && raw) {
         // Strip quotes from possibilities and try guessing again.
-        const list = possibilitiesList.map((possibility) => {
-            return {
-                category: possibility.category,
-                id: possibility.id,
-                name: replaceQuotes(possibility.name),
-                originalName: possibility.name,
-            };
-        });
+        const list = possibilitiesList.map((possibility) => ({
+            category: possibility.category,
+            id: possibility.id,
+            name: replaceQuotes(possibility.name),
+            originalName: possibility.name,
+        }));
         itemData = (await guessUserInput(itemString, list, fuse, false)).itemData;
     }
 
-    return {itemData, guess, id: false};
-}
+    return {guess, id: false, itemData};
+};
 
-async function filterUnpublishedTypes(possibilities: IUniverseNamesData): Promise<IUniverseNamesData> {
+const filterUnpublishedTypes = async (possibilities: IUniverseNamesData): Promise<IUniverseNamesData> => {
 
     const filteredPossibilities: IUniverseNamesData = [];
 
@@ -173,27 +161,28 @@ async function filterUnpublishedTypes(possibilities: IUniverseNamesData): Promis
     }));
 
     return filteredPossibilities;
-}
+};
 
-export function getGuessHint(guessReturn: IGuessReturn, userInput: string): string {
+export const getGuessHint = (guessReturn: IGuessReturn, userInput: string): string => {
     let returnString = '';
 
     if (!guessReturn.itemData.id) {
-        returnString += `I don't know what you mean with "${userInput}" 😟`;
+        returnString += `I don't know what you mean with "${ userInput }" 😟`;
     } else if (guessReturn.guess) {
-        returnString += `"${userInput}" didn't directly match any item I know of,`;
-        returnString += ` did you mean ${itemFormat(guessReturn.itemData.name)}?.`;
+        returnString += `"${ userInput }" didn't directly match any item I know of,`;
+        returnString += ` did you mean ${ itemFormat(guessReturn.itemData.name) }?.`;
         returnString += newLine(2);
     } else if (guessReturn.id) {
-        returnString += `"${itemFormat(userInput)}" looks like an item ID, `;
-        returnString += `it's the ID for ${itemFormat(guessReturn.itemData.name)}.`;
+        returnString += `"${ itemFormat(userInput) }" looks like an item ID, `;
+        returnString += `it's the ID for ${ itemFormat(guessReturn.itemData.name) }.`;
         returnString += newLine(2);
     }
 
     return returnString;
-}
+};
 
-export async function getSelectedRegion(input: string, reply: string) {
+export const getSelectedRegion = async (input: string, regionReply: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
     let selectedRegion = defaultRegion;
 
@@ -201,10 +190,10 @@ export async function getSelectedRegion(input: string, reply: string) {
         selectedRegion = (await guessRegionInput(input)).itemData;
         if (!selectedRegion.id) {
             selectedRegion = defaultRegion;
-            reply += `I don't know of the "${input}" region, defaulting to ${regionFormat(selectedRegion.name)}`;
-            reply += newLine(2);
+            regionReply += `I don't know of the "${ input }" region, defaulting to ${ regionFormat(selectedRegion.name) }`;
+            regionReply += newLine(2);
         }
     }
 
-    return {selectedRegion, regionReply: reply};
-}
+    return {regionReply, selectedRegion};
+};

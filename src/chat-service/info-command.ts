@@ -2,6 +2,7 @@ import { version } from '../../package.json';
 import { makeBold, makeCode, makeURL, newLine } from '../helpers/message-formatter';
 import { createCommandRegex } from '../helpers/regex';
 import { botName, client, creator } from '../market-bot';
+
 import { Command } from './command';
 
 export class InfoCommand extends Command {
@@ -12,15 +13,15 @@ export class InfoCommand extends Command {
 
     public static readonly debug = Command.debug.extend('info');
 
-    public static test(command: string) {
-        InfoCommand.debug(`Testing ${command}`);
-        return InfoCommand.commandRegex.test(command);
-    }
-
     private static readonly commandRegex = createCommandRegex(InfoCommand.commands, true);
 
     protected readonly initialReply = undefined;
     protected readonly commandName = InfoCommand.commands[0];
+
+    public static test(command: string) {
+        InfoCommand.debug(`Testing ${command}`);
+        return InfoCommand.commandRegex.test(command);
+    }
 
     protected async isCommandValid() {
         return true;
@@ -34,6 +35,7 @@ export class InfoCommand extends Command {
 
             if (name !== botName) {
                 reply += newLine();
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 reply += `You may know me as ${makeBold(name!)} in this channel.`;
             }
         }

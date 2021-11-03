@@ -1,5 +1,3 @@
-/* tslint:disable:no-big-function no-identical-functions */
-
 import { pluralize } from './formatters';
 
 describe('pluralize()', () => {
@@ -7,33 +5,37 @@ describe('pluralize()', () => {
     const plural = 'things';
     let amount: number;
 
-    test('should return the plural if item amount is 0', () => {
+    it('should return the plural if item amount is 0', () => {
+        expect.assertions(2);
         amount = 0;
         const result = pluralize(singular, plural, amount);
         expect(typeof result).toBe('string');
-        expect(result).toEqual(plural);
+        expect(result).toBe(plural);
     });
 
-    test('should return the singular if item amount is 1', () => {
+    it('should return the singular if item amount is 1', () => {
+        expect.assertions(2);
         amount = 1;
         const result = pluralize(singular, plural, amount);
         expect(typeof result).toBe('string');
-        expect(result).toEqual(singular);
+        expect(result).toBe(singular);
     });
 
-    test('should return the plural if item amount is 2 or greater (test 2 - 100)', () => {
+    it('should return the plural if item amount is 2 or greater (test 2 - 100)', () => {
+        expect.assertions(198);
         for (let i = 2; i <= 100; i++) {
             amount = i;
             const result = pluralize(singular, plural, amount);
             expect(typeof result).toBe('string');
-            expect(result).toEqual(plural);
+            expect(result).toBe(plural);
         }
     });
 
-    test('should return the plural if item amount is negative', () => {
+    it('should return the plural if item amount is negative', () => {
+        expect.assertions(2);
         amount = -1;
         const result = pluralize(singular, plural, amount);
         expect(typeof result).toBe('string');
-        expect(result).toEqual(plural);
+        expect(result).toBe(plural);
     });
 });

@@ -1,3 +1,5 @@
+import { URLSearchParams } from 'url';
+
 import Bugsnag from '@bugsnag/js';
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import {
@@ -13,23 +15,23 @@ import {
     IUniverseNamesDataUnit,
     IUniverseTypeData,
 } from '@ionaru/eve-utils';
-import { URLSearchParams } from 'url';
 
 import { version } from '../../package.json';
-import { axiosInstance, debug, esiCache, esiService } from '../index';
-import { ICitadelData, IEVEPraisalData } from '../typings';
+import { debug } from '../debug';
+import { axiosInstance, esiCache, esiService } from '../index';
+import { ICitadelData, IEVEPraisalData } from '../typings.d';
 
 const apiDebug = debug.extend('api');
 
-function captureRequestError(url: string, errorResponse: any) {
+const captureRequestError = (url: string, errorResponse: any) => {
     Bugsnag.addMetadata('url', {url});
     Bugsnag.notify(errorResponse);
     process.emitWarning(`Request failed: ${ url }`);
     process.emitWarning(errorResponse);
     return undefined;
-}
+};
 
-export async function fetchPriceData(item: IUniverseNamesDataUnit, market: string): Promise<IEVEPraisalData | undefined> {
+export const fetchPriceData = async (item: IUniverseNamesDataUnit, market: string): Promise<IEVEPraisalData | undefined> => {
 
     const host = 'https://evepraisal.com';
 
@@ -43,20 +45,26 @@ export async function fetchPriceData(item: IUniverseNamesDataUnit, market: strin
 
     const result = await axiosInstance.post<IEVEPraisalData>(url, undefined, {
         headers: {
-            'User-Agent': `MarketBot/${version} Ionaru#3801`,
+            'User-Agent': `MarketBot/${ version } Ionaru#3801`,
         },
     })
         .catch((errorResponse) => captureRequestError(url, errorResponse));
 
     return result?.data;
-}
+};
 
-export async function fetchMarketData(itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> {
-    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersUrl({regionId, typeId: itemId, page: 1, orderType}));
+export const fetchMarketData = async (itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> => {
+    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersUrl({
+        orderType,
+        page: 1,
+        regionId,
+        typeId: itemId,
+    }));
     return marketResponse || [];
-}
+};
 
-export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketOrdersDataUnit | undefined> {
+// eslint-disable-next-line max-len
+export const getCheapestOrder = async (type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketOrdersDataUnit | undefined> => {
     const marketData = await fetchMarketData(itemId, regionId);
     if (marketData && marketData.length) {
         if (type === 'sell') {
@@ -70,21 +78,23 @@ export async function getCheapestOrder(type: 'buy' | 'sell', itemId: number, reg
         }
     }
     return undefined;
-}
+};
 
-export async function fetchCitadelData(): Promise<ICitadelData> {
+export const fetchCitadelData = async (): Promise<ICitadelData> => {
     const url = 'https://stop.hammerti.me.uk/api/citadel/all';
 
     const citadelData = await fetchData<ICitadelData>(url);
     return citadelData || {};
-}
+};
 
-export async function fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
+export const fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesData> => {
 
     const names: IUniverseNamesData = [];
 
     const idsCopy = ids.slice();
 
+    // TODO: Rewrite using X-Pages
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         const idsPart = idsCopy.splice(0, 1000);
         const namesPart = await _fetchUniverseNames(idsPart);
@@ -94,9 +104,10 @@ export async function fetchUniverseNames(ids: number[]): Promise<IUniverseNamesD
             return names;
         }
     }
-}
+};
 
-async function _fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
+// eslint-disable-next-line no-underscore-dangle
+const _fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesData> => {
     const url = EVE.getUniverseNamesUrl();
     const body = JSON.stringify(ids);
 
@@ -105,13 +116,15 @@ async function _fetchUniverseNames(ids: number[]): Promise<IUniverseNamesData> {
         .catch((errorResponse) => captureRequestError(url, errorResponse));
 
     return namesResponse ? namesResponse.data : [];
-}
+};
 
-export async function fetchUniverseTypes(): Promise<number[]> {
+export const fetchUniverseTypes = async (): Promise<number[]> => {
 
     const types = [];
     let page = 1;
     let errors = 0;
+    // TODO: Rewrite using X-Pages
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         const typeData = await fetchData<number[]>(EVE.getUniverseTypesUrl(page));
         if (typeData) {
@@ -128,50 +141,34 @@ export async function fetchUniverseTypes(): Promise<number[]> {
             throw new Error('Too many request failures');
         }
     }
-}
+};
 
-export async function fetchUniverseType(id: number) {
-    return fetchData<IUniverseTypeData>(EVE.getUniverseTypeUrl(id));
-}
+export const fetchUniverseType = async (id: number) => fetchData<IUniverseTypeData>(EVE.getUniverseTypeUrl(id));
 
-export async function fetchUniverseSystems(): Promise<number[]> {
-    return await fetchData<number[]>(EVE.getUniverseSystemsUrl()) || [];
-}
+export const fetchUniverseSystems = async (): Promise<number[]> => await fetchData<number[]>(EVE.getUniverseSystemsUrl()) || [];
 
-export async function fetchUniverseRegions() {
-    return await fetchData<number[]>(EVE.getUniverseRegionsUrl()) || [];
-}
+export const fetchUniverseRegions = async () => await fetchData<number[]>(EVE.getUniverseRegionsUrl()) || [];
 
-export async function fetchHistoryData(itemId: number, regionId: number) {
-    return fetchData<IMarketHistoryData>(EVE.getMarketHistoryUrl(regionId, itemId));
-}
+// eslint-disable-next-line max-len
+export const fetchHistoryData = async (itemId: number, regionId: number) => fetchData<IMarketHistoryData>(EVE.getMarketHistoryUrl(regionId, itemId));
 
-export async function fetchGroup(groupId: number) {
-    return fetchData<IUniverseGroupData>(EVE.getUniverseGroupUrl(groupId));
-}
+export const fetchGroup = async (groupId: number) => fetchData<IUniverseGroupData>(EVE.getUniverseGroupUrl(groupId));
 
-export async function fetchMarketGroup(groupId: number) {
-    return fetchData<IMarketGroupData>(EVE.getMarketGroupUrl(groupId));
-}
+export const fetchMarketGroup = async (groupId: number) => fetchData<IMarketGroupData>(EVE.getMarketGroupUrl(groupId));
 
-export async function fetchCategory(categoryId: number) {
-    return fetchData<IUniverseCategoryData>(EVE.getUniverseCategoryUrl(categoryId));
-}
+export const fetchCategory = async (categoryId: number) => fetchData<IUniverseCategoryData>(EVE.getUniverseCategoryUrl(categoryId));
 
-export async function fetchServerStatus() {
-    return fetchData<IStatusData>(EVE.getStatusUrl());
-}
+export const fetchServerStatus = async () => fetchData<IStatusData>(EVE.getStatusUrl());
 
-async function fetchData<T>(url: string): Promise<T | undefined> {
-    return esiService.fetchESIData<T>(url).catch((error) => {
+const fetchData = async <T>(url: string): Promise<T | undefined> =>
+    esiService.fetchESIData<T>(url).catch((error) => {
         Bugsnag.addMetadata('url', {url});
         Bugsnag.notify(error);
 
         if (esiCache.responseCache[url]) {
             process.emitWarning(`Request failed: ${ url } using cached data.`);
-            return esiCache.responseCache[url]!.data as T;
+            return esiCache.responseCache[url]?.data as T;
         }
         process.emitWarning(`Request failed: ${ url }`);
-        return;
+        return undefined;
     });
-}
