@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import Discord from 'discord.js';
+import Discord, { Intents } from 'discord.js';
 
 import { Command } from '../command';
 import { InfoCommand } from '../info-command';
@@ -22,14 +22,18 @@ export class Client {
 
     public constructor(credentials: string) {
         this.credentials = credentials;
-        this.client = new Discord.Client();
+        this.client = new Discord.Client({intents: [
+            Intents.FLAGS.GUILDS,
+            Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES,
+            Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+        ], partials: ['CHANNEL']});
         this.emitter = new EventEmitter();
 
         this.client.on('ready', () => {
             this.onReady();
         });
 
-        this.client.on('message', (message: Discord.Message) => {
+        this.client.on('messageCreate', (message: Discord.Message) => {
             this.onMessage(message);
         });
 
@@ -57,7 +61,7 @@ export class Client {
     }
 
     public get serverCount(): number {
-        return this.client.guilds.cache.array().length;
+        return [...this.client.guilds.cache.values()].length;
     }
 
     public get upTime(): Date | undefined {
@@ -90,9 +94,9 @@ export class Client {
             throw new Error('MaxMessageLengthReached');
         }
         try {
-            const channel = this.client.channels.cache.array().find((clientChannel) => clientChannel.id === id);
+            const channel = [...this.client.channels.cache.values()].find((clientChannel) => clientChannel.id === id);
             if (channel) {
-                if (channel.type === 'dm' || channel.type === 'text') {
+                if (channel.type === 'DM' || channel.type === 'GUILD_TEXT') {
                     const textChannel = channel as Discord.TextChannel | Discord.DMChannel;
                     await textChannel.send(message).catch((error) => {
                         throw new Error(error);
@@ -100,7 +104,7 @@ export class Client {
                 }
             } else {
                 // Try to create a DM channel with the user, this might not always succeed depending on their privacy settings.
-                const user = this.client.users.cache.array().find((discordUser) => discordUser.id === userId);
+                const user = [...this.client.users.cache.values()].find((discordUser) => discordUser.id === userId);
                 if (user) {
                     const dmChannel: Discord.DMChannel = await user.createDM();
                     await dmChannel.send(message).catch((error) => {
@@ -116,7 +120,7 @@ export class Client {
     public getNickname(message: Message): string | undefined {
         const guild = message.guild;
         if (guild && this.client.user) {
-            return guild.member(this.client.user)?.nickname || undefined;
+            return guild.members.cache.get(this.client.user.id)?.nickname || undefined;
         }
 
         return undefined;
@@ -124,12 +128,12 @@ export class Client {
 
     private setDiscordPresence() {
         this.client.user?.setPresence({
-            activity: {
+            activities: [{
                 name: `with ISK (try ${Command.commandPrefix}${InfoCommand.commands[0]})`,
                 type: 'PLAYING',
-            },
+            }],
             status: 'online',
-        }).then();
+        });
 
         // Re-set the presence every hour because of a known issue on Discord's side.
         // https://github.com/discordapp/discord-api-docs/issues/834

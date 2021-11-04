@@ -9,6 +9,7 @@ import { IParsedMessage } from '../typings.d';
 
 import { Message } from './discord/message';
 
+// TODO: Remove "discord.js" references from this file.
 export abstract class Command {
 
     public static readonly commandPrefix = '/';
@@ -126,7 +127,7 @@ export abstract class Command {
             throw new Error('Embed creation failed.');
         }
 
-        this.reply.options = {embed: this.embed};
+        this.reply.options = {embeds: [this.embed]};
 
         if (await this.isCommandValid()) {
             await this.processCommand();

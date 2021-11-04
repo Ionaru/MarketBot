@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+import { ChannelTypes } from 'discord.js/typings/enums';
 
 import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
@@ -10,7 +11,7 @@ interface IServer {
     name?: string;
 }
 
-type channelType = 'dm' | 'text' | 'voice' | 'group' | 'category' | 'news' | 'store';
+type channelType = keyof typeof ChannelTypes;
 
 export class Message {
 
@@ -49,7 +50,7 @@ export class Message {
             this.server.name = message.guild.name;
         }
 
-        if (message.channel.type !== 'dm') {
+        if (message.channel.type !== 'DM') {
             const channel = message.channel as Discord.TextChannel;
             this.channel.name = channel.name;
         }
@@ -58,7 +59,7 @@ export class Message {
     }
 
     public get guild(): Discord.Guild | undefined {
-        if (this.discordMessage.channel.type === 'text') {
+        if (this.discordMessage.channel.type === 'GUILD_TEXT') {
             const channel = this.discordMessage.channel;
             return channel.guild;
         }
@@ -83,8 +84,8 @@ export class Message {
         if (message.length > maxMessageLength) {
             throw new Error('MaxMessageLengthReached');
         }
-        const sent: any = await this.discordMessage.channel.send(message, options);
-        return new Message(sent[0] || sent);
+        const sent = await this.discordMessage.channel.send({content: message || undefined, ...options});
+        return new Message(sent);
     }
 
     public async sendError(caughtError: Error) {
@@ -116,12 +117,12 @@ export class Message {
         if (message.length > maxMessageLength) {
             throw new Error('MaxMessageLengthReached');
         }
-        await this.discordMessage.edit(message, options);
+        await this.discordMessage.edit({content: message || undefined, ...options});
     }
 
-    public async remove(timeout?: number): Promise<boolean> {
+    public async remove(): Promise<boolean> {
         try {
-            await this.discordMessage.delete({timeout});
+            await this.discordMessage.delete();
             return true;
         } catch {
             return false;
