@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+// eslint-disable-next-line import/no-unresolved
 import { ChannelTypes } from 'discord.js/typings/enums';
 
 import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
