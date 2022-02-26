@@ -3,16 +3,18 @@ import * as fs from 'fs';
 import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import * as d3 from 'd3';
+import { startTransaction, Transaction } from 'elastic-apm-node';
 import moment from 'moment';
+import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 
+import { configuration } from '..';
 import { Message } from '../chat-service/discord/message';
 import { fetchHistoryData } from '../helpers/api';
 import { regions } from '../helpers/cache';
-import { logCommand } from '../helpers/command-logger';
+import { getCommand, logSlashCommand } from '../helpers/command-logger';
 import { createLineGraph, exportGraphImage } from '../helpers/graph';
 import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
-import { parseMessage } from '../helpers/parsers';
 import { IParsedMessage } from '../typings.d';
 
 interface IHistoryCommandLogicReturn {
@@ -22,19 +24,59 @@ interface IHistoryCommandLogicReturn {
     fileName?: string;
 }
 
-export const historyCommand = async (message: Message, transaction: any) => {
-    const messageData = parseMessage(message.content);
+export class HistoryCommand extends SlashCommand {
+    public constructor(creator: SlashCreator) {
+        super(creator, {
+            description: 'Show history information and a graph showing the average price in the last 20 days.',
+            guildIDs: ['302014526201659392'],
+            name: 'history',
+            options: [
+                {
+                    description: 'The item to look up',
+                    name: 'item',
+                    required: true,
+                    type: CommandOptionType.STRING,
+                },
+                {
+                    description: 'The region to search in. Default: The Forge',
+                    name: 'region',
+                    required: false,
+                    type: CommandOptionType.STRING,
+                },
+            ],
+        });
+    }
 
-    const replyPlaceHolder = await message.reply(`Checking history, one moment, ${message.sender}...`);
+    public async run(context: CommandContext): Promise<void> {
+        // eslint-disable-next-line no-null/no-null
+        let transaction: Transaction | null = null;
+        if (configuration.getProperty('elastic.enabled') === true) {
+            transaction = startTransaction();
+        }
 
-    const {reply, itemData, regionName, fileName} = await historyCommandLogic(messageData);
+        await context.defer(false);
 
-    const replyOptions = fileName ? {files: [fileName]} : undefined;
-    await replyPlaceHolder.reply(reply, replyOptions);
-    replyPlaceHolder.remove().then();
+        const messageData: IParsedMessage = {
+            content: getCommand(context),
+            item: '',
+            limit: 5,
+            region: '',
+            system: '',
+            ...context.options,
+        };
 
-    logCommand('history', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
-};
+        const {reply, itemData, regionName, fileName} = await historyCommandLogic(messageData);
+
+        if (fileName) {
+            const file = fs.readFileSync(fileName);
+            await context.send(reply, {file: {file, name: fileName}});
+        } else {
+            await context.send(reply);
+        }
+
+        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
+    }
+}
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
 const historyCommandLogic = async (messageData: IParsedMessage): Promise<IHistoryCommandLogicReturn> => {

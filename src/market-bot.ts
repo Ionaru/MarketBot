@@ -13,7 +13,7 @@ import { ItemCommand } from './chat-service/item-command';
 import { PriceCommand } from './chat-service/price-command';
 import { TrackListCommand } from './chat-service/track-list-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
-import { historyCommand } from './commands/history';
+import { HistoryCommand } from './commands/history';
 import { SellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { SlashCreatorController } from './controllers/slash-creator.controller';
@@ -33,9 +33,6 @@ export const dataFolder = 'data';
 
 export const commandPrefix = '/';
 
-export const historyCommands = [
-    'history', 'h',
-];
 export const regionCommands = [
     'region', 'r',
 ];
@@ -55,7 +52,6 @@ export const clearTrackingCommands = [
     'track-clear', 'tc',
 ];
 
-export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
 export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
 export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
@@ -95,6 +91,7 @@ export const activate = async () => {
 
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
+        slashCreatorService.registerCommand((slashCreator) => new HistoryCommand(slashCreator));
 
         await slashCreatorService.syncCommands();
 
@@ -175,9 +172,6 @@ const processMessage = async (message: Message, transaction: any): Promise<void>
             break;
         case ItemCommand.test(rootCommand):
             new ItemCommand(message).execute().then();
-            break;
-        case historyCommandRegex.test(rootCommand):
-            await historyCommand(message, transaction);
             break;
         case clearTrackingCommandRegex.test(rootCommand):
             await clearTrackingCommand(message, transaction);
