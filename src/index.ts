@@ -1,13 +1,16 @@
+import { format } from 'util';
+
+// eslint-disable-next-line import/order
+import { config } from 'dotenv';
+config();
+
 import Bugsnag from '@bugsnag/js';
 import { Configurator } from '@ionaru/configurator';
 import { CacheController, PublicESIService } from '@ionaru/esi-service';
 import { HttpsAgent } from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
-import { config } from 'dotenv';
 import elastic from 'elastic-apm-node';
 import 'reflect-metadata'; // Required for TypeORM
-
-config();
 
 import { version } from '../package.json';
 
@@ -77,12 +80,11 @@ export let axiosInstance: AxiosInstance;
         debug(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
     }
 
-    process.stdin.resume();
     process.on('unhandledRejection', (reason, p): void => {
-        process.stderr.write(`Unhandled Rejection at: \nPromise ${p} \nReason: ${reason}\n`);
+        process.stderr.write(`Unhandled Rejection at: \nPromise ${format(p)} \nReason: ${format(reason)}\n`);
     });
     process.on('uncaughtException', (error) => {
-        process.stderr.write(`Uncaught Exception! \n${error}\n`);
+        process.stderr.write(`Uncaught Exception! \n${format(error)}\n`);
         deactivate(true, true).then();
     });
     process.on('SIGINT', () => {

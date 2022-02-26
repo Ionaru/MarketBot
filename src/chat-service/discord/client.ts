@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
-import Discord, { Intents } from 'discord.js';
+import Discord, { Intents, WebSocketManager } from 'discord.js';
+import { InteractionHandler } from 'slash-create';
 
 import { Command } from '../command';
 import { InfoCommand } from '../info-command';
@@ -66,6 +67,10 @@ export class Client {
 
     public get upTime(): Date | undefined {
         return this.client.readyAt || undefined;
+    }
+
+    public get commandHandler(): (handler: InteractionHandler) => WebSocketManager {
+        return (handler: InteractionHandler) => this.client.ws.on('INTERACTION_CREATE' as any, handler);
     }
 
     private static onError(error: Error) {

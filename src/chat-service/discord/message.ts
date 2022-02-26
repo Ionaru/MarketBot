@@ -12,14 +12,14 @@ interface IServer {
     name?: string;
 }
 
-type channelType = keyof typeof ChannelTypes;
+type ChannelType = keyof typeof ChannelTypes;
 
 export class Message {
 
     public readonly sender: string;
     public readonly origin: string;
     public readonly author: { id: string; name: string };
-    public readonly channel: { id: string; name?: string; type: channelType };
+    public readonly channel: { id: string; name?: string; type: ChannelType };
     public readonly server: IServer;
     public readonly content: string;
     public readonly id: string;

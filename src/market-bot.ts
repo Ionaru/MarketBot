@@ -12,10 +12,11 @@ import { InfoCommand } from './chat-service/info-command';
 import { ItemCommand } from './chat-service/item-command';
 import { PriceCommand } from './chat-service/price-command';
 import { TrackListCommand } from './chat-service/track-list-command';
-import { buyOrdersCommand } from './commands/buy-orders';
+import { BuyOrdersCommand } from './commands/buy-orders';
 import { historyCommand } from './commands/history';
 import { sellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
+import { SlashCreatorController } from './controllers/slash-creator.controller';
 import { debug } from './debug';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
@@ -38,9 +39,6 @@ export const historyCommands = [
 export const sellOrdersCommands = [
     'sell-orders', 'sell', 'so', 's',
 ];
-export const buyOrdersCommands = [
-    'buy-orders', 'buy', 'bo', 'b',
-];
 export const regionCommands = [
     'region', 'r',
 ];
@@ -62,7 +60,6 @@ export const clearTrackingCommands = [
 
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
 export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
-export const buyOrdersCommandRegex = createCommandRegex(buyOrdersCommands, true);
 export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
 export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
 export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
@@ -97,6 +94,12 @@ export const activate = async () => {
     const token = configuration.getProperty('discord.token');
     if (token && typeof token === 'string') {
         client = new Client(token);
+
+        const slashCreatorService = new SlashCreatorController().init(client);
+
+        slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
+
+        await slashCreatorService.syncCommands();
 
         debug(`Logging in...`);
         client.login();
@@ -169,9 +172,6 @@ const processMessage = async (message: Message, transaction: any): Promise<void>
             break;
         case InfoCommand.test(rootCommand):
             new InfoCommand(message).execute().then();
-            break;
-        case buyOrdersCommandRegex.test(rootCommand):
-            await buyOrdersCommand(message, transaction);
             break;
         case DataCommand.test(rootCommand):
             new DataCommand(message).execute().then();
