@@ -14,7 +14,7 @@ import { PriceCommand } from './chat-service/price-command';
 import { TrackListCommand } from './chat-service/track-list-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
 import { historyCommand } from './commands/history';
-import { sellOrdersCommand } from './commands/sell-orders';
+import { SellOrdersCommand } from './commands/sell-orders';
 import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
 import { SlashCreatorController } from './controllers/slash-creator.controller';
 import { debug } from './debug';
@@ -36,9 +36,6 @@ export const commandPrefix = '/';
 export const historyCommands = [
     'history', 'h',
 ];
-export const sellOrdersCommands = [
-    'sell-orders', 'sell', 'so', 's',
-];
 export const regionCommands = [
     'region', 'r',
 ];
@@ -59,7 +56,6 @@ export const clearTrackingCommands = [
 ];
 
 export const historyCommandRegex = createCommandRegex(historyCommands, true);
-export const sellOrdersCommandRegex = createCommandRegex(sellOrdersCommands, true);
 export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
 export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
 export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
@@ -98,6 +94,7 @@ export const activate = async () => {
         const slashCreatorService = new SlashCreatorController().init(client);
 
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
+        slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
 
         await slashCreatorService.syncCommands();
 
@@ -166,9 +163,6 @@ const processMessage = async (message: Message, transaction: any): Promise<void>
     switch (true) {
         case PriceCommand.test(rootCommand):
             new PriceCommand(message).execute().then();
-            break;
-        case sellOrdersCommandRegex.test(rootCommand):
-            await sellOrdersCommand(message, transaction);
             break;
         case InfoCommand.test(rootCommand):
             new InfoCommand(message).execute().then();

@@ -1,7 +1,7 @@
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
-import elastic, { Transaction } from 'elastic-apm-node';
+import { startTransaction, Transaction } from 'elastic-apm-node';
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 
 import { configuration } from '..';
@@ -40,7 +40,7 @@ export class BuyOrdersCommand extends SlashCommand {
                     type: CommandOptionType.STRING,
                 },
                 {
-                    description: 'The item to look up',
+                    description: 'The amount of orders to show. Default: 5',
                     name: 'limit',
                     required: false,
                     type: CommandOptionType.NUMBER,
@@ -53,7 +53,7 @@ export class BuyOrdersCommand extends SlashCommand {
         // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
-            transaction = elastic.startTransaction();
+            transaction = startTransaction();
         }
 
         await context.defer(false);

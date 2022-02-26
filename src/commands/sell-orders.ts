@@ -1,15 +1,16 @@
 import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
+import { startTransaction, Transaction } from 'elastic-apm-node';
+import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 
-import { Message } from '../chat-service/discord/message';
+import { configuration } from '..';
 import { maxMessageLength } from '../chat-service/discord/misc';
 import { fetchMarketData, fetchUniverseNames } from '../helpers/api';
-import { logCommand } from '../helpers/command-logger';
+import { getCommand, logSlashCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { getGuessHint, getSelectedRegion, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
-import { parseMessage } from '../helpers/parsers';
 import { IParsedMessage } from '../typings.d';
 
 interface ISellOrdersCommandLogicReturn {
@@ -18,19 +19,59 @@ interface ISellOrdersCommandLogicReturn {
     regionName?: string;
 }
 
-export const sellOrdersCommand = async (message: Message, transaction: any) => {
-    const messageData = parseMessage(message.content);
+export class SellOrdersCommand extends SlashCommand {
+    public constructor(creator: SlashCreator) {
+        super(creator, {
+            description: 'List the best sell orders for an item',
+            guildIDs: ['302014526201659392'],
+            name: 'sell-orders',
+            options: [
+                {
+                    description: 'The item to look up',
+                    name: 'item',
+                    required: true,
+                    type: CommandOptionType.STRING,
+                },
+                {
+                    description: 'The region to search in. Default: The Forge',
+                    name: 'region',
+                    required: false,
+                    type: CommandOptionType.STRING,
+                },
+                {
+                    description: 'The amount of orders to show. Default: 5',
+                    name: 'limit',
+                    required: false,
+                    type: CommandOptionType.NUMBER,
+                },
+            ],
+        });
+    }
 
-    messageData.limit = messageData.limit || 5;
-    const orderWord = pluralize('order', 'orders', messageData.limit);
+    public async run(context: CommandContext): Promise<void> {
+        // eslint-disable-next-line no-null/no-null
+        let transaction: Transaction | null = null;
+        if (configuration.getProperty('elastic.enabled') === true) {
+            transaction = startTransaction();
+        }
 
-    const replyPlaceHolder = await message.reply(`Searching for the cheapest sell ${orderWord}, one moment, ${message.sender}...`);
+        await context.defer(false);
 
-    const {reply, itemData, regionName} = await sellOrdersCommandLogic(messageData);
+        const messageData: IParsedMessage = {
+            content: getCommand(context),
+            item: '',
+            limit: 5,
+            region: '',
+            system: '',
+            ...context.options,
+        };
 
-    await replyPlaceHolder.edit(reply);
-    logCommand('sell-orders', message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
-};
+        const {reply, itemData, regionName} = await sellOrdersCommandLogic(messageData);
+
+        await context.send(reply);
+        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
+    }
+}
 
 const sellOrdersCommandLogic = async (messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> => {
 
