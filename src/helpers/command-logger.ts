@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/naming-convention */
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Command } from '../chat-service/command';

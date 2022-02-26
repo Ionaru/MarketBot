@@ -106,7 +106,7 @@ export const fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesD
     }
 };
 
-// eslint-disable-next-line no-underscore-dangle
+// eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention
 const _fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesData> => {
     const url = EVE.getUniverseNamesUrl();
     const body = JSON.stringify(ids);

@@ -67,13 +67,11 @@ export const createLineGraph = (data: IData[], chartName = 'Line graph', extraTe
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const lineChart = d3.line().x((d: any) => xScale(d.x)!).y((d: any) => yScale(d.y)!);
 
-    // eslint-disable-next-line camelcase
     const makeXGridlines = (height: number) => d3.axisBottom(xScale)
         .ticks(data.length)
         .tickFormat(timeFormat as any)
         .tickSize(-height);
 
-    // eslint-disable-next-line camelcase
     const makeYGridlines = (width: number) => d3.axisLeft(yScale)
         .ticks(10)
         .tickSize(-width);

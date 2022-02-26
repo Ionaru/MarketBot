@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 export interface IParsedMessage {
     content: string;
     item: string;
