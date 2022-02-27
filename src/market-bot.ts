@@ -1,5 +1,4 @@
 import Bugsnag from '@bugsnag/js';
-import elastic from 'elastic-apm-node';
 import { createConnection } from 'typeorm';
 
 import { version } from '../package.json';
@@ -15,7 +14,7 @@ import { TrackListCommand } from './chat-service/track-list-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
 import { HistoryCommand } from './commands/history';
 import { SellOrdersCommand } from './commands/sell-orders';
-import { clearTrackingCommand, performTrackingCycle, startTrackingCycle, trackCommand, TrackingEntry } from './commands/track';
+import { ClearTrackingCommand, performTrackingCycle, startTrackingCycle, TrackCommand, TrackingEntry } from './commands/track';
 import { SlashCreatorController } from './controllers/slash-creator.controller';
 import { debug } from './debug';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
@@ -42,19 +41,7 @@ export const systemCommands = [
 export const limitCommands = [
     'limit', 'l', 'max',
 ];
-export const sellTrackingCommands = [
-    'track-sell-orders', 'tso',
-];
-export const buyTrackingCommands = [
-    'track-buy-orders', 'tbo',
-];
-export const clearTrackingCommands = [
-    'track-clear', 'tc',
-];
 
-export const sellTrackingCommandRegex = createCommandRegex(sellTrackingCommands, true);
-export const buyTrackingCommandRegex = createCommandRegex(buyTrackingCommands, true);
-export const clearTrackingCommandRegex = createCommandRegex(clearTrackingCommands, true);
 export const regionCommandRegex = createCommandRegex(regionCommands);
 export const systemCommandRegex = createCommandRegex(systemCommands);
 export const limitCommandRegex = createCommandRegex(limitCommands);
@@ -92,6 +79,9 @@ export const activate = async () => {
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new HistoryCommand(slashCreator));
+        slashCreatorService.registerCommand((slashCreator) => new TrackCommand(slashCreator, 'buy'));
+        slashCreatorService.registerCommand((slashCreator) => new TrackCommand(slashCreator, 'sell'));
+        slashCreatorService.registerCommand((slashCreator) => new ClearTrackingCommand(slashCreator));
 
         await slashCreatorService.syncCommands();
 
@@ -120,11 +110,7 @@ const finishActivation = () => {
                 return;
             }
 
-            let transaction: any;
-            if (configuration.getProperty('elastic.enabled') === true) {
-                transaction = elastic.startTransaction();
-            }
-            processMessage(message, transaction).then().catch((error: Error) => {
+            processMessage(message).then().catch((error: Error) => {
                 handleError(message, error);
             });
 
@@ -155,7 +141,7 @@ export const deactivate = async (exitProcess: boolean, error = false): Promise<v
     }
 };
 
-const processMessage = async (message: Message, transaction: any): Promise<void> => {
+const processMessage = async (message: Message): Promise<void> => {
     const rootCommand = message.content.split(' ')[0];
     switch (true) {
         case PriceCommand.test(rootCommand):
@@ -167,17 +153,8 @@ const processMessage = async (message: Message, transaction: any): Promise<void>
         case DataCommand.test(rootCommand):
             new DataCommand(message).execute().then();
             break;
-        case sellTrackingCommandRegex.test(rootCommand):
-            await trackCommand(message, 'sell', transaction);
-            break;
         case ItemCommand.test(rootCommand):
             new ItemCommand(message).execute().then();
-            break;
-        case clearTrackingCommandRegex.test(rootCommand):
-            await clearTrackingCommand(message, transaction);
-            break;
-        case buyTrackingCommandRegex.test(rootCommand):
-            await trackCommand(message, 'buy', transaction);
             break;
         case TrackListCommand.test(rootCommand):
             new TrackListCommand(message).execute().then();
@@ -186,7 +163,7 @@ const processMessage = async (message: Message, transaction: any): Promise<void>
 };
 
 export const handleError = (message: Message, caughtError: Error) => {
-    Bugsnag.addMetadata('command', {command: message.content});
+    Bugsnag.addMetadata('command', { command: message.content });
     Bugsnag.notify(caughtError);
     message.sendError(caughtError).then();
 };

@@ -1,18 +1,21 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { IMarketOrdersDataUnit, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
+import { Transaction, startTransaction } from 'elastic-apm-node';
+import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+import { configuration } from '..';
 import { Command } from '../chat-service/command';
-import { Message } from '../chat-service/discord/message';
 import { getCheapestOrder } from '../helpers/api';
 import { items, regions } from '../helpers/cache';
-import { logCommand } from '../helpers/command-logger';
+import { getCommand, logSlashCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { getGuessHint, guessItemInput, guessRegionInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
-import { parseMessage } from '../helpers/parsers';
 import { client } from '../market-bot';
+import { IParsedMessage } from '../typings.d';
 
 import Timer = NodeJS.Timer;
 
@@ -54,6 +57,120 @@ interface ITrackCommandLogicReturn {
     regionName?: string;
 }
 
+export class TrackCommand extends SlashCommand {
+    public constructor(
+        creator: SlashCreator,
+        private commandType: 'buy' | 'sell',
+    ) {
+        super(creator, {
+            // eslint-disable-next-line max-len
+            description: `Enable ${commandType} price tracking for an item, you will get notifications of price changes`,
+            guildIDs: ['302014526201659392'],
+            name: `track-${commandType}-orders`,
+            options: [
+                {
+                    description: 'The item to look up',
+                    name: 'item',
+                    required: true,
+                    type: CommandOptionType.STRING,
+                },
+                {
+                    description: 'The region to track the item price in. Default: The Forge',
+                    name: 'region',
+                    required: false,
+                    type: CommandOptionType.STRING,
+                },
+                {
+                    description: 'The minimum amount the order needs to change for a notification. Default: 1.00 ISK',
+                    name: 'limit',
+                    required: false,
+                    type: CommandOptionType.NUMBER,
+                },
+            ],
+        });
+    }
+
+    public async run(context: CommandContext): Promise<void> {
+        // eslint-disable-next-line no-null/no-null
+        let transaction: Transaction | null = null;
+        if (configuration.getProperty('elastic.enabled') === true) {
+            transaction = startTransaction();
+        }
+
+        await context.defer(false);
+
+        const {reply, itemData, regionName} = await trackCommandLogic(context, this.commandType);
+
+        await context.send(reply);
+        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
+    }
+}
+
+export class ClearTrackingCommand extends SlashCommand {
+    public constructor(creator: SlashCreator) {
+        super(creator, {
+            // eslint-disable-next-line max-len
+            description: 'Clear all price tracking entries in a channel, optionally for a specific item.',
+            guildIDs: ['302014526201659392'],
+            name: `track-clear`,
+            options: [
+                {
+                    description: 'The item to clear tracking for',
+                    name: 'item',
+                    required: false,
+                    type: CommandOptionType.STRING,
+                },
+            ],
+        });
+    }
+
+    public async run(context: CommandContext): Promise<void> {
+        // eslint-disable-next-line no-null/no-null
+        let transaction: Transaction | null = null;
+        if (configuration.getProperty('elastic.enabled') === true) {
+            transaction = startTransaction();
+        }
+
+        await context.defer(false);
+
+        let reply = `All entries cleared from this channel.`;
+
+        const messageData: IParsedMessage = {
+            content: getCommand(context),
+            item: '',
+            limit: 5,
+            region: '',
+            system: '',
+            ...context.options,
+        };
+
+        let itemId: number | undefined;
+        let itemData: IGuessReturn | undefined;
+        if (messageData.item && messageData.item.length) {
+            itemData = await guessItemInput(messageData.item);
+            if (itemData.itemData && itemData.itemData.name) {
+                itemId = itemData.itemData.id;
+            }
+        }
+
+        const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
+        if (trackingEntries && trackingEntries.length) {
+            let entries = trackingEntries.filter((trackingEntry) => trackingEntry.channel_id === context.channelID);
+            if (itemId && itemData && itemData.itemData && itemData.itemData.name) {
+                reply = `All entries for ${itemFormat(itemData.itemData.name)} cleared from this channel.`;
+                entries = entries.filter((entry) => entry.item_id === itemId);
+            }
+
+            for (const entry of entries) {
+                await entry.remove();
+            }
+        }
+
+        await context.send(reply);
+        logSlashCommand(context, undefined, undefined, transaction);
+    }
+}
+
 export const startTrackingCycle = () => {
     debug('Scheduled next tracking cycle');
     trackingCycle = setInterval(() => {
@@ -69,22 +186,20 @@ export const stopTrackingCycle = () => {
     }
 };
 
-export const trackCommand = async (message: Message, type: 'buy' | 'sell', transaction: any): Promise<void> => {
-    const replyPlaceHolder = await message.reply(`Setting up for price tracking, one moment, ${message.sender}...`);
-
-    const {reply, itemData, regionName} = await trackCommandLogic(message, type);
-
-    await replyPlaceHolder.edit(reply);
-    logCommand(`track-${type}-order`, message, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
-};
-
-const trackCommandLogic = async (message: Message, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> => {
+const trackCommandLogic = async (context: CommandContext, type: 'buy' | 'sell'): Promise<ITrackCommandLogicReturn> => {
     const maxEntries = 3;
 
     let regionName = '';
     let reply = '';
 
-    const messageData = parseMessage(message.content);
+    const messageData: IParsedMessage = {
+        content: getCommand(context),
+        item: '',
+        limit: 5,
+        region: '',
+        system: '',
+        ...context.options,
+    };
 
     if (!(messageData.item && messageData.item.length)) {
         reply += 'You need to give me an item to track.';
@@ -123,7 +238,7 @@ const trackCommandLogic = async (message: Message, type: 'buy' | 'sell'): Promis
     }
 
     const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
-    const dupEntries = trackingEntries.filter((trackingEntry) => trackingEntry.sender_id === message.author.id);
+    const dupEntries = trackingEntries.filter((trackingEntry) => trackingEntry.sender_id === context.user.id);
     if (dupEntries.length >= maxEntries) {
         reply += `You've reached the maximum of ${makeBold(maxEntries)} tracking entries.`;
         return {itemData, regionName, reply};
@@ -131,7 +246,7 @@ const trackCommandLogic = async (message: Message, type: 'buy' | 'sell'): Promis
 
     const channelItemDup = dupEntries.some((duplicate) =>
         (duplicate.item_id === itemData.id && duplicate.region_id === selectedRegion.id
-            && duplicate.tracking_type === type && duplicate.channel_id === message.channel.id),
+            && duplicate.tracking_type === type && duplicate.channel_id === context.channelID),
     );
     if (channelItemDup) {
         reply += `I am already tracking the ${type} price for ${itemFormat(itemData.name)} in this channel.`;
@@ -152,10 +267,10 @@ const trackCommandLogic = async (message: Message, type: 'buy' | 'sell'): Promis
     reply += newLine(2);
 
     const entry = new TrackingEntry();
-    entry.channel_id = message.channel.id;
+    entry.channel_id = context.channelID;
     entry.item_id = itemData.id;
     entry.region_id = selectedRegion.id;
-    entry.sender_id = message.author.id;
+    entry.sender_id = context.user.id;
     entry.tracking_limit = changeLimit;
     entry.tracking_price = originalPrice;
     entry.tracking_type = type;
@@ -165,35 +280,6 @@ const trackCommandLogic = async (message: Message, type: 'buy' | 'sell'): Promis
         startTrackingCycle();
     }
     return {itemData, regionName, reply};
-};
-
-export const clearTrackingCommand = async (message: Message, transaction: any): Promise<void> => {
-    let reply = `All entries cleared from this channel, ${message.sender}.`;
-
-    const messageData = parseMessage(message.content);
-    let itemId: number | undefined;
-    let itemData: IGuessReturn | undefined;
-    if (messageData.item && messageData.item.length) {
-        itemData = await guessItemInput(messageData.item);
-        if (itemData.itemData && itemData.itemData.name) {
-            itemId = itemData.itemData.id;
-        }
-    }
-
-    const trackingEntries: TrackingEntry[] = await TrackingEntry.find();
-    if (trackingEntries && trackingEntries.length) {
-        let entries = trackingEntries.filter((trackingEntry) => trackingEntry.channel_id === message.channel.id);
-        if (itemId && itemData && itemData.itemData && itemData.itemData.name) {
-            reply = `All entries for ${itemFormat(itemData.itemData.name)} cleared from this channel, ${message.sender}.`;
-            entries = entries.filter((entry) => entry.item_id === itemId);
-        }
-
-        for (const entry of entries) {
-            await entry.remove();
-        }
-    }
-    await message.reply(reply);
-    logCommand(`track-clear`, message, undefined, undefined, transaction);
 };
 
 const droppedRose = (amount: number) => amount < 0 ? 'dropped' : 'rose';
