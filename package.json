@@ -52,7 +52,7 @@
         "moment": "^2.29.1",
         "puppeteer": "^13.4.0",
         "reflect-metadata": "^0.1.13",
-        "slash-create": "^5.2.1",
+        "slash-create": "^5.4.1",
         "sqlite3": "^5.0.0",
         "typeorm": "^0.2.29"
     },
