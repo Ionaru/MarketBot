@@ -53,7 +53,7 @@ export class PriceCommand extends SlashCommand {
             item: '',
             limit: 5,
             region: '',
-            system: '',
+            system: 'Jita',
             ...context.options,
         };
 
