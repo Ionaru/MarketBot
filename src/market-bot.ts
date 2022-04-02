@@ -86,9 +86,11 @@ export const activate = async () => {
 };
 
 const finishActivation = () => {
-    performTrackingCycle().then(() => {
-        startTrackingCycle();
-    });
+    if (process.env.DISABLE_TRACKING_CYCLE === 'true') {
+        performTrackingCycle().then(() => {
+            startTrackingCycle();
+        });
+    }
 
     if (client) {
         debug(`Activation complete, ready for messages!`);
