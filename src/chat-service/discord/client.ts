@@ -3,9 +3,6 @@ import { EventEmitter } from 'events';
 import Discord, { Intents, WebSocketManager } from 'discord.js';
 import { InteractionHandler } from 'slash-create';
 
-import { Command } from '../command';
-import { InfoCommand } from '../info-command';
-
 import { Message } from './message';
 import { maxMessageLength } from './misc';
 
@@ -134,7 +131,7 @@ export class Client {
     private setDiscordPresence() {
         this.client.user?.setPresence({
             activities: [{
-                name: `with ISK (try ${Command.commandPrefix}${InfoCommand.commands[0]})`,
+                name: `with ISK (try /info)`,
                 type: 'PLAYING',
             }],
             status: 'online',

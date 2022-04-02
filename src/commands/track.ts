@@ -7,7 +7,7 @@ import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 's
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { configuration } from '..';
-import { Command } from '../chat-service/command';
+import { debug } from '../debug';
 import { getCheapestOrder } from '../helpers/api';
 import { items, regions } from '../helpers/cache';
 import { getCommand, logSlashCommand } from '../helpers/command-logger';
@@ -18,8 +18,6 @@ import { client } from '../market-bot';
 import { IParsedMessage } from '../typings.d';
 
 import Timer = NodeJS.Timer;
-
-const debug = Command.debug.extend('track');
 
 @Entity('TrackingEntries')
 export class TrackingEntry extends BaseEntity {

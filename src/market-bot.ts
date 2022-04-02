@@ -3,13 +3,12 @@ import { createConnection } from 'typeorm';
 
 import { version } from '../package.json';
 
-import { Command } from './chat-service/command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
-import { InfoCommand } from './chat-service/info-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
 import { DataCommand } from './commands/data';
 import { HistoryCommand } from './commands/history';
+import { InfoCommand } from './commands/info';
 import { ItemCommand } from './commands/item';
 import { PriceCommand } from './commands/price';
 import { SellOrdersCommand } from './commands/sell-orders';
@@ -19,7 +18,6 @@ import { SlashCreatorController } from './controllers/slash-creator.controller';
 import { debug } from './debug';
 import { checkAndUpdateCache, checkAndUpdateCitadelCache } from './helpers/cache';
 import { LogEntry } from './helpers/command-logger';
-import { createCommandRegex } from './helpers/regex';
 
 import { configuration, esiCache } from './index';
 
@@ -29,22 +27,6 @@ export const botName = 'MarketBot';
 export let client: Client | undefined;
 
 export const dataFolder = 'data';
-
-export const commandPrefix = '/';
-
-export const regionCommands = [
-    'region', 'r',
-];
-export const systemCommands = [
-    'system',
-];
-export const limitCommands = [
-    'limit', 'l', 'max',
-];
-
-export const regionCommandRegex = createCommandRegex(regionCommands);
-export const systemCommandRegex = createCommandRegex(systemCommands);
-export const limitCommandRegex = createCommandRegex(limitCommands);
 
 export const activate = async () => {
     debug('Starting bot activation');
@@ -79,6 +61,7 @@ export const activate = async () => {
         slashCreatorService.registerCommand((slashCreator) => new PriceCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new ItemCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new DataCommand(slashCreator));
+        slashCreatorService.registerCommand((slashCreator) => new InfoCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new HistoryCommand(slashCreator));
@@ -108,17 +91,6 @@ const finishActivation = () => {
     });
 
     if (client) {
-        client.emitter.on('message', (message: Message) => {
-
-            if (!Command.test(message.content)) {
-                return;
-            }
-
-            processMessage(message).then().catch((error: Error) => {
-                handleError(message, error);
-            });
-
-        });
         debug(`Activation complete, ready for messages!`);
     }
 };
@@ -142,16 +114,6 @@ export const deactivate = async (exitProcess: boolean, error = false): Promise<v
 
     if (exitProcess) {
         process.exit(0);
-    }
-};
-
-const processMessage = async (message: Message): Promise<void> => {
-    const rootCommand = message.content.split(' ')[0];
-    // eslint-disable-next-line sonarjs/no-small-switch
-    switch (true) {
-        case InfoCommand.test(rootCommand):
-            new InfoCommand(message).execute().then();
-            break;
     }
 };
 
