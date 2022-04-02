@@ -86,7 +86,7 @@ export const activate = async () => {
 };
 
 const finishActivation = () => {
-    if (process.env.DISABLE_TRACKING_CYCLE === 'true') {
+    if (process.env.DISABLE_TRACKING_CYCLE !== 'true') {
         performTrackingCycle().then(() => {
             startTrackingCycle();
         });

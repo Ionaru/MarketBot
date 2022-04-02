@@ -4,6 +4,9 @@ services:
   marketbot3:
     build: .
     restart: unless-stopped
+    environment:
+      - DEBUG
+      - DISABLE_TRACKING_CYCLE
     volumes:
       - ${MARKETBOT_CONFIG_VOLUME:-config-volume}:/app/config
       - ${MARKETBOT_DATA_VOLUME:-data-volume}:/app/data
