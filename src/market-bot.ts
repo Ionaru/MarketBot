@@ -9,10 +9,10 @@ import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { InfoCommand } from './chat-service/info-command';
 import { ItemCommand } from './chat-service/item-command';
-import { PriceCommand } from './chat-service/price-command';
 import { TrackListCommand } from './chat-service/track-list-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
 import { HistoryCommand } from './commands/history';
+import { PriceCommand } from './commands/price';
 import { SellOrdersCommand } from './commands/sell-orders';
 import { ClearTrackingCommand, performTrackingCycle, startTrackingCycle, TrackCommand, TrackingEntry } from './commands/track';
 import { SlashCreatorController } from './controllers/slash-creator.controller';
@@ -76,6 +76,7 @@ export const activate = async () => {
 
         const slashCreatorService = new SlashCreatorController().init(client);
 
+        slashCreatorService.registerCommand((slashCreator) => new PriceCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new HistoryCommand(slashCreator));
@@ -144,9 +145,6 @@ export const deactivate = async (exitProcess: boolean, error = false): Promise<v
 const processMessage = async (message: Message): Promise<void> => {
     const rootCommand = message.content.split(' ')[0];
     switch (true) {
-        case PriceCommand.test(rootCommand):
-            new PriceCommand(message).execute().then();
-            break;
         case InfoCommand.test(rootCommand):
             new InfoCommand(message).execute().then();
             break;

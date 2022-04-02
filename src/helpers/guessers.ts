@@ -114,7 +114,7 @@ export const guessUserInput = async (itemString: string, possibilitiesList: IUni
 
     if (!possibilities.length && fuse) {
         // Use Fuse to search (slow but fuzzy).
-        const fuseGuess = fuse.search(itemString)[0].item as IUniverseNamesDataUnit | undefined;
+        const fuseGuess = fuse.search(itemString)[0]?.item as IUniverseNamesDataUnit | undefined;
 
         if (fuseGuess) {
             possibilities.push(fuseGuess);
