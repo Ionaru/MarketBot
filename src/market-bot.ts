@@ -8,9 +8,9 @@ import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { InfoCommand } from './chat-service/info-command';
-import { ItemCommand } from './chat-service/item-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
 import { HistoryCommand } from './commands/history';
+import { ItemCommand } from './commands/item';
 import { PriceCommand } from './commands/price';
 import { SellOrdersCommand } from './commands/sell-orders';
 import { ClearTrackingCommand, performTrackingCycle, startTrackingCycle, TrackCommand, TrackingEntry } from './commands/track';
@@ -77,6 +77,7 @@ export const activate = async () => {
         const slashCreatorService = new SlashCreatorController().init(client);
 
         slashCreatorService.registerCommand((slashCreator) => new PriceCommand(slashCreator));
+        slashCreatorService.registerCommand((slashCreator) => new ItemCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new HistoryCommand(slashCreator));
@@ -151,9 +152,6 @@ const processMessage = async (message: Message): Promise<void> => {
             break;
         case DataCommand.test(rootCommand):
             new DataCommand(message).execute().then();
-            break;
-        case ItemCommand.test(rootCommand):
-            new ItemCommand(message).execute().then();
             break;
     }
 };
