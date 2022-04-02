@@ -2,7 +2,7 @@
     "name": "market-bot",
     "private": true,
     "author": "Jeroen Akkerman",
-    "version": "2.3.0",
+    "version": "3.0.0",
     "description": "A Discord bot for looking up EVE Online market prices",
     "repository": {
         "type": "git",
