@@ -12,13 +12,5 @@ Because all commands support item IDs as input, this command is also great to ge
 ##### Syntax
 `/item <item name>`
 
-##### Aliases
-* `/id`
-* `/lookup`
-
-##### Examples
-`/item mining laser upgrade II`
-`/lookup plex`
-
 ##### Result
 ![Item command result](https://user-images.githubusercontent.com/3472373/32975546-9b411c44-cc08-11e7-830a-ee7c8e9a6eba.png)

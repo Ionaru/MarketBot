@@ -7,9 +7,7 @@
 
 `[` and `]` are optional sections, you can leave those out and the command will use defaults.
 
-`[<` and `>]` mark a required section inside an optional section, this means if you include the optional section then you have to add the required section as well.
-
-`/command-name <required item name> [/optional-modifiers <required modifier options>]`
+`/command-name <required option> [optional option]`
 
 # Commands for MarketBot
 
@@ -20,14 +18,14 @@
 Fetch the lowest and average prices for an item, both buy and sell orders.
 
 ##### Syntax
-`/price <item name> [/region <region name>]`
+`/price <item name> [system-name]`
 
 
 ## /item
 [More information](item)
 
 ##### Description
-Show information about an item. 
+Show information about an item.
 
 ##### Syntax
 `/item <item name>`
@@ -40,7 +38,7 @@ Show information about an item.
 Show the cheapest sell orders for an item in a region.
 
 ##### Syntax
-`/sell-orders <item-name> [/region <region-name>] [/limit <limit-number>]`
+`/sell-orders <item-name> [region-name] [limit-amount]`
 
 
 ## /buy-orders
@@ -50,7 +48,7 @@ Show the cheapest sell orders for an item in a region.
 Show the highest buy orders for an item in a region.
 
 ##### Syntax
-`/buy-orders <item-name> [/region <region-name>] [/limit <limit-number>]`
+`/buy-orders <item-name> [region-name] [limit-amount]`
 
 
 ## /history
@@ -60,7 +58,7 @@ Show the highest buy orders for an item in a region.
 Show history information and a graph showing the average price in the last 20 days.
 
 ##### Syntax
-`/history <item-name> /region <region-name>`
+`/history <item-name> <region-name>`
 
 
 ## /info
@@ -90,7 +88,7 @@ Show some gathered statistics from the bot.
 This will enable sell price tracking for an item in a specific region, you will get notifications of changes in the item price.
 
 ##### Syntax
-`/track-sell-order <item-name> [/region <region-name>] [/limit <limit-number>]`
+`/track-sell-order <item-name> [region-name] [limit-amount]`
 
 
 ## /track-buy-order
@@ -100,11 +98,11 @@ This will enable sell price tracking for an item in a specific region, you will 
 This will enable buy price tracking for an item in a specific region, you will get notifications of changes in the item price.
 
 ##### Syntax
-`/track-buy-order <item-name> [/region <region-name>] [/limit <limit-number>]`
+`/track-buy-order <item-name> [region-name] [limit-amount]`
 
 
 ## /track-list
-[More information](track-clear)
+[More information](track-list)
 
 ##### Description
 List all orders that are being tracked by MarketBot for you.

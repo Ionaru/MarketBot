@@ -9,7 +9,7 @@ The purpose of this bot is to get fast information on the EVE Online market for 
 It uses a combination of data from [Evepraisal](https://evepraisal.com/) and the [EVE Swagger Interface](https://esi.evetech.net/) provided by CCP.
 
 ## Usage
-[Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
+[Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot%20applications.commands) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
 
 #### Bot commands
 [Commands can be found on the MarketBot website's commands page.](https://ionaru.github.io/MarketBot/commands/)
@@ -18,7 +18,7 @@ It uses a combination of data from [Evepraisal](https://evepraisal.com/) and the
 [Required permissions can be found on the MarketBot website's permissions page.](https://ionaru.github.io/MarketBot/permissions/)
 
 ## Screenshots
-MarketBot in action!
+MarketBot in action! (Some images are a bit out-of-date)
 
 ![Image of price command](https://user-images.githubusercontent.com/3472373/37924487-42f77698-3132-11e8-9df4-c316ee4457f5.png)
 
@@ -55,7 +55,7 @@ It is possible to self-host this bot, it requires NodeJS 8 or greater.
 2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
 3. Click on "Create a Bot User" and confirm.
 4. Click the link next to "Token" to reveal your Discord Bot Token, you will need it later.
-5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot`
+5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot%20applications.commands`
 6. Paste the link in your web browser and follow the steps on the Discord website.
 
 #### Step two: Installing the bot

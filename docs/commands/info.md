@@ -9,15 +9,5 @@ The /info command will print a message with information about the bot, and how t
 ##### Syntax
 `/info`
 
-##### Aliases
-* `/i`
-* `/about`
-* `/help`
-
-##### Examples
-`/info`
-`/about`
-`/help`
-
 ##### Result
 ![Info command result](https://user-images.githubusercontent.com/3472373/33021407-08b4a7d2-ce02-11e7-8cbb-c5933b1bef5f.png)

@@ -9,7 +9,7 @@ The purpose of this bot is to get fast information on the EVE Online market for 
 It uses a combination of data from [Evepraisal](https://evepraisal.com/) and the [EVE Swagger Interface](https://esi.evetech.net/) provided by CCP.
 
 ## Usage
-[Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
+[Add this bot to your Discord server!](https://discordapp.com/oauth2/authorize?client_id=302011421523443713&scope=bot%20applications.commands) or alternatively you can [try it out first on my dev server](https://discord.gg/uza8mpH).
 
 #### Bot commands
 [Commands can be found on the MarketBot website's commands page.](https://ionaru.github.io/MarketBot/commands/)
@@ -55,7 +55,7 @@ It is possible to self-host this bot, it requires NodeJS 14 or greater.
 2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
 3. Click on "Create a Bot User" and confirm.
 4. Click the link next to "Token" to reveal your Discord Bot Token, you will need it later.
-5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot`
+5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot%20applications.commands`
 6. Paste the link in your web browser and follow the steps on the Discord website.
 
 #### Step two (Docker): Installing the bot
@@ -63,7 +63,7 @@ It is possible to self-host this bot, it requires NodeJS 14 or greater.
 2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
 4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
 5. Create a `.env` file containing the variables `MARKETBOT_CONFIG_VOLUME`, `MARKETBOT_DATA_VOLUME` and `MARKETBOT_LOG_VOLUME` pointing to the relevant directories (or leave them empty).
-6. Run `docker-compose up`. 
+6. Run `docker-compose up`.
 
 #### Step two (Node.js): Installing the bot
 1. Install [Node.js](https://nodejs.org/en/download/current/).
