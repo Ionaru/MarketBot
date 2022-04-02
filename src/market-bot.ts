@@ -4,11 +4,11 @@ import { createConnection } from 'typeorm';
 import { version } from '../package.json';
 
 import { Command } from './chat-service/command';
-import { DataCommand } from './chat-service/data-command';
 import { Client } from './chat-service/discord/client';
 import { Message } from './chat-service/discord/message';
 import { InfoCommand } from './chat-service/info-command';
 import { BuyOrdersCommand } from './commands/buy-orders';
+import { DataCommand } from './commands/data';
 import { HistoryCommand } from './commands/history';
 import { ItemCommand } from './commands/item';
 import { PriceCommand } from './commands/price';
@@ -78,6 +78,7 @@ export const activate = async () => {
 
         slashCreatorService.registerCommand((slashCreator) => new PriceCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new ItemCommand(slashCreator));
+        slashCreatorService.registerCommand((slashCreator) => new DataCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new BuyOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new SellOrdersCommand(slashCreator));
         slashCreatorService.registerCommand((slashCreator) => new HistoryCommand(slashCreator));
@@ -146,12 +147,10 @@ export const deactivate = async (exitProcess: boolean, error = false): Promise<v
 
 const processMessage = async (message: Message): Promise<void> => {
     const rootCommand = message.content.split(' ')[0];
+    // eslint-disable-next-line sonarjs/no-small-switch
     switch (true) {
         case InfoCommand.test(rootCommand):
             new InfoCommand(message).execute().then();
-            break;
-        case DataCommand.test(rootCommand):
-            new DataCommand(message).execute().then();
             break;
     }
 };
