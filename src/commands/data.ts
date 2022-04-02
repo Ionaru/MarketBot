@@ -15,7 +15,6 @@ export class DataCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'Show statistics that the bot has gathered while in use.',
-            guildIDs: ['302014526201659392'],
             name: 'data',
         });
     }

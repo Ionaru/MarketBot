@@ -28,7 +28,6 @@ export class HistoryCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'Show history information and a graph showing the average price in the last 20 days.',
-            guildIDs: ['302014526201659392'],
             name: 'history',
             options: [
                 {

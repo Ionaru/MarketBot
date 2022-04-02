@@ -15,7 +15,6 @@ export class ItemCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'Show some information about a specific item.',
-            guildIDs: ['302014526201659392'],
             name: 'item',
             options: [
                 {

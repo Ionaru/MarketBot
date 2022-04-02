@@ -63,7 +63,6 @@ export class TrackCommand extends SlashCommand {
         super(creator, {
             // eslint-disable-next-line max-len
             description: `Enable ${commandType} price tracking for an item, you will get notifications of price changes`,
-            guildIDs: ['302014526201659392'],
             name: `track-${commandType}-orders`,
             options: [
                 {
@@ -109,7 +108,6 @@ export class ClearTrackingCommand extends SlashCommand {
         super(creator, {
             // eslint-disable-next-line max-len
             description: 'Clear all price tracking entries in a channel, optionally for a specific item.',
-            guildIDs: ['302014526201659392'],
             name: `track-clear`,
             options: [
                 {

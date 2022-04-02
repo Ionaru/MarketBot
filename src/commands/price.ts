@@ -14,7 +14,6 @@ export class PriceCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'Fetch the lowest and average prices for an item, both buy and sell orders.',
-            guildIDs: ['302014526201659392'],
             name: 'price',
             options: [
                 {

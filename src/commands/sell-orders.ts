@@ -23,7 +23,6 @@ export class SellOrdersCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'List the best sell orders for an item',
-            guildIDs: ['302014526201659392'],
             name: 'sell-orders',
             options: [
                 {

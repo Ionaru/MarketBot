@@ -14,7 +14,6 @@ export class TrackListCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'List all the orders that MarketBot is tracking for the user that sends to command.',
-            guildIDs: ['302014526201659392'],
             name: 'track-list',
         });
     }

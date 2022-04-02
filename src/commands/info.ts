@@ -12,7 +12,6 @@ export class InfoCommand extends SlashCommand {
     public constructor(creator: SlashCreator) {
         super(creator, {
             description: 'Print a message with information about the bot, and how to use it.',
-            guildIDs: ['302014526201659392'],
             name: 'info',
         });
     }
