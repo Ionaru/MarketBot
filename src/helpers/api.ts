@@ -69,12 +69,12 @@ export const getCheapestOrder = async (type: 'buy' | 'sell', itemId: number, reg
     if (marketData && marketData.length) {
         if (type === 'sell') {
             const sellOrders = marketData.filter((entry) => !entry.is_buy_order);
-            const sortedSellOrders: IMarketOrdersData = sortArrayByObjectProperty(sellOrders, (order) => order.price);
-            return sortedSellOrders[0];
+            sortArrayByObjectProperty(sellOrders, (order) => order.price);
+            return sellOrders[0];
         } else if (type === 'buy') {
             const buyOrders = marketData.filter((entry) => entry.is_buy_order);
-            const sortedBuyOrders: IMarketOrdersData = sortArrayByObjectProperty(buyOrders, (order) => order.price, true);
-            return sortedBuyOrders[0];
+            sortArrayByObjectProperty(buyOrders, (order) => order.price, true);
+            return buyOrders[0];
         }
     }
     return undefined;

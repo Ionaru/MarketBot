@@ -1,4 +1,4 @@
-import { sortArrayByObjectProperty } from '@ionaru/array-utils';
+import { sortArrayByObjectPropertyLength } from '@ionaru/array-utils';
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import escapeStringRegexp from 'escape-string-regexp';
 import Fuse from 'fuse.js';
@@ -65,7 +65,7 @@ export const guessUserInput = async (itemString: string, possibilitiesList: IUni
     if (!isNaN(possibleId)) {
         possibilities.push(...possibilitiesList.filter((possibility): boolean => possibility.id === possibleId));
         possibilities = await filterUnpublishedTypes(possibilities);
-        sortArrayByObjectProperty(possibilities, (possibility) => possibility.name.length);
+        sortArrayByObjectPropertyLength(possibilities, (possibility) => possibility.name);
         if (possibilities.length) {
             return {guess: false, id: true, itemData: possibilities[0]};
         }
@@ -125,10 +125,10 @@ export const guessUserInput = async (itemString: string, possibilitiesList: IUni
 
     if (possibilities.length) {
         // Sort by word length, shortest is usually the correct one.
-        let sortedPossibilities = sortArrayByObjectProperty(possibilities, (possibility) => possibility.name.length);
-        sortedPossibilities = await filterUnpublishedTypes(sortedPossibilities);
-        if (sortedPossibilities.length) {
-            itemData = sortedPossibilities[0];
+        possibilities = await filterUnpublishedTypes(possibilities);
+        sortArrayByObjectPropertyLength(possibilities, (possibility) => possibility.name);
+        if (possibilities.length) {
+            itemData = possibilities[0];
         }
     }
 

@@ -109,7 +109,8 @@ const sellOrdersCommandLogic = async (messageData: IParsedMessage): Promise<ISel
         return {itemData, regionName, reply};
     }
 
-    sellOrders = sortArrayByObjectProperty(sellOrders, (order) => order.price).slice(0, messageData.limit);
+    sortArrayByObjectProperty(sellOrders, (order) => order.price);
+    sellOrders = sellOrders.slice(0, messageData.limit);
 
     let locationIds = [];
     for (const order of sellOrders) {
