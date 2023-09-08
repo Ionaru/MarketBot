@@ -125,10 +125,10 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
             deepness++;
         }
 
-        const json = await fetchPriceData(itemData, 'jita');
+        const json = await fetchPriceData(itemData);
         if (json) {
-            const sellData = formatNumber(json.appraisal.items[0].prices.sell.percentile);
-            const buyData = formatNumber(json.appraisal.items[0].prices.buy.percentile);
+            const sellData = formatNumber(json[itemData.id].sell.percentile);
+            const buyData = formatNumber(json[itemData.id].buy.percentile);
             marketInfo += newLine(2);
             marketInfo += `• Average Jita **sell** price: ${makeCode(sellData + ' ISK')}`;
             marketInfo += newLine();

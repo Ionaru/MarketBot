@@ -27,6 +27,31 @@ export interface ICitadelData {
     };
 }
 
+export interface IFuzzworkMarketData {
+    [id: string]: {
+        buy: {
+            weightedAverage: string;
+            max: string;
+            min: string;
+            stddev: string;
+            median: string;
+            volume: string;
+            orderCount: string;
+            percentile: string;
+        };
+        sell: {
+            weightedAverage: string;
+            max: string;
+            min: string;
+            stddev: string;
+            median: string;
+            volume: string;
+            orderCount: string;
+            percentile: string;
+        };
+    };
+}
+
 export interface IEVEPraisalData {
     appraisal: {
         created: number;

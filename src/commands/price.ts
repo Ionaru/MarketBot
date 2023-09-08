@@ -5,6 +5,7 @@ import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 's
 
 import { configuration } from '..';
 import { fetchPriceData } from '../helpers/api';
+import { systems } from '../helpers/cache';
 import { getCommand, logSlashCommand } from '../helpers/command-logger';
 import { getGuessHint, guessItemInput } from '../helpers/guessers';
 import { itemFormat, newLine, regionFormat } from '../helpers/message-formatter';
@@ -24,11 +25,11 @@ export class PriceCommand extends SlashCommand {
                 },
                 {
                     choices: [
-                        { name: 'Jita', value: 'Jita' },
-                        { name: 'Amarr', value: 'Amarr' },
-                        { name: 'Dodixie', value: 'Dodixie' },
-                        { name: 'Rens', value: 'Rens' },
-                        { name: 'Hek', value: 'Hek' },
+                        { name: 'Jita', value: '30000142' },
+                        { name: 'Amarr', value: '30002187' },
+                        { name: 'Dodixie', value: '30002659' },
+                        { name: 'Rens', value: '30002510' },
+                        { name: 'Hek', value: '30002053' },
                     ],
                     description: 'The system to show prices for, default: Jita',
                     name: 'system',
@@ -53,7 +54,7 @@ export class PriceCommand extends SlashCommand {
             item: '',
             limit: 5,
             region: '',
-            system: 'Jita',
+            system: '30000142',
             ...context.options,
         };
 
@@ -76,9 +77,11 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
         embed.addField('Warning', guessHint);
     }
 
+    const systemName = systems.find((system) => system.id.toString() === messageData.system)?.name || 'Unknown system';
+
     if (!itemData.id) {
         embed.setThumbnail(`https://data.saturnserver.org/eve/Icons/items/74_64_14.png`);
-        return {embed, itemData, systemName: messageData.system};
+        return {embed, itemData, systemName};
     }
 
     // this.logData.item = itemData.name;
@@ -90,44 +93,44 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
     if (!json) {
         embed.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);
         embed.setThumbnail(`https://data.saturnserver.org/eve/Icons/items/9_64_12.ZH.png`);
-        return {embed, itemData, systemName: messageData.system};
+        return {embed, itemData, systemName};
     }
 
-    const sellData = json.appraisal.items[0].prices.sell;
-    const buyData = json.appraisal.items[0].prices.buy;
+    const sellData = json[itemData.id].sell;
+    const buyData = json[itemData.id].sell;
 
     const sellMeta: string[] = [
-        formatNumber(json.appraisal.items[0].prices.sell.order_count, 0) + ' orders',
-        formatNumber(json.appraisal.items[0].prices.sell.volume, 0) + ' items',
+        formatNumber(sellData.orderCount, 0) + ' orders',
+        formatNumber(sellData.volume, 0) + ' items',
     ];
     const buyMeta: string[] = [
-        formatNumber(json.appraisal.items[0].prices.buy.order_count, 0) + ' orders',
-        formatNumber(json.appraisal.items[0].prices.buy.volume, 0) + ' items',
+        formatNumber(buyData.orderCount, 0) + ' orders',
+        formatNumber(buyData.volume, 0) + ' items',
     ];
 
     let sellPrice = 'unknown';
     let lowestSellPrice = 'unknown';
-    if (sellData.percentile && sellData.order_count !== 0) {
+    if (sellData.percentile && sellData.orderCount !== '0') {
         sellPrice = formatNumber(sellData.percentile) + ' ISK';
         lowestSellPrice = formatNumber(sellData.min) + ' ISK';
     }
 
     let buyPrice = 'unknown';
     let highestBuyPrice = 'unknown';
-    if (buyData.percentile && buyData.order_count !== 0) {
+    if (buyData.percentile && buyData.orderCount !== '0') {
         buyPrice = formatNumber(buyData.percentile) + ' ISK';
         highestBuyPrice = formatNumber(buyData.max) + ' ISK';
     }
 
     if (sellPrice === 'unknown' && buyPrice === 'unknown') {
         const itemName = itemFormat(itemData.name);
-        const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(messageData.system)}, sorry.`;
+        const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(systemName)}, sorry.`;
         embed.addField('No data', replyText);
-        return {embed, itemData, systemName: messageData.system};
+        return {embed, itemData, systemName};
     }
 
     embed.setAuthor(itemData.name, `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
-    embed.setDescription(`Price information for ${regionFormat(messageData.system)}`);
+    embed.setDescription(`Price information for ${regionFormat(systemName)}`);
     embed.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 
     let sellInfo = '';
@@ -148,5 +151,5 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
     }
     embed.addField(`Buy ( ${buyMeta.join(', ')} )`, buyInfo);
 
-    return {embed, itemData, systemName: messageData.system};
+    return {embed, itemData, systemName};
 };

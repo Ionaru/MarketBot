@@ -19,7 +19,7 @@ import {
 import { version } from '../../package.json';
 import { debug } from '../debug';
 import { axiosInstance, esiCache, esiService } from '../index';
-import { ICitadelData, IEVEPraisalData } from '../typings.d';
+import { ICitadelData, IFuzzworkMarketData } from '../typings.d';
 
 const apiDebug = debug.extend('api');
 
@@ -31,19 +31,18 @@ const captureRequestError = (url: string, errorResponse: any) => {
     return undefined;
 };
 
-export const fetchPriceData = async (item: IUniverseNamesDataUnit, market: string): Promise<IEVEPraisalData | undefined> => {
+export const fetchPriceData = async (item: IUniverseNamesDataUnit, system = '30000142'): Promise<IFuzzworkMarketData | undefined> => {
 
-    const host = 'https://evepraisal.com';
+    const host = 'https://market.fuzzwork.co.uk/';
 
     const params = new URLSearchParams({
-        market: market.toLowerCase(),
-        persist: 'no',
-        raw_textarea: item.name.toLowerCase(),
+        system,
+        types: item.id.toString(),
     });
 
-    const url = `${ host }/appraisal.json?${ params.toString() }`;
+    const url = `${ host }/aggregates/?${ params.toString() }`;
 
-    const result = await axiosInstance.post<IEVEPraisalData>(url, undefined, {
+    const result = await axiosInstance.post<IFuzzworkMarketData>(url, undefined, {
         headers: {
             'User-Agent': `MarketBot/${ version } Ionaru#3801`,
         },
