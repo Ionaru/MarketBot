@@ -40,4 +40,4 @@ jobs:
 
       - name: Deploy
         if: github.event_name == 'push'
-        run: npx -q @ionaru/teamcity-deploy teamcity.saturnserver.org MarketBot_Build_3 ${{ secrets.API_TOKEN }}
+        run: npx -q @ionaru/teamcity-deploy teamcity.saturnserver.org MarketBot_Build ${{ secrets.API_TOKEN }}

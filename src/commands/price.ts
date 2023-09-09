@@ -97,7 +97,7 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
     }
 
     const sellData = json[itemData.id].sell;
-    const buyData = json[itemData.id].sell;
+    const buyData = json[itemData.id].buy;
 
     const sellMeta: string[] = [
         formatNumber(sellData.orderCount, 0) + ' orders',
