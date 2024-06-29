@@ -1,6 +1,5 @@
 version: "3"
 services:
-
   marketbot3:
     build: .
     restart: unless-stopped

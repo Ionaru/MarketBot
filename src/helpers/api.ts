@@ -1,76 +1,89 @@
-import { URLSearchParams } from 'url';
+import { URLSearchParams } from "node:url";
 
-import Bugsnag from '@bugsnag/js';
-import { sortArrayByObjectProperty } from '@ionaru/array-utils';
+import Bugsnag from "@bugsnag/js";
+import { sortArrayByObjectProperty } from "@ionaru/array-utils";
 import {
     EVE,
-    IMarketGroupData,
-    IMarketHistoryData,
-    IMarketOrdersData,
-    IMarketOrdersDataUnit,
-    IStatusData,
-    IUniverseCategoryData,
-    IUniverseGroupData,
-    IUniverseNamesData,
-    IUniverseNamesDataUnit,
-    IUniverseTypeData,
-} from '@ionaru/eve-utils';
+    type IMarketGroupData,
+    type IMarketHistoryData,
+    type IMarketOrdersData,
+    type IMarketOrdersDataUnit,
+    type IStatusData,
+    type IUniverseCategoryData,
+    type IUniverseGroupData,
+    type IUniverseNamesData,
+    type IUniverseNamesDataUnit,
+    type IUniverseTypeData,
+} from "@ionaru/eve-utils";
 
-import { version } from '../../package.json';
-import { debug } from '../debug';
-import { axiosInstance, esiCache, esiService } from '../index';
-import { ICitadelData, IFuzzworkMarketData } from '../typings.d';
+import { version } from "../../package.json";
+import { debug } from "../debug";
+import { axiosInstance, esiCache, esiService } from "../index";
+import type { ICitadelData, IFuzzworkMarketData } from "../typings.d";
 
-const apiDebug = debug.extend('api');
+const apiDebug = debug.extend("api");
 
 const captureRequestError = (url: string, errorResponse: any) => {
-    Bugsnag.addMetadata('url', {url});
+    Bugsnag.addMetadata("url", { url });
     Bugsnag.notify(errorResponse);
-    process.emitWarning(`Request failed: ${ url }`);
+    process.emitWarning(`Request failed: ${url}`);
     process.emitWarning(errorResponse);
-    return undefined;
 };
 
-export const fetchPriceData = async (item: IUniverseNamesDataUnit, system = '30000142'): Promise<IFuzzworkMarketData | undefined> => {
+export const fetchPriceData = async (
+    item: IUniverseNamesDataUnit,
+    system = "30000142",
+): Promise<IFuzzworkMarketData | undefined> => {
+    const host = "https://market.fuzzwork.co.uk/";
 
-    const host = 'https://market.fuzzwork.co.uk/';
-
-    const params = new URLSearchParams({
+    const parameters = new URLSearchParams({
         system,
         types: item.id.toString(),
     });
 
-    const url = `${ host }/aggregates/?${ params.toString() }`;
+    const url = `${host}/aggregates/?${parameters.toString()}`;
 
-    const result = await axiosInstance.post<IFuzzworkMarketData>(url, undefined, {
-        headers: {
-            'User-Agent': `MarketBot/${ version } Ionaru#3801`,
-        },
-    })
-        .catch((errorResponse) => captureRequestError(url, errorResponse));
+    const result = await axiosInstance
+        .post<IFuzzworkMarketData>(url, undefined, {
+            headers: {
+                "User-Agent": `MarketBot/${version} Ionaru#3801`,
+            },
+        })
+        .catch((error) => captureRequestError(url, error));
 
     return result?.data;
 };
 
-export const fetchMarketData = async (itemId: number, regionId: number, orderType?: 'buy' | 'sell' | 'all'): Promise<IMarketOrdersData> => {
-    const marketResponse = await fetchData<IMarketOrdersData>(EVE.getMarketOrdersUrl({
-        orderType,
-        page: 1,
-        regionId,
-        typeId: itemId,
-    }));
+export const fetchMarketData = async (
+    itemId: number,
+    regionId: number,
+    orderType?: "buy" | "sell" | "all",
+): Promise<IMarketOrdersData> => {
+    const marketResponse = await fetchData<IMarketOrdersData>(
+        EVE.getMarketOrdersUrl({
+            orderType,
+            page: 1,
+            regionId,
+            typeId: itemId,
+        }),
+    );
     return marketResponse || [];
 };
 
-// eslint-disable-next-line max-len
-export const getCheapestOrder = async (type: 'buy' | 'sell', itemId: number, regionId: number): Promise<IMarketOrdersDataUnit | undefined> => {
+export const getCheapestOrder = async (
+    type: "buy" | "sell",
+    itemId: number,
+    regionId: number,
+): Promise<IMarketOrdersDataUnit | undefined> => {
     const marketData = await fetchMarketData(itemId, regionId);
-    if (marketData && marketData.length) {
-        if (type === 'sell') {
-            const sellOrders = marketData.filter((entry) => !entry.is_buy_order);
+    if (marketData && marketData.length > 0) {
+        if (type === "sell") {
+            const sellOrders = marketData.filter(
+                (entry) => !entry.is_buy_order,
+            );
             sortArrayByObjectProperty(sellOrders, (order) => order.price);
             return sellOrders[0];
-        } else if (type === 'buy') {
+        } else if (type === "buy") {
             const buyOrders = marketData.filter((entry) => entry.is_buy_order);
             sortArrayByObjectProperty(buyOrders, (order) => order.price, true);
             return buyOrders[0];
@@ -80,20 +93,21 @@ export const getCheapestOrder = async (type: 'buy' | 'sell', itemId: number, reg
 };
 
 export const fetchCitadelData = async (): Promise<ICitadelData> => {
-    const url = 'https://stop.hammerti.me.uk/api/citadel/all';
+    const url = "https://stop.hammerti.me.uk/api/citadel/all";
 
     const citadelData = await fetchData<ICitadelData>(url);
     return citadelData || {};
 };
 
-export const fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesData> => {
-
+export const fetchUniverseNames = async (
+    ids: number[],
+): Promise<IUniverseNamesData> => {
     const names: IUniverseNamesData = [];
 
-    const idsCopy = ids.slice();
+    const idsCopy = [...ids];
 
     // TODO: Rewrite using X-Pages
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
         const idsPart = idsCopy.splice(0, 1000);
         const namesPart = await _fetchUniverseNames(idsPart);
@@ -105,27 +119,30 @@ export const fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesD
     }
 };
 
-// eslint-disable-next-line no-underscore-dangle, @typescript-eslint/naming-convention
-const _fetchUniverseNames = async (ids: number[]): Promise<IUniverseNamesData> => {
+const _fetchUniverseNames = async (
+    ids: number[],
+): Promise<IUniverseNamesData> => {
     const url = EVE.getUniverseNamesUrl();
     const body = JSON.stringify(ids);
 
     apiDebug(url, body);
-    const namesResponse = await axiosInstance.post<IUniverseNamesData>(url, body)
-        .catch((errorResponse) => captureRequestError(url, errorResponse));
+    const namesResponse = await axiosInstance
+        .post<IUniverseNamesData>(url, body)
+        .catch((error) => captureRequestError(url, error));
 
     return namesResponse ? namesResponse.data : [];
 };
 
 export const fetchUniverseTypes = async (): Promise<number[]> => {
-
     const types = [];
     let page = 1;
     let errors = 0;
     // TODO: Rewrite using X-Pages
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
-        const typeData = await fetchData<number[]>(EVE.getUniverseTypesUrl(page));
+        const typeData = await fetchData<number[]>(
+            EVE.getUniverseTypesUrl(page),
+        );
         if (typeData) {
             types.push(...typeData);
             if (typeData.length < 1000) {
@@ -137,37 +154,45 @@ export const fetchUniverseTypes = async (): Promise<number[]> => {
         }
 
         if (errors >= 5) {
-            throw new Error('Too many request failures');
+            throw new Error("Too many request failures");
         }
     }
 };
 
-export const fetchUniverseType = async (id: number) => fetchData<IUniverseTypeData>(EVE.getUniverseTypeUrl(id));
+export const fetchUniverseType = async (id: number) =>
+    fetchData<IUniverseTypeData>(EVE.getUniverseTypeUrl(id));
 
-export const fetchUniverseSystems = async (): Promise<number[]> => await fetchData<number[]>(EVE.getUniverseSystemsUrl()) || [];
+export const fetchUniverseSystems = async (): Promise<number[]> =>
+    (await fetchData<number[]>(EVE.getUniverseSystemsUrl())) || [];
 
-export const fetchUniverseRegions = async () => await fetchData<number[]>(EVE.getUniverseRegionsUrl()) || [];
+export const fetchUniverseRegions = async () =>
+    (await fetchData<number[]>(EVE.getUniverseRegionsUrl())) || [];
 
-// eslint-disable-next-line max-len
-export const fetchHistoryData = async (itemId: number, regionId: number) => fetchData<IMarketHistoryData>(EVE.getMarketHistoryUrl(regionId, itemId));
+export const fetchHistoryData = async (itemId: number, regionId: number) =>
+    fetchData<IMarketHistoryData>(EVE.getMarketHistoryUrl(regionId, itemId));
 
-export const fetchGroup = async (groupId: number) => fetchData<IUniverseGroupData>(EVE.getUniverseGroupUrl(groupId));
+export const fetchGroup = async (groupId: number) =>
+    fetchData<IUniverseGroupData>(EVE.getUniverseGroupUrl(groupId));
 
-export const fetchMarketGroup = async (groupId: number) => fetchData<IMarketGroupData>(EVE.getMarketGroupUrl(groupId));
+export const fetchMarketGroup = async (groupId: number) =>
+    fetchData<IMarketGroupData>(EVE.getMarketGroupUrl(groupId));
 
-export const fetchCategory = async (categoryId: number) => fetchData<IUniverseCategoryData>(EVE.getUniverseCategoryUrl(categoryId));
+export const fetchCategory = async (categoryId: number) =>
+    fetchData<IUniverseCategoryData>(EVE.getUniverseCategoryUrl(categoryId));
 
-export const fetchServerStatus = async () => fetchData<IStatusData>(EVE.getStatusUrl());
+export const fetchServerStatus = async () =>
+    fetchData<IStatusData>(EVE.getStatusUrl());
 
 const fetchData = async <T>(url: string): Promise<T | undefined> =>
     esiService.fetchESIData<T>(url).catch((error) => {
-        Bugsnag.addMetadata('url', {url});
+        Bugsnag.addMetadata("url", { url });
         Bugsnag.notify(error);
 
         if (esiCache.responseCache[url]) {
-            process.emitWarning(`Request failed: ${ url } using cached data.`);
+            process.emitWarning(`Request failed: ${url} using cached data.`);
             return esiCache.responseCache[url]?.data as T;
         }
-        process.emitWarning(`Request failed: ${ url }`);
-        return undefined;
+        process.emitWarning(`Request failed: ${url}`);
+        // eslint-disable-next-line sonarjs/no-redundant-jump
+        return;
     });

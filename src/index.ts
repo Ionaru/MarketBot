@@ -1,23 +1,23 @@
-import { format } from 'util';
+import { format } from "node:util";
 
 // eslint-disable-next-line import/order
-import { config } from 'dotenv';
+import { config } from "dotenv";
 config();
 
-import Bugsnag from '@bugsnag/js';
-import { Configurator } from '@ionaru/configurator';
-import { CacheController, PublicESIService } from '@ionaru/esi-service';
-import { HttpsAgent } from 'agentkeepalive';
-import axios, { AxiosInstance } from 'axios';
-import elastic from 'elastic-apm-node';
-import 'reflect-metadata'; // Required for TypeORM
+import Bugsnag from "@bugsnag/js";
+import { Configurator } from "@ionaru/configurator";
+import { CacheController, PublicESIService } from "@ionaru/esi-service";
+import { HttpsAgent } from "agentkeepalive";
+import axios, { type AxiosInstance } from "axios";
+import elastic from "elastic-apm-node";
+import "reflect-metadata"; // Required for TypeORM
 
-import { version } from '../package.json';
+import { version } from "../package.json";
 
-import { debug } from './debug';
-import { activate, deactivate } from './market-bot';
+import { debug } from "./debug";
+import { activate, deactivate } from "./market-bot";
 
-export const configPath = 'config';
+export const configPath = "config";
 export let configuration: Configurator;
 export let esiService: PublicESIService;
 export let esiCache: CacheController;
@@ -28,19 +28,18 @@ export let axiosInstance: AxiosInstance;
  * It also defines what to do on exit signals, unhandled exceptions and promise rejections.
  */
 (() => {
-
     debug(`NodeJS version ${process.version}`);
 
-    configuration = new Configurator(configPath, 'marketbot');
+    configuration = new Configurator(configPath, "marketbot");
 
-    if (configuration.getProperty('bugsnag.enabled') as boolean) {
+    if (configuration.getProperty("bugsnag.enabled") as boolean) {
         Bugsnag.start({
-            apiKey: configuration.getProperty('bugsnag.api') as string,
+            apiKey: configuration.getProperty("bugsnag.api") as string,
             appVersion: version,
         });
     }
 
-    debug('Creating axios instance');
+    debug("Creating axios instance");
     axiosInstance = axios.create({
         // keepAlive pools and reuses TCP connections, so it's faster
         httpsAgent: new HttpsAgent(),
@@ -52,47 +51,51 @@ export let axiosInstance: AxiosInstance;
         maxRedirects: 10,
 
         // 60 sec timeout
-        timeout: 60000,
+        timeout: 60_000,
     });
 
-    debug('Creating CacheController instance');
-    esiCache = new CacheController('data/responseCache.json', undefined, debug);
+    debug("Creating CacheController instance");
+    esiCache = new CacheController("data/responseCache.json", undefined, debug);
 
-    debug('Creating PublicESIService instance');
+    debug("Creating PublicESIService instance");
     esiService = new PublicESIService({
         axiosInstance,
         cacheController: esiCache,
         debug,
         onRouteWarning: (route, text) => {
-            Bugsnag.leaveBreadcrumb('route', {route});
-            Bugsnag.notify(text || 'Route warning', (event) => {
-                event.severity = 'warning';
+            Bugsnag.leaveBreadcrumb("route", { route });
+            Bugsnag.notify(text || "Route warning", (event) => {
+                event.severity = "warning";
             });
         },
     });
 
-    if (configuration.getProperty('elastic.enabled') === true) {
+    if (configuration.getProperty("elastic.enabled") === true) {
         elastic.start({
-            secretToken: configuration.getProperty('elastic.token') as string,
-            serverUrl: configuration.getProperty('elastic.url') as string,
-            serviceName: 'marketbot',
+            secretToken: configuration.getProperty("elastic.token") as string,
+            serverUrl: configuration.getProperty("elastic.url") as string,
+            serviceName: "marketbot",
         });
-        debug(`Elastic APM enabled, logging to '${configuration.getProperty('elastic.url')}'`);
+        debug(
+            `Elastic APM enabled, logging to '${configuration.getProperty("elastic.url")}'`,
+        );
     }
 
-    process.on('unhandledRejection', (reason, p): void => {
-        process.stderr.write(`Unhandled Rejection at: \nPromise ${format(p)} \nReason: ${format(reason)}\n`);
+    process.on("unhandledRejection", (reason, p): void => {
+        process.stderr.write(
+            `Unhandled Rejection at: \nPromise ${format(p)} \nReason: ${format(reason)}\n`,
+        );
     });
-    process.on('uncaughtException', (error) => {
+    process.on("uncaughtException", (error) => {
         process.stderr.write(`Uncaught Exception! \n${format(error)}\n`);
-        deactivate(true, true).then();
+        deactivate(true, true);
     });
-    process.on('SIGINT', () => {
-        deactivate(true).then();
+    process.on("SIGINT", () => {
+        deactivate(true);
     });
-    process.on('SIGTERM', () => {
-        deactivate(true).then();
+    process.on("SIGTERM", () => {
+        deactivate(true);
     });
 
-    activate().then();
+    void activate().then();
 })();
