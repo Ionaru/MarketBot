@@ -16,10 +16,10 @@ import {
     newLine,
     regionFormat,
 } from "../helpers/message-formatter";
-import type { IParsedMessage } from "../typings.d";
+import type { IParsedMessage } from "../typings";
 
 export class PriceCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description:
                 "Fetch the lowest and average prices for an item, both buy and sell orders.",
@@ -48,7 +48,7 @@ export class PriceCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const messageData: IParsedMessage = {

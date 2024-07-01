@@ -14,46 +14,46 @@ export const getCommand = (context: CommandContext): string => {
 @Entity("LogEntries")
 export class LogEntry extends BaseEntity {
     @PrimaryGeneratedColumn()
-    public id!: number;
+    id!: number;
 
     @Column({ nullable: true })
-    public guild_id?: string;
+    guild_id?: string;
 
     @Column({ nullable: true })
-    public guild_name?: string;
+    guild_name?: string;
 
     @Column({ nullable: true })
-    public channel_id?: string;
+    channel_id?: string;
 
     @Column({ nullable: true })
-    public channel_name?: string;
+    channel_name?: string;
 
     @Column()
-    public channel_type!: string;
+    channel_type!: string;
 
     @Column()
-    public sender_name!: string;
+    sender_name!: string;
 
     @Column()
-    public sender_id!: string;
+    sender_id!: string;
 
     @Column({ nullable: true })
-    public item_input?: string;
+    item_input?: string;
 
     @Column({ nullable: true })
-    public item_output?: string;
+    item_output?: string;
 
     @Column({ nullable: true })
-    public region_input?: string;
+    region_input?: string;
 
     @Column({ nullable: true })
-    public region_output?: string;
+    region_output?: string;
 
     @Column()
-    public command_type!: string;
+    command_type!: string;
 
     @Column({ type: "text" })
-    public command_full!: string;
+    command_full!: string;
 }
 
 export const logSlashCommand = (

@@ -1,4 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
+import { describe, expect, it } from "bun:test";
+
 import {
     itemFormat,
     makeBold,

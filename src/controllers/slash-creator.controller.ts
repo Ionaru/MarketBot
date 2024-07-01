@@ -6,12 +6,12 @@ import { debug } from "../debug";
 import { SlashCreatorService } from "../services/slash-creator.service";
 
 export class SlashCreatorController {
-    private static readonly debug = debug.extend("SlashCreatorController");
+    static readonly #debug = debug.extend("SlashCreatorController");
 
-    private readonly creator: SlashCreator;
+    readonly #creator: SlashCreator;
 
-    public constructor() {
-        SlashCreatorController.debug("Start");
+    constructor() {
+        SlashCreatorController.#debug("Start");
 
         const applicationID = configuration
             .getProperty("discord.id")
@@ -23,22 +23,22 @@ export class SlashCreatorController {
             throw new Error("SlashCreator configuration error!");
         }
 
-        SlashCreatorController.debug("Configuration OK");
+        SlashCreatorController.#debug("Configuration OK");
 
-        this.creator = new SlashCreator({ applicationID, publicKey, token });
-        this.creator.on("commandError", (_, error) => {
+        this.#creator = new SlashCreator({ applicationID, publicKey, token });
+        this.#creator.on("commandError", (_, error) => {
             throw error;
         });
-        this.creator.on("error", (error) => {
+        this.#creator.on("error", (error) => {
             throw error;
         });
 
-        SlashCreatorController.debug("Ready");
+        SlashCreatorController.#debug("Ready");
     }
 
-    public init(client: Client): SlashCreatorService {
-        SlashCreatorController.debug("Init");
-        this.creator.withServer(new GatewayServer(client.commandHandler));
-        return new SlashCreatorService(this.creator);
+    init(client: Client): SlashCreatorService {
+        SlashCreatorController.#debug("Init");
+        this.#creator.withServer(new GatewayServer(client.commandHandler));
+        return new SlashCreatorService(this.#creator);
     }
 }

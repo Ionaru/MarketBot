@@ -3,32 +3,18 @@
     "type": "module",
     "private": true,
     "author": "Jeroen Akkerman",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "description": "A Discord bot for looking up EVE Online market prices",
     "repository": {
         "type": "git",
         "url": "https://github.com/Ionaru/MarketBot.git"
     },
     "scripts": {
-        "clean": "npx rimraf -q dist",
-        "build": "npm run clean && tsc --skipLibCheck --project tsconfig.json",
         "check": "tsc --noEmit --skipLibCheck --project tsconfig.json && prettier --check . && eslint src && echo 👌",
         "format": "prettier --write . && eslint --fix src && echo 👌",
-        "pretest": "npm run lint",
-        "test": "jest src",
-        "start": "bun run src/index.ts",
-        "start:ts": "TS_NODE_FILES=true node --require ts-node/register src/index.ts"
-    },
-    "jest": {
-        "collectCoverage": true,
-        "collectCoverageFrom": [
-            "src/**/*.ts",
-            "!src/**/*.d.ts",
-            "!src/**/*.spec.ts",
-            "!dist/**/*"
-        ],
-        "preset": "ts-jest",
-        "testEnvironment": "node"
+        "pretest": "npm run check",
+        "test": "bun test",
+        "start": "bun run src/index.ts"
     },
     "dependencies": {
         "@bugsnag/js": "^7.23.0",
@@ -65,7 +51,6 @@
         "@types/d3": "^5.16.7",
         "@types/debug": "^4.1.12",
         "@types/eslint__js": "^8.42.3",
-        "@types/jest": "^27.5.2",
         "@types/puppeteer": "^5.4.7",
         "@types/sqlite3": "^3.1.11",
         "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -77,10 +62,7 @@
         "eslint-plugin-prefer-arrow": "^1.2.3",
         "eslint-plugin-sonarjs": "^1.0.3",
         "eslint-plugin-unicorn": "^54.0.0",
-        "jest": "^27.5.1",
         "prettier": "^3.3.2",
-        "ts-jest": "^27.1.5",
-        "ts-node": "^10.9.2",
         "typescript-eslint": "^7.14.1"
     },
     "license": "MIT"

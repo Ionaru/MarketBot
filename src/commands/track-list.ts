@@ -9,7 +9,7 @@ import { makeBold, makeCode, newLine } from "../helpers/message-formatter";
 import { TrackingEntry } from "./track";
 
 export class TrackListCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description:
                 "List all the orders that MarketBot is tracking for the user that sends to command.",
@@ -17,7 +17,7 @@ export class TrackListCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const embed = await trackListCommandLogic(context);

@@ -22,10 +22,10 @@ import {
     type IGuessReturn,
 } from "../helpers/guessers";
 import { makeCode, newLine } from "../helpers/message-formatter";
-import type { IParsedMessage } from "../typings.d";
+import type { IParsedMessage } from "../typings";
 
 export class ItemCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description: "Show some information about a specific item.",
             name: "item",
@@ -40,7 +40,7 @@ export class ItemCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const messageData: IParsedMessage = {

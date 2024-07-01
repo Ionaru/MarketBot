@@ -19,18 +19,18 @@ interface IServer {
 type ChannelType = keyof typeof ChannelTypes;
 
 export class Message {
-    public readonly sender: string;
-    public readonly origin: string;
-    public readonly author: { id: string; name: string };
-    public readonly channel: { id: string; name?: string; type: ChannelType };
-    public readonly server: IServer;
-    public readonly content: string;
-    public readonly id: string;
+    readonly sender: string;
+    readonly origin: string;
+    readonly author: { id: string; name: string };
+    readonly channel: { id: string; name?: string; type: ChannelType };
+    readonly server: IServer;
+    readonly content: string;
+    readonly id: string;
 
-    private discordMessage: Discord.Message;
+    #discordMessage: Discord.Message;
 
-    public constructor(message: Discord.Message) {
-        this.discordMessage = message;
+    constructor(message: Discord.Message) {
+        this.#discordMessage = message;
         this.sender = message.author.username;
         this.content = message.content;
         this.id = message.id;
@@ -62,16 +62,16 @@ export class Message {
         this.origin = "Discord";
     }
 
-    public get guild(): Discord.Guild | undefined {
-        if (this.discordMessage.channel.type === "GUILD_TEXT") {
-            const channel = this.discordMessage.channel;
+    get guild(): Discord.Guild | undefined {
+        if (this.#discordMessage.channel.type === "GUILD_TEXT") {
+            const channel = this.#discordMessage.channel;
             return channel.guild;
         }
 
         return undefined;
     }
 
-    public static processError(
+    static processError(
         caughtError: Error,
         command: string,
         errorText = `I'm sorry, it appears I have developed a fault`,
@@ -89,14 +89,14 @@ export class Message {
         return text;
     }
 
-    public async reply(
+    async reply(
         message: string,
         options: Discord.MessageOptions = {},
     ): Promise<Message> {
         if (message.length > maxMessageLength) {
             throw new Error("MaxMessageLengthReached");
         }
-        const sent = await this.discordMessage.channel.send({
+        const sent = await this.#discordMessage.channel.send({
             content: message || undefined,
             ...options,
         });
@@ -130,22 +130,22 @@ export class Message {
             });
     }
 
-    public async edit(
+    async edit(
         message: string,
         options: Discord.MessageEditOptions = {},
     ): Promise<void> {
         if (message.length > maxMessageLength) {
             throw new Error("MaxMessageLengthReached");
         }
-        await this.discordMessage.edit({
+        await this.#discordMessage.edit({
             content: message || undefined,
             ...options,
         });
     }
 
-    public async remove(): Promise<boolean> {
+    async remove(): Promise<boolean> {
         try {
-            await this.discordMessage.delete();
+            await this.#discordMessage.delete();
             return true;
         } catch {
             return false;

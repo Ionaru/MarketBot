@@ -27,7 +27,7 @@ import {
     newLine,
     regionFormat,
 } from "../helpers/message-formatter";
-import type { IParsedMessage } from "../typings.d";
+import type { IParsedMessage } from "../typings";
 
 interface ISellOrdersCommandLogicReturn {
     reply: string;
@@ -36,7 +36,7 @@ interface ISellOrdersCommandLogicReturn {
 }
 
 export class SellOrdersCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description: "List the best sell orders for an item",
             name: "sell-orders",
@@ -63,7 +63,7 @@ export class SellOrdersCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const messageData: IParsedMessage = {

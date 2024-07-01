@@ -11,7 +11,7 @@ import {
 import { botName, client, creator as botCreator } from "../market-bot";
 
 export class InfoCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description:
                 "Print a message with information about the bot, and how to use it.",
@@ -19,7 +19,7 @@ export class InfoCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const reply = infoCommandLogic();

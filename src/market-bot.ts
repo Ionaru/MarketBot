@@ -1,10 +1,8 @@
-import Bugsnag from "@bugsnag/js";
-import { createConnection } from "typeorm";
+import { DataSource } from "typeorm";
 
 import { version } from "../package.json";
 
 import { Client } from "./chat-service/discord/client";
-import { Message } from "./chat-service/discord/message";
 import { BuyOrdersCommand } from "./commands/buy-orders";
 import { DataCommand } from "./commands/data";
 import { HistoryCommand } from "./commands/history";
@@ -52,12 +50,14 @@ export const activate = async () => {
     });
     await checkAndUpdateCitadelCache();
 
-    await createConnection({
+    const dataSource = new DataSource({
         database: "data/marketbot.db",
         entities: [LogEntry, TrackingEntry],
         synchronize: true,
         type: "sqlite",
     });
+
+    await dataSource.initialize();
 
     debug(`Database connection created`);
 
@@ -155,10 +155,4 @@ export const deactivate = (exitProcess: boolean, error = false): void => {
         // eslint-disable-next-line unicorn/no-process-exit
         process.exit(0);
     }
-};
-
-export const handleError = (message: Message, caughtError: Error) => {
-    Bugsnag.addMetadata("command", { command: message.content });
-    Bugsnag.notify(caughtError);
-    void message.sendError(caughtError);
 };

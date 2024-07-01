@@ -27,7 +27,7 @@ import {
     newLine,
     regionFormat,
 } from "../helpers/message-formatter";
-import type { IParsedMessage } from "../typings.d";
+import type { IParsedMessage } from "../typings";
 
 interface IHistoryCommandLogicReturn {
     reply: string;
@@ -37,7 +37,7 @@ interface IHistoryCommandLogicReturn {
 }
 
 export class HistoryCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description:
                 "Show history information and a graph showing the average price in the last 20 days.",
@@ -59,7 +59,7 @@ export class HistoryCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const messageData: IParsedMessage = {

@@ -1,21 +1,20 @@
 import Discord, { Intents, WebSocketManager } from "discord.js";
 import type { InteractionHandler } from "slash-create";
 
-import { Message } from "./message";
 import { maxMessageLength } from "./misc";
 
 export class Client {
-    public readonly emitter: EventTarget;
+    readonly emitter: EventTarget;
 
-    private client: Discord.Client;
-    private credentials: string;
-    private _name?: string;
-    private _id?: string;
-    private presenceInterval?: Timer;
+    readonly #credentials: string;
+    #client: Discord.Client;
+    #name?: string;
+    #id?: string;
+    #presenceInterval?: Timer;
 
-    public constructor(credentials: string) {
-        this.credentials = credentials;
-        this.client = new Discord.Client({
+    constructor(credentials: string) {
+        this.#credentials = credentials;
+        this.#client = new Discord.Client({
             intents: [
                 Intents.FLAGS.GUILDS,
                 Intents.FLAGS.GUILD_MESSAGES,
@@ -27,68 +26,66 @@ export class Client {
         });
         this.emitter = new EventTarget();
 
-        this.client.on("ready", () => {
-            this.onReady();
+        this.#client.on("ready", () => {
+            this.#onReady();
         });
 
-        this.client.on("warn", (warning: string) => {
-            Client.onWarning(warning);
+        this.#client.on("warn", (warning: string) => {
+            Client.#onWarning(warning);
         });
 
-        this.client.on("error", (error: Error) => {
-            Client.onError(error);
+        this.#client.on("error", (error: Error) => {
+            Client.#onError(error);
         });
 
-        this.client.on("disconnect", (event: any) => {
-            this.onDisconnect(event);
+        this.#client.on("disconnect", (event: any) => {
+            this.#onDisconnect(event);
         });
     }
 
-    public get name(): string | undefined {
-        return this._name;
+    get name(): string | undefined {
+        return this.#name;
     }
 
-    public get id(): string | undefined {
-        return this._id;
+    get id(): string | undefined {
+        return this.#id;
     }
 
-    public get serverCount(): number {
-        return [...this.client.guilds.cache.values()].length;
+    get serverCount(): number {
+        return [...this.#client.guilds.cache.values()].length;
     }
 
-    public get upTime(): Date | undefined {
-        return this.client.readyAt || undefined;
+    get upTime(): Date | undefined {
+        return this.#client.readyAt || undefined;
     }
 
-    public get commandHandler(): (
-        handler: InteractionHandler,
-    ) => WebSocketManager {
+    get commandHandler(): (handler: InteractionHandler) => WebSocketManager {
         return (handler: InteractionHandler) =>
-            this.client.ws.on("INTERACTION_CREATE" as any, handler);
+            this.#client.ws.on("INTERACTION_CREATE" as any, handler);
     }
 
-    private static onError(error: Error) {
+    static #onError(error: Error) {
         process.stderr.write(`Discord: \n${error.message}\n`);
     }
 
-    private static onWarning(warning: string) {
+    static #onWarning(warning: string) {
         process.emitWarning(`Discord: \n${warning}`);
     }
 
-    public login() {
-        void this.client.login(this.credentials);
+    login() {
+        void this.#client.login(this.#credentials);
     }
 
-    public disconnect() {
-        this.client.destroy();
+    disconnect() {
+        this.#client.destroy();
     }
 
-    public reconnect() {
+    reconnect() {
         this.disconnect();
         this.login();
     }
 
-    public async sendToChannel(
+    async sendToChannel(
         id: string,
         message: string,
         userId?: string,
@@ -97,7 +94,7 @@ export class Client {
             throw new Error("MaxMessageLengthReached");
         }
         try {
-            const channel = [...this.client.channels.cache.values()].find(
+            const channel = [...this.#client.channels.cache.values()].find(
                 (clientChannel) => clientChannel.id === id,
             );
             if (channel) {
@@ -111,7 +108,7 @@ export class Client {
                 }
             } else {
                 // Try to create a DM channel with the user, this might not always succeed depending on their privacy settings.
-                const user = [...this.client.users.cache.values()].find(
+                const user = [...this.#client.users.cache.values()].find(
                     (discordUser) => discordUser.id === userId,
                 );
                 if (user) {
@@ -127,20 +124,8 @@ export class Client {
         }
     }
 
-    public getNickname(message: Message): string | undefined {
-        const guild = message.guild;
-        if (guild && this.client.user) {
-            return (
-                guild.members.cache.get(this.client.user.id)?.nickname ||
-                undefined
-            );
-        }
-
-        return undefined;
-    }
-
-    private setDiscordPresence() {
-        this.client.user?.setPresence({
+    #setDiscordPresence() {
+        this.#client.user?.setPresence({
             activities: [
                 {
                     name: `with ISK (try /info)`,
@@ -152,15 +137,15 @@ export class Client {
 
         // Re-set the presence every hour because of a known issue on Discord's side.
         // https://github.com/discordapp/discord-api-docs/issues/834
-        if (!this.presenceInterval) {
-            this.presenceInterval = setInterval(
-                () => this.setDiscordPresence(),
+        if (!this.#presenceInterval) {
+            this.#presenceInterval = setInterval(
+                () => this.#setDiscordPresence(),
                 3_600_000,
             ); // Every hour.
         }
     }
 
-    private onDisconnect(event: any) {
+    #onDisconnect(event: any) {
         process.emitWarning("Connection closed unexpectedly");
         process.emitWarning("Code:", event.code);
         process.emitWarning("Reason:", event.reason);
@@ -168,11 +153,11 @@ export class Client {
         this.reconnect();
     }
 
-    private onReady() {
-        this._name = this.client.user?.username;
+    #onReady() {
+        this.#name = this.#client.user?.username;
 
-        this._id = this.client.user?.id;
-        this.setDiscordPresence();
+        this.#id = this.#client.user?.id;
+        this.#setDiscordPresence();
         this.emitter.dispatchEvent(new Event("ready"));
     }
 }

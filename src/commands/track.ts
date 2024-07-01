@@ -30,33 +30,33 @@ import {
     regionFormat,
 } from "../helpers/message-formatter";
 import { client } from "../market-bot";
-import type { IParsedMessage } from "../typings.d";
+import type { IParsedMessage } from "../typings";
 
 @Entity("TrackingEntries")
 export class TrackingEntry extends BaseEntity {
     @PrimaryGeneratedColumn()
-    public id!: number;
+    id!: number;
 
     @Column()
-    public item_id!: number;
+    item_id!: number;
 
     @Column()
-    public channel_id!: string;
+    channel_id!: string;
 
     @Column()
-    public sender_id!: string;
+    sender_id!: string;
 
     @Column()
-    public region_id!: number;
+    region_id!: number;
 
     @Column({ type: "decimal" })
-    public tracking_limit!: number;
+    tracking_limit!: number;
 
     @Column({ type: "decimal" })
-    public tracking_price!: number;
+    tracking_price!: number;
 
     @Column()
-    public tracking_type!: "buy" | "sell";
+    tracking_type!: "buy" | "sell";
 }
 
 let trackingCycle: Timer | undefined;
@@ -68,7 +68,7 @@ interface ITrackCommandLogicReturn {
 }
 
 export class TrackCommand extends SlashCommand {
-    public constructor(
+    constructor(
         creator: SlashCreator,
         private commandType: "buy" | "sell",
     ) {
@@ -100,7 +100,7 @@ export class TrackCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const { reply, itemData, regionName } = await trackCommandLogic(
@@ -118,7 +118,7 @@ export class TrackCommand extends SlashCommand {
 }
 
 export class ClearTrackingCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description:
                 "Clear all price tracking entries in a channel, optionally for a specific item.",
@@ -134,7 +134,7 @@ export class ClearTrackingCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         let reply = `All entries cleared from this channel.`;

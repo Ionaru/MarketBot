@@ -29,7 +29,7 @@ import {
     newLine,
     regionFormat,
 } from "../helpers/message-formatter";
-import type { IParsedMessage } from "../typings.d";
+import type { IParsedMessage } from "../typings";
 
 interface IBuyOrdersCommandLogicReturn {
     reply: string;
@@ -38,7 +38,7 @@ interface IBuyOrdersCommandLogicReturn {
 }
 
 export class BuyOrdersCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description: "List the best buy orders for an item",
             name: "buy-orders",
@@ -65,7 +65,7 @@ export class BuyOrdersCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const messageData: IParsedMessage = {

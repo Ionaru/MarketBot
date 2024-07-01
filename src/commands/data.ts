@@ -15,7 +15,7 @@ import { client } from "../market-bot";
 import { TrackingEntry } from "./track";
 
 export class DataCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
             description:
                 "Show statistics that the bot has gathered while in use.",
@@ -23,7 +23,7 @@ export class DataCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const reply = await dataCommandLogic();
