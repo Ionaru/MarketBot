@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import { unlinkSync, writeFileSync } from "node:fs";
 
 import type {
     IUniverseNamesData,
@@ -10,7 +10,7 @@ import moment from "moment";
 
 import { debug } from "../debug";
 import { dataFolder } from "../market-bot";
-import type { ICitadelData } from "../typings.d";
+import type { ICitadelData } from "../typings";
 
 import {
     fetchCitadelData,
@@ -62,7 +62,7 @@ export const checkAndUpdateCache = async () => {
         newSystems.length === 0 ||
         newItems.length === 0
     ) {
-        fs.unlinkSync(`${dataFolder}/${serverVersionFileName}`);
+        unlinkSync(`${dataFolder}/${serverVersionFileName}`);
         throw new Error("Universe data incomplete, unable to create new cache");
     }
 
@@ -89,7 +89,7 @@ export const checkAndUpdateCache = async () => {
         });
     }, timeUntilNextNoon);
 
-    fs.writeFileSync(
+    writeFileSync(
         `${dataFolder}/${serverVersionFileName}`,
         serverVersion || "",
     );
@@ -152,7 +152,7 @@ const cacheUniverse = async (
     if (data) {
         const names = await fetchUniverseNames(data).catch(() => []);
         if (names.length === data.length) {
-            fs.writeFileSync(savePath, JSON.stringify(names));
+            writeFileSync(savePath, JSON.stringify(names));
             cacheDebug(
                 `Wrote ${names.length} ${type} to cache at ${savePath} and loaded into memory`,
             );

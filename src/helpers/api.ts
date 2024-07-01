@@ -1,5 +1,3 @@
-import { URLSearchParams } from "node:url";
-
 import Bugsnag from "@bugsnag/js";
 import { sortArrayByObjectProperty } from "@ionaru/array-utils";
 import {
@@ -19,7 +17,7 @@ import {
 import { version } from "../../package.json";
 import { debug } from "../debug";
 import { axiosInstance, esiCache, esiService } from "../index";
-import type { ICitadelData, IFuzzworkMarketData } from "../typings.d";
+import type { ICitadelData, IFuzzworkMarketData } from "../typings";
 
 const apiDebug = debug.extend("api");
 

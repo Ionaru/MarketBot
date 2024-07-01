@@ -1,4 +1,4 @@
-import * as fs from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import type { IUniverseNamesDataUnit } from "@ionaru/eve-utils";
 import { formatNumber } from "@ionaru/format-number";
@@ -75,7 +75,7 @@ export class HistoryCommand extends SlashCommand {
             await historyCommandLogic(messageData);
 
         if (fileName) {
-            const file = fs.readFileSync(fileName);
+            const file = readFileSync(fileName);
             await context.send(reply, { file: { file, name: fileName } });
         } else {
             await context.send(reply);
@@ -178,7 +178,7 @@ const historyCommandLogic = async (
     }));
 
     const fileName = `data/${last20days[0].date}_${itemData.id}_${selectedRegion.id}.png`;
-    if (!fs.existsSync(fileName)) {
+    if (!existsSync(fileName)) {
         const graph = createLineGraph(
             data,
             `Price history for ${itemData.name}`,
