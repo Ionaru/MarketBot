@@ -16,10 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: oven-sh/setup-bun@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.x.x
+          # TODO: Lock version when https://github.com/oven-sh/setup-bun/issues/37 is fixed.
+          bun-version: latest
 
       - name: Install packages
         run: bun install --frozen-lockfile
@@ -34,4 +35,4 @@ jobs:
 
       - name: Deploy
         if: github.event_name == 'push'
-        run: npx -q @ionaru/teamcity-deploy teamcity.saturnserver.org MarketBot_Build ${{ secrets.API_TOKEN }}
+        run: bunx @ionaru/teamcity-deploy teamcity.saturnserver.org MarketBot_Build ${{ secrets.API_TOKEN }}
