@@ -99,7 +99,7 @@ export interface IEVEPraisalData {
                 typeID: number;
                 typeName: string;
                 typeVolume: number;
-            }
+            },
         ];
         kind: string;
         market_name: string;

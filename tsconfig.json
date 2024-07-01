@@ -1,5 +1,17 @@
 {
     "compilerOptions": {
+        // Enable latest features
+        "lib": ["ESNext", "DOM"],
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleDetection": "force",
+
+        // Bundler mode
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "noEmit": true,
+
         "baseUrl": "",
         "declaration": false,
         "experimentalDecorators": true,
@@ -12,21 +24,6 @@
         "noFallthroughCasesInSwitch": true,
         "removeComments": true,
         "resolveJsonModule": true,
-        "lib": [
-            "esnext"
-        ],
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "outDir": "./dist",
-        "sourceMap": true,
-        "target": "es2021",
-        "typeRoots": [
-            "node_modules/@types"
-        ]
-    },
-    "files": [
-        "src/modules.d.ts",
-        "src/typings.d.ts",
-        "src/index.ts"
-    ]
+        "sourceMap": true
+    }
 }

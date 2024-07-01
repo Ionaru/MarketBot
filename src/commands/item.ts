@@ -1,25 +1,38 @@
-import { IMarketGroupData } from '@ionaru/eve-utils';
-import { formatNumber } from '@ionaru/format-number';
-import { MessageEmbed } from 'discord.js';
-import { Transaction, startTransaction } from 'elastic-apm-node';
-import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
+import { type IMarketGroupData } from "@ionaru/eve-utils";
+import { formatNumber } from "@ionaru/format-number";
+import { MessageEmbed } from "discord.js";
+import {
+    CommandContext,
+    CommandOptionType,
+    SlashCommand,
+    SlashCreator,
+} from "slash-create";
 
-import { configuration } from '..';
-import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
-import { getCommand, logSlashCommand } from '../helpers/command-logger';
-import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
-import { makeCode, newLine } from '../helpers/message-formatter';
-import { IParsedMessage } from '../typings.d';
+import {
+    fetchCategory,
+    fetchGroup,
+    fetchMarketGroup,
+    fetchPriceData,
+    fetchUniverseType,
+} from "../helpers/api";
+import { getCommand, logSlashCommand } from "../helpers/command-logger";
+import {
+    getGuessHint,
+    guessItemInput,
+    type IGuessReturn,
+} from "../helpers/guessers";
+import { makeCode, newLine } from "../helpers/message-formatter";
+import type { IParsedMessage } from "../typings";
 
 export class ItemCommand extends SlashCommand {
-    public constructor(creator: SlashCreator) {
+    constructor(creator: SlashCreator) {
         super(creator, {
-            description: 'Show some information about a specific item.',
-            name: 'item',
+            description: "Show some information about a specific item.",
+            name: "item",
             options: [
                 {
-                    description: 'The item to look up',
-                    name: 'item',
+                    description: "The item to look up",
+                    name: "item",
                     required: true,
                     type: CommandOptionType.STRING,
                 },
@@ -27,55 +40,57 @@ export class ItemCommand extends SlashCommand {
         });
     }
 
-    public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty('elastic.enabled') === true) {
-            transaction = startTransaction();
-        }
-
+    async run(context: CommandContext): Promise<void> {
         await context.defer(false);
 
         const messageData: IParsedMessage = {
             content: getCommand(context),
-            item: '',
+            item: "",
             limit: 5,
-            region: '',
-            system: '',
+            region: "",
+            system: "",
             ...context.options,
         };
 
-        const {embed, itemData} = await itemCommandLogic(messageData);
+        const { embed, itemData } = await itemCommandLogic(messageData);
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        await context.send({embeds: [embed]});
-        logSlashCommand(context, (itemData ? itemData.name : undefined), undefined, transaction);
+        await context.send({ embeds: [embed] });
+        logSlashCommand(context, itemData ? itemData.name : undefined);
     }
 }
 
-// eslint-disable-next-line sonarjs/cognitive-complexity
 const itemCommandLogic = async (messageData: IParsedMessage) => {
-    const {itemData, guess, id}: IGuessReturn = await guessItemInput(messageData.item);
+    const { itemData, guess, id }: IGuessReturn = await guessItemInput(
+        messageData.item,
+    );
 
     const embed = new MessageEmbed();
 
-    const guessHint = getGuessHint({guess, id, itemData}, messageData.item);
+    const guessHint = getGuessHint({ guess, id, itemData }, messageData.item);
     if (guessHint) {
-        embed.addField('Warning', guessHint);
+        embed.addFields([{ name: "Warning", value: guessHint }]);
     }
 
     if (!itemData.id) {
-        embed.setThumbnail(`https://data.saturnserver.org/eve/Icons/items/74_64_14.png`);
-        return {embed, itemData};
+        embed.setThumbnail(
+            `https://data.saturnserver.org/eve/Icons/items/74_64_14.png`,
+        );
+        return { embed, itemData };
     }
 
-    embed.setAuthor(itemData.name, `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`);
-    embed.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
+    embed.author = {
+        name: itemData.name,
+        iconURL: `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`,
+    };
+    embed.setThumbnail(
+        `https://image.eveonline.com/Type/${itemData.id}_64.png`,
+    );
 
     const item = await fetchUniverseType(itemData.id);
 
-    let itemInfo = '';
+    let itemInfo = "";
     itemInfo += `• ID: ${itemData.id}`;
     itemInfo += newLine();
     itemInfo += `• Name: ${itemData.name}`;
@@ -98,26 +113,27 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
 
     if (item && item.volume) {
         const volume = formatNumber(item.volume, Infinity);
-        itemInfo += `• Volume: ${makeCode(volume + ' m³')}`;
+        itemInfo += `• Volume: ${makeCode(volume + " m³")}`;
         itemInfo += newLine();
     }
 
-    embed.addField('Item info', itemInfo);
+    embed.addFields([{ name: "Item info", value: itemInfo }]);
 
-    let marketInfo = '';
+    let marketInfo = "";
     if (item && item.market_group_id) {
         const marketGroups = [];
         let marketGroupId: number | undefined = item.market_group_id;
         while (marketGroupId !== undefined) {
-            const marketGroup: IMarketGroupData | undefined = await fetchMarketGroup(marketGroupId);
+            const marketGroup: IMarketGroupData | undefined =
+                await fetchMarketGroup(marketGroupId);
             if (marketGroup) {
                 marketGroups.unshift(marketGroup.name);
-                marketGroupId = marketGroup.parent_group_id ? marketGroup.parent_group_id : undefined;
+                marketGroupId = marketGroup.parent_group_id ?? undefined;
             }
         }
 
         marketInfo += `• Market location:`;
-        const indent = ' > ';
+        const indent = " > ";
         let deepness = 1;
         for (const marketGroup of marketGroups) {
             marketInfo += newLine();
@@ -130,17 +146,17 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
             const sellData = formatNumber(json[itemData.id].sell.percentile);
             const buyData = formatNumber(json[itemData.id].buy.percentile);
             marketInfo += newLine(2);
-            marketInfo += `• Average Jita **sell** price: ${makeCode(sellData + ' ISK')}`;
+            marketInfo += `• Average Jita **sell** price: ${makeCode(sellData + " ISK")}`;
             marketInfo += newLine();
-            marketInfo += `• Average Jita **buy** price: ${makeCode(buyData + ' ISK')}`;
+            marketInfo += `• Average Jita **buy** price: ${makeCode(buyData + " ISK")}`;
         }
 
         marketInfo += newLine();
     }
 
     if (marketInfo) {
-        embed.addField('Market info', marketInfo);
+        embed.addFields([{ name: "Market info", value: marketInfo }]);
     }
 
-    return {embed, itemData};
+    return { embed, itemData };
 };

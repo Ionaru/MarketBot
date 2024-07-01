@@ -1,3 +1,3 @@
-import Debug from 'debug';
+import Debug from "debug";
 
-export const debug = Debug('market-bot');
+export const debug = Debug("market-bot");

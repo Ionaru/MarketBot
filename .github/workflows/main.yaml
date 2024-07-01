@@ -14,30 +14,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: "16"
-
-      # - name: Audit
-      #   run: npm audit
+          # TODO: Lock version when https://github.com/oven-sh/setup-bun/issues/37 is fixed.
+          bun-version: latest
 
       - name: Install packages
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Run tests
-        run: npm test
+        run: bun run test
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
           directory: coverage
 
-      - name: Build
-        run: npm run build
-
       - name: Deploy
         if: github.event_name == 'push'
-        run: npx -q @ionaru/teamcity-deploy teamcity.saturnserver.org MarketBot_Build ${{ secrets.API_TOKEN }}
+        run: bunx @ionaru/teamcity-deploy teamcity.saturnserver.org MarketBot_Build ${{ secrets.API_TOKEN }}

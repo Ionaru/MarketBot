@@ -1,24 +1,21 @@
-import { SlashCommand, SlashCreator } from 'slash-create';
+import { SlashCommand, SlashCreator } from "slash-create";
 
-import { debug } from '../debug';
+import { debug } from "../debug";
 
 export class SlashCreatorService {
+    static readonly #debug = debug.extend("SlashCreatorService");
 
-    private static readonly debug = debug.extend('SlashCreatorService');
+    constructor(private readonly creator: SlashCreator) {}
 
-    public constructor(
-        private readonly creator: SlashCreator,
-    ) { }
-
-    public registerCommand(registerer: (creator: SlashCreator) => SlashCommand): void {
+    registerCommand(registerer: (creator: SlashCreator) => SlashCommand): void {
         this.creator.registerCommand(registerer(this.creator));
     }
 
-    public syncCommands(): Promise<unknown> {
-        return new Promise((resolve) => {
-            this.creator.once('synced', () => {
-                SlashCreatorService.debug('Commands synced');
-                resolve(undefined);
+    syncCommands(): Promise<unknown> {
+        return new Promise<void>((resolve) => {
+            this.creator.once("synced", () => {
+                SlashCreatorService.#debug("Commands synced");
+                resolve();
             });
             this.creator.syncCommands();
         });

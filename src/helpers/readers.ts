@@ -1,6 +1,9 @@
-import { existsSync, readFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, unlinkSync } from "node:fs";
 
-export const readFileContents = (filePath: string, deleteIfError = false): string | undefined => {
+export const readFileContents = (
+    filePath: string,
+    deleteIfError = false,
+): string | undefined => {
     if (existsSync(filePath)) {
         try {
             return readFileSync(filePath).toString();
@@ -11,8 +14,11 @@ export const readFileContents = (filePath: string, deleteIfError = false): strin
                 try {
                     unlinkSync(filePath);
                     process.emitWarning(`File ${filePath} deleted.`);
-                } catch (e) {
-                    process.emitWarning(`The file ${filePath} could not be deleted, please delete manually. Reason: ${e}`);
+                } catch (error) {
+                    process.emitWarning(
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        `The file ${filePath} could not be deleted, please delete manually. Reason: ${error}`,
+                    );
                 }
             }
         }
