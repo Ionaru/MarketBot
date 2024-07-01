@@ -4,7 +4,6 @@ import type {
     IUniverseNamesDataUnit,
 } from "@ionaru/eve-utils";
 import { formatNumber } from "@ionaru/format-number";
-import { startTransaction, type Transaction } from "elastic-apm-node";
 import {
     CommandContext,
     CommandOptionType,
@@ -12,7 +11,6 @@ import {
     SlashCreator,
 } from "slash-create";
 
-import { configuration } from "..";
 import { maxMessageLength } from "../chat-service/discord/misc";
 import { fetchMarketData, fetchUniverseNames } from "../helpers/api";
 import { citadels } from "../helpers/cache";
@@ -68,11 +66,6 @@ export class BuyOrdersCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const messageData: IParsedMessage = {
@@ -92,7 +85,6 @@ export class BuyOrdersCommand extends SlashCommand {
             context,
             itemData ? itemData.name : undefined,
             regionName ?? undefined,
-            transaction,
         );
     }
 }

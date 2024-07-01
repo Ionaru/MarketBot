@@ -3,7 +3,6 @@ import * as fs from "node:fs";
 import type { IUniverseNamesDataUnit } from "@ionaru/eve-utils";
 import { formatNumber } from "@ionaru/format-number";
 import * as d3 from "d3";
-import { startTransaction, type Transaction } from "elastic-apm-node";
 import moment from "moment";
 import {
     CommandContext,
@@ -12,7 +11,6 @@ import {
     SlashCreator,
 } from "slash-create";
 
-import { configuration } from "..";
 import { Message } from "../chat-service/discord/message";
 import { fetchHistoryData } from "../helpers/api";
 import { regions } from "../helpers/cache";
@@ -62,11 +60,6 @@ export class HistoryCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const messageData: IParsedMessage = {
@@ -92,7 +85,6 @@ export class HistoryCommand extends SlashCommand {
             context,
             itemData ? itemData.name : undefined,
             regionName ?? undefined,
-            transaction,
         );
     }
 }

@@ -1,9 +1,7 @@
 import { formatNumber } from "@ionaru/format-number";
 import { MessageEmbed } from "discord.js";
-import { type Transaction, startTransaction } from "elastic-apm-node";
 import { CommandContext, SlashCommand, SlashCreator } from "slash-create";
 
-import { configuration } from "..";
 import { items } from "../helpers/cache";
 import { logSlashCommand } from "../helpers/command-logger";
 import { makeBold, makeCode, newLine } from "../helpers/message-formatter";
@@ -20,11 +18,6 @@ export class TrackListCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const embed = await trackListCommandLogic(context);
@@ -32,7 +25,7 @@ export class TrackListCommand extends SlashCommand {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await context.send({ embeds: [embed] });
-        logSlashCommand(context, undefined, undefined, transaction);
+        logSlashCommand(context);
     }
 }
 
@@ -46,10 +39,10 @@ const trackListCommandLogic = async ({ channelID, user }: CommandContext) => {
     const embed = new MessageEmbed();
 
     if (trackingEntries.length === 0) {
-        embed.addField(
-            "Your tracking orders:",
-            "You have no orders that are currently being tracked.",
-        );
+        embed.addFields({
+            name: "Your tracking orders:",
+            value: "You have no orders that are currently being tracked.",
+        });
         return embed;
     }
 
@@ -78,10 +71,10 @@ const trackListCommandLogic = async ({ channelID, user }: CommandContext) => {
         );
         entryText += `• ${makeBold("Current price")}: ${currentPrice}`;
 
-        embed.addField(
-            `Tracking order: ${makeBold(trackingItem.name)}`,
-            entryText,
-        );
+        embed.addFields({
+            name: makeBold(trackingItem.name),
+            value: entryText,
+        });
     }
 
     return embed;

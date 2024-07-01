@@ -105,12 +105,16 @@ export const activate = async () => {
 
         debug(`Logging in...`);
         client.login();
-        client.emitter.once("ready", () => {
-            if (client) {
-                debug(`Logged in as ${client.name}`);
-                finishActivation();
-            }
-        });
+        client.emitter.addEventListener(
+            "ready",
+            () => {
+                if (client) {
+                    debug(`Logged in as ${client.name}`);
+                    finishActivation();
+                }
+            },
+            { once: true },
+        );
     } else {
         throw new Error(
             `Discord bot token was not valid, expected a string but got '${token}' of type ${typeof token}`,

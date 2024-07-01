@@ -1,6 +1,5 @@
 import { formatNumber } from "@ionaru/format-number";
 import { MessageEmbed } from "discord.js";
-import { type Transaction, startTransaction } from "elastic-apm-node";
 import {
     CommandContext,
     CommandOptionType,
@@ -8,7 +7,6 @@ import {
     SlashCreator,
 } from "slash-create";
 
-import { configuration } from "..";
 import { fetchPriceData } from "../helpers/api";
 import { systems } from "../helpers/cache";
 import { getCommand, logSlashCommand } from "../helpers/command-logger";
@@ -51,11 +49,6 @@ export class PriceCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const messageData: IParsedMessage = {
@@ -77,7 +70,6 @@ export class PriceCommand extends SlashCommand {
             context,
             itemData ? itemData.name : undefined,
             systemName ?? undefined,
-            transaction,
         );
     }
 }
@@ -89,7 +81,7 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
 
     const guessHint = getGuessHint({ guess, id, itemData }, messageData.item);
     if (guessHint) {
-        embed.addField("Warning", guessHint);
+        embed.addFields([{ name: "Warning", value: guessHint }]);
     }
 
     const systemName =
@@ -110,10 +102,12 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
     const json = await fetchPriceData(itemData, messageData.system);
 
     if (!json) {
-        embed.addField(
-            "Error",
-            `My apologies, I was unable to fetch the required data from the web, please try again later.`,
-        );
+        embed.addFields([
+            {
+                name: "Error",
+                value: "I couldn't find any price information for this item in this region.",
+            },
+        ]);
         embed.setThumbnail(
             `https://data.saturnserver.org/eve/Icons/items/9_64_12.ZH.png`,
         );
@@ -149,14 +143,14 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
     if (sellPrice === "unknown" && buyPrice === "unknown") {
         const itemName = itemFormat(itemData.name);
         const replyText = `I couldn't find any price information for ${itemName} in ${regionFormat(systemName)}, sorry.`;
-        embed.addField("No data", replyText);
+        embed.addFields([{ name: "No data", value: replyText }]);
         return { embed, itemData, systemName };
     }
 
-    embed.setAuthor(
-        itemData.name,
-        `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`,
-    );
+    embed.author = {
+        name: itemData.name,
+        iconURL: `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`,
+    };
     embed.setDescription(`Price information for ${regionFormat(systemName)}`);
     embed.setThumbnail(
         `https://image.eveonline.com/Type/${itemData.id}_64.png`,
@@ -169,7 +163,9 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
         sellInfo += `• Lowest: ${itemFormat(lowestSellPrice)}` + newLine();
         sellInfo += `• Average: ${itemFormat(sellPrice)}` + newLine();
     }
-    embed.addField(`Sell ( ${sellMeta.join(", ")} )`, sellInfo);
+    embed.addFields([
+        { name: `Sell ( ${sellMeta.join(", ")} )`, value: sellInfo },
+    ]);
 
     let buyInfo = "";
     if (buyPrice === "unknown") {
@@ -178,7 +174,9 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
         buyInfo += `• Highest: ${itemFormat(highestBuyPrice)}` + newLine();
         buyInfo += `• Average: ${itemFormat(buyPrice)}` + newLine();
     }
-    embed.addField(`Buy ( ${buyMeta.join(", ")} )`, buyInfo);
+    embed.addFields([
+        { name: `Buy ( ${buyMeta.join(", ")} )`, value: buyInfo },
+    ]);
 
     return { embed, itemData, systemName };
 };

@@ -1,5 +1,3 @@
-import { EventEmitter } from "node:events";
-
 import Discord, { Intents, WebSocketManager } from "discord.js";
 import type { InteractionHandler } from "slash-create";
 
@@ -7,7 +5,7 @@ import { Message } from "./message";
 import { maxMessageLength } from "./misc";
 
 export class Client {
-    public readonly emitter: EventEmitter;
+    public readonly emitter: EventTarget;
 
     private client: Discord.Client;
     private credentials: string;
@@ -27,15 +25,10 @@ export class Client {
             ],
             partials: ["CHANNEL"],
         });
-        // eslint-disable-next-line unicorn/prefer-event-target
-        this.emitter = new EventEmitter();
+        this.emitter = new EventTarget();
 
         this.client.on("ready", () => {
             this.onReady();
-        });
-
-        this.client.on("messageCreate", (message: Discord.Message) => {
-            this.onMessage(message);
         });
 
         this.client.on("warn", (warning: string) => {
@@ -167,10 +160,6 @@ export class Client {
         }
     }
 
-    private onMessage(message: Discord.Message): void {
-        this.emitter.emit("message", new Message(message));
-    }
-
     private onDisconnect(event: any) {
         process.emitWarning("Connection closed unexpectedly");
         process.emitWarning("Code:", event.code);
@@ -184,6 +173,6 @@ export class Client {
 
         this._id = this.client.user?.id;
         this.setDiscordPresence();
-        this.emitter.emit("ready");
+        this.emitter.dispatchEvent(new Event("ready"));
     }
 }

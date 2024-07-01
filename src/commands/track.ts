@@ -3,7 +3,6 @@ import type {
     IUniverseNamesDataUnit,
 } from "@ionaru/eve-utils";
 import { formatNumber } from "@ionaru/format-number";
-import { type Transaction, startTransaction } from "elastic-apm-node";
 import {
     CommandContext,
     CommandOptionType,
@@ -12,7 +11,6 @@ import {
 } from "slash-create";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-import { configuration } from "..";
 import { debug } from "../debug";
 import { getCheapestOrder } from "../helpers/api";
 import { items, regions } from "../helpers/cache";
@@ -103,11 +101,6 @@ export class TrackCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const { reply, itemData, regionName } = await trackCommandLogic(
@@ -120,7 +113,6 @@ export class TrackCommand extends SlashCommand {
             context,
             itemData ? itemData.name : undefined,
             regionName ?? undefined,
-            transaction,
         );
     }
 }
@@ -143,11 +135,6 @@ export class ClearTrackingCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         let reply = `All entries cleared from this channel.`;
@@ -192,7 +179,7 @@ export class ClearTrackingCommand extends SlashCommand {
         }
 
         await context.send(reply);
-        logSlashCommand(context, undefined, undefined, transaction);
+        logSlashCommand(context);
     }
 }
 

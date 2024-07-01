@@ -1,7 +1,6 @@
 import { type IMarketGroupData } from "@ionaru/eve-utils";
 import { formatNumber } from "@ionaru/format-number";
 import { MessageEmbed } from "discord.js";
-import { type Transaction, startTransaction } from "elastic-apm-node";
 import {
     CommandContext,
     CommandOptionType,
@@ -9,7 +8,6 @@ import {
     SlashCreator,
 } from "slash-create";
 
-import { configuration } from "..";
 import {
     fetchCategory,
     fetchGroup,
@@ -43,11 +41,6 @@ export class ItemCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const messageData: IParsedMessage = {
@@ -64,12 +57,7 @@ export class ItemCommand extends SlashCommand {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await context.send({ embeds: [embed] });
-        logSlashCommand(
-            context,
-            itemData ? itemData.name : undefined,
-            undefined,
-            transaction,
-        );
+        logSlashCommand(context, itemData ? itemData.name : undefined);
     }
 }
 
@@ -82,7 +70,7 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
 
     const guessHint = getGuessHint({ guess, id, itemData }, messageData.item);
     if (guessHint) {
-        embed.addField("Warning", guessHint);
+        embed.addFields([{ name: "Warning", value: guessHint }]);
     }
 
     if (!itemData.id) {
@@ -92,10 +80,10 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
         return { embed, itemData };
     }
 
-    embed.setAuthor(
-        itemData.name,
-        `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`,
-    );
+    embed.author = {
+        name: itemData.name,
+        iconURL: `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/info.png`,
+    };
     embed.setThumbnail(
         `https://image.eveonline.com/Type/${itemData.id}_64.png`,
     );
@@ -129,7 +117,7 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
         itemInfo += newLine();
     }
 
-    embed.addField("Item info", itemInfo);
+    embed.addFields([{ name: "Item info", value: itemInfo }]);
 
     let marketInfo = "";
     if (item && item.market_group_id) {
@@ -167,7 +155,7 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
     }
 
     if (marketInfo) {
-        embed.addField("Market info", marketInfo);
+        embed.addFields([{ name: "Market info", value: marketInfo }]);
     }
 
     return { embed, itemData };

@@ -1,4 +1,3 @@
-import type { Transaction } from "elastic-apm-node";
 import { CommandContext } from "slash-create";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
@@ -61,7 +60,6 @@ export const logSlashCommand = (
     message: CommandContext,
     outputItem?: string,
     outputRegion?: string,
-    transaction?: any,
 ) => {
     const command = getCommand(message);
     debug(command);
@@ -80,31 +78,7 @@ export const logSlashCommand = (
     newLogEntry.sender_id = message.user.id;
     newLogEntry.sender_name = `${message.user.username}#${message.user.discriminator}`;
 
-    if (configuration.getProperty("elastic.enabled") === true && transaction) {
-        finishTransaction(transaction, newLogEntry);
-    }
-
     if (configuration.getProperty("logging.enabled") === true) {
         void newLogEntry.save();
     }
-};
-
-const finishTransaction = (
-    transaction: Transaction,
-    logEntry: LogEntry,
-): void => {
-    transaction.setLabel("channel_id", logEntry.channel_id);
-    transaction.setLabel("channel_name", logEntry.channel_name);
-    transaction.setLabel("channel_type", logEntry.channel_type);
-    transaction.setLabel("command_full", logEntry.command_full);
-    transaction.setLabel("command_type", logEntry.command_type);
-    transaction.setLabel("guild_id", logEntry.guild_id);
-    transaction.setLabel("guild_name", logEntry.guild_name);
-    transaction.setLabel("item_input", logEntry.item_input);
-    transaction.setLabel("item_output", logEntry.item_output);
-    transaction.setLabel("region_input", logEntry.region_input);
-    transaction.setLabel("region_output", logEntry.region_output);
-    transaction.setLabel("sender_id", logEntry.sender_id);
-    transaction.setLabel("sender_name", logEntry.sender_name);
-    transaction.end();
 };

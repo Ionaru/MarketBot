@@ -1,7 +1,5 @@
-import { type Transaction, startTransaction } from "elastic-apm-node";
 import { CommandContext, SlashCommand, SlashCreator } from "slash-create";
 
-import { configuration } from "..";
 import { version } from "../../package.json";
 import { logSlashCommand } from "../helpers/command-logger";
 import {
@@ -22,17 +20,12 @@ export class InfoCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        let transaction: Transaction | null = null;
-        if (configuration.getProperty("elastic.enabled") === true) {
-            transaction = startTransaction();
-        }
-
         await context.defer(false);
 
         const reply = infoCommandLogic();
 
         await context.send(reply);
-        logSlashCommand(context, undefined, undefined, transaction);
+        logSlashCommand(context);
     }
 }
 
