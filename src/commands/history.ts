@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 import { IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
@@ -73,7 +73,7 @@ export class HistoryCommand extends SlashCommand {
             await context.send(reply);
         }
 
-        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
+        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName || undefined), transaction);
     }
 }
 
@@ -100,6 +100,11 @@ const historyCommandLogic = async (messageData: IParsedMessage): Promise<IHistor
     const defaultRegion = regions.find((region) => region.name === 'The Forge')!;
     let selectedRegion = defaultRegion;
 
+    // Special case for PLEX, it uses a global market.
+    if (itemData.id === 44992) {
+        messageData.region = 'GPMR-01';
+    }
+
     if (messageData.region) {
         selectedRegion = (await guessRegionInput(messageData.region)).itemData;
         if (!selectedRegion.id) {
@@ -109,7 +114,7 @@ const historyCommandLogic = async (messageData: IParsedMessage): Promise<IHistor
         }
     }
 
-    regionName = selectedRegion.name;
+    regionName = selectedRegion.id === 19000001 ? 'Global PLEX Market' : selectedRegion.name;
 
     const historyData = await fetchHistoryData(itemData.id, selectedRegion.id);
 

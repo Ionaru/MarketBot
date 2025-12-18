@@ -68,10 +68,11 @@ export class SellOrdersCommand extends SlashCommand {
         const {reply, itemData, regionName} = await sellOrdersCommandLogic(messageData);
 
         await context.send(reply);
-        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName ? regionName : undefined), transaction);
+        logSlashCommand(context, (itemData ? itemData.name : undefined), (regionName || undefined), transaction);
     }
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const sellOrdersCommandLogic = async (messageData: IParsedMessage): Promise<ISellOrdersCommandLogicReturn> => {
 
     let regionName = '';
@@ -90,10 +91,15 @@ const sellOrdersCommandLogic = async (messageData: IParsedMessage): Promise<ISel
         return {itemData: undefined, regionName, reply};
     }
 
+    // Special case for PLEX, it uses a global market.
+    if (itemData.id === 44992) {
+        messageData.region = 'GPMR-01';
+    }
+
     const {selectedRegion, regionReply} = await getSelectedRegion(messageData.region, reply);
     reply = regionReply;
 
-    regionName = selectedRegion.name;
+    regionName = selectedRegion.id === 19000001 ? 'Global PLEX Market' : selectedRegion.name;
 
     const itemId = itemData.id;
 

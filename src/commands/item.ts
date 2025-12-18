@@ -125,7 +125,7 @@ const itemCommandLogic = async (messageData: IParsedMessage) => {
             deepness++;
         }
 
-        const json = await fetchPriceData(itemData);
+        const json = await fetchPriceData(itemData, undefined, itemData.id === 44992);
         if (json) {
             const sellData = formatNumber(json[itemData.id].sell.percentile);
             const buyData = formatNumber(json[itemData.id].buy.percentile);

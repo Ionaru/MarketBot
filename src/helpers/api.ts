@@ -31,12 +31,14 @@ const captureRequestError = (url: string, errorResponse: any) => {
     return undefined;
 };
 
-export const fetchPriceData = async (item: IUniverseNamesDataUnit, system = '30000142'): Promise<IFuzzworkMarketData | undefined> => {
+export const fetchPriceData = async (
+    item: IUniverseNamesDataUnit, system = '30000142', plex = false
+): Promise<IFuzzworkMarketData | undefined> => {
 
     const host = 'https://market.fuzzwork.co.uk/';
 
     const params = new URLSearchParams({
-        system,
+        ...(plex ? {region: '19000001'} : {system}),
         types: item.id.toString(),
     });
 

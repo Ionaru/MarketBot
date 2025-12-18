@@ -63,7 +63,7 @@ export class PriceCommand extends SlashCommand {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await context.send({embeds: [embed]});
-        logSlashCommand(context, (itemData ? itemData.name : undefined), (systemName ? systemName : undefined), transaction);
+        logSlashCommand(context, (itemData ? itemData.name : undefined), (systemName || undefined), transaction);
     }
 }
 
@@ -84,11 +84,7 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
         return {embed, itemData, systemName};
     }
 
-    // this.logData.item = itemData.name;
-
-    // const location = this.getMarket();
-
-    const json = await fetchPriceData(itemData, messageData.system);
+    const json = await fetchPriceData(itemData, messageData.system, itemData.id === 44992);
 
     if (!json) {
         embed.addField('Error', `My apologies, I was unable to fetch the required data from the web, please try again later.`);
@@ -130,24 +126,26 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
     }
 
     embed.setAuthor(itemData.name, `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
-    embed.setDescription(`Price information for ${regionFormat(systemName)}`);
+    embed.setDescription(
+        `Price information` + (itemData.id === 44992 ? ' for the Global PLEX Market' : ` for ${regionFormat(systemName)}`)
+    );
     embed.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 
     let sellInfo = '';
-    if (sellPrice !== 'unknown') {
+    if (sellPrice === 'unknown') {
+        sellInfo += '• Sell price data is unavailable' + newLine();
+    } else {
         sellInfo += `• Lowest: ${itemFormat(lowestSellPrice)}` + newLine();
         sellInfo += `• Average: ${itemFormat(sellPrice)}` + newLine();
-    } else {
-        sellInfo += '• Sell price data is unavailable' + newLine();
     }
     embed.addField(`Sell ( ${sellMeta.join(', ')} )`, sellInfo);
 
     let buyInfo = '';
-    if (buyPrice !== 'unknown') {
+    if (buyPrice === 'unknown') {
+        buyInfo += '• Buy price data is unavailable' + newLine();
+    } else {
         buyInfo += `• Highest: ${itemFormat(highestBuyPrice)}` + newLine();
         buyInfo += `• Average: ${itemFormat(buyPrice)}` + newLine();
-    } else {
-        buyInfo += '• Buy price data is unavailable' + newLine();
     }
     embed.addField(`Buy ( ${buyMeta.join(', ')} )`, buyInfo);
 
