@@ -53,7 +53,7 @@
         "puppeteer": "^13.4.0",
         "reflect-metadata": "^0.1.13",
         "slash-create": "^5.4.1",
-        "sqlite3": "^5.0.0",
+        "sqlite3": "^5.1.5",
         "typeorm": "^0.2.29"
     },
     "devDependencies": {
