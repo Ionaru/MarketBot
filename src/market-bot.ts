@@ -1,5 +1,5 @@
 import Bugsnag from '@bugsnag/js';
-import { createConnection } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 import { version } from '../package.json';
 
@@ -21,12 +21,21 @@ import { LogEntry } from './helpers/command-logger';
 
 import { configuration, esiCache } from './index';
 
-export const creator = 'Ionaru#3801';
+export const creator = '@ionaru';
 export const botName = 'MarketBot';
 
 export let client: Client | undefined;
 
 export const dataFolder = 'data';
+
+export const dataSource = new DataSource({
+    database: 'data/marketbot.db',
+    entities: [
+        LogEntry, TrackingEntry,
+    ],
+    synchronize: true,
+    type: 'sqlite',
+});
 
 export const activate = async () => {
     debug('Starting bot activation');
@@ -41,14 +50,13 @@ export const activate = async () => {
     });
     await checkAndUpdateCitadelCache();
 
-    await createConnection({
-        database: 'data/marketbot.db',
-        entities: [
-            LogEntry, TrackingEntry,
-        ],
-        synchronize: true,
-        type: 'sqlite',
-    });
+    await dataSource.initialize();
+
+    // Bind the entities explicitly rather than relying on TypeORM picking up the most
+    // recently initialised DataSource for Active Record. That fallback is undocumented
+    // and would break silently, at runtime only, the moment a second DataSource exists.
+    LogEntry.useDataSource(dataSource);
+    TrackingEntry.useDataSource(dataSource);
 
     debug(`Database connection created`);
 
@@ -107,9 +115,14 @@ export const deactivate = async (exitProcess: boolean, error = false): Promise<v
 
     debug(quitMessage);
     if (client) {
-        client.disconnect();
+        await client.disconnect();
         client = undefined;
         debug('Client destroyed');
+    }
+
+    if (dataSource.isInitialized) {
+        await dataSource.destroy();
+        debug('Database connection closed');
     }
 
     debug('Done!');

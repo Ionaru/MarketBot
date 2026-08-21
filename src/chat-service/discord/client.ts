@@ -1,6 +1,14 @@
 import { EventEmitter } from 'events';
 
-import Discord, { Intents, WebSocketManager } from 'discord.js';
+import Discord, {
+    ActivityType,
+    ChannelType,
+    Events,
+    GatewayDispatchEvents,
+    GatewayIntentBits,
+    Partials,
+    WebSocketManager,
+} from 'discord.js';
 import { InteractionHandler } from 'slash-create';
 
 import { Message } from './message';
@@ -21,30 +29,33 @@ export class Client {
     public constructor(credentials: string) {
         this.credentials = credentials;
         this.client = new Discord.Client({intents: [
-            Intents.FLAGS.GUILDS,
-            Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES,
-            Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
-        ], partials: ['CHANNEL']});
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages,
+            GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.DirectMessageReactions,
+        ], partials: [Partials.Channel]});
         this.emitter = new EventEmitter();
 
-        this.client.on('ready', () => {
+        this.client.on(Events.ClientReady, () => {
             this.onReady();
         });
 
-        this.client.on('messageCreate', (message: Discord.Message) => {
+        this.client.on(Events.MessageCreate, (message: Discord.Message) => {
             this.onMessage(message);
         });
 
-        this.client.on('warn', (warning: string) => {
+        this.client.on(Events.Warn, (warning: string) => {
             Client.onWarning(warning);
         });
 
-        this.client.on('error', (error: Error) => {
+        this.client.on(Events.Error, (error: Error) => {
             Client.onError(error);
         });
 
-        this.client.on('disconnect', (event: any) => {
-            this.onDisconnect(event);
+        // discord.js reconnects shards by itself, so this only reports. The old
+        // handler listened for a "disconnect" event that has not existed since v12
+        // and forced a destroy/login cycle, which would fight that recovery.
+        this.client.on(Events.ShardDisconnect, (event, shardId) => {
+            Client.onShardDisconnect(event, shardId);
         });
     }
 
@@ -67,7 +78,10 @@ export class Client {
     }
 
     public get commandHandler(): (handler: InteractionHandler) => WebSocketManager {
-        return (handler: InteractionHandler) => this.client.ws.on('INTERACTION_CREATE' as any, handler);
+        // slash-create is fed the raw gateway payload. WebSocketManager emits every
+        // dispatch under its own type name with the payload's "d" field as the first
+        // argument, which is exactly the shape slash-create's GatewayServer expects.
+        return (handler: InteractionHandler) => this.client.ws.on(GatewayDispatchEvents.InteractionCreate, handler);
     }
 
     private static onError(error: Error) {
@@ -78,17 +92,16 @@ export class Client {
         process.emitWarning(`Discord: \n${warning}`);
     }
 
+    private static onShardDisconnect(event: {code: number; reason?: string;}, shardId: number) {
+        process.emitWarning(`Discord shard ${shardId} disconnected, code ${event.code}: ${event.reason ?? 'no reason given'}`);
+    }
+
     public login() {
         this.client.login(this.credentials).then();
     }
 
-    public disconnect() {
-        this.client.destroy();
-    }
-
-    public reconnect() {
-        this.disconnect();
-        this.login();
+    public disconnect(): Promise<void> {
+        return this.client.destroy();
     }
 
     public async sendToChannel(id: string, message: string, userId?: string): Promise<void> {
@@ -98,7 +111,7 @@ export class Client {
         try {
             const channel = [...this.client.channels.cache.values()].find((clientChannel) => clientChannel.id === id);
             if (channel) {
-                if (channel.type === 'DM' || channel.type === 'GUILD_TEXT') {
+                if (channel.type === ChannelType.DM || channel.type === ChannelType.GuildText) {
                     const textChannel = channel as Discord.TextChannel | Discord.DMChannel;
                     await textChannel.send(message).catch((error) => {
                         throw new Error(error);
@@ -132,7 +145,7 @@ export class Client {
         this.client.user?.setPresence({
             activities: [{
                 name: `with ISK (try /info)`,
-                type: 'PLAYING',
+                type: ActivityType.Playing,
             }],
             status: 'online',
         });
@@ -146,14 +159,6 @@ export class Client {
 
     private onMessage(message: Discord.Message): void {
         this.emitter.emit('message', new Message(message));
-    }
-
-    private onDisconnect(event: any) {
-        process.emitWarning('Connection closed unexpectedly');
-        process.emitWarning('Code:', event.code);
-        process.emitWarning('Reason:', event.reason);
-        process.emitWarning('Attempting reconnect...');
-        this.reconnect();
     }
 
     private onReady() {

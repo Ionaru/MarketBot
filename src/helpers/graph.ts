@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import D3Node from 'd3-node';
+import { D3Node } from 'd3-node';
 import puppeteer from 'puppeteer';
 
 interface IData {

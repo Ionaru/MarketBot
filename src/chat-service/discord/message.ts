@@ -1,6 +1,4 @@
-import Discord from 'discord.js';
-// eslint-disable-next-line import/no-unresolved
-import { ChannelTypes } from 'discord.js/typings/enums';
+import Discord, { ChannelType } from 'discord.js';
 
 import { makeBold, makeCode, makeURL, newLine } from '../../helpers/message-formatter';
 import { creator } from '../../market-bot';
@@ -12,14 +10,12 @@ interface IServer {
     name?: string;
 }
 
-type ChannelType = keyof typeof ChannelTypes;
-
 export class Message {
 
     public readonly sender: string;
     public readonly origin: string;
-    public readonly author: { id: string; name: string };
-    public readonly channel: { id: string; name?: string; type: ChannelType };
+    public readonly author: { id: string; name: string; };
+    public readonly channel: { id: string; name?: string; type: ChannelType; };
     public readonly server: IServer;
     public readonly content: string;
     public readonly id: string;
@@ -51,7 +47,7 @@ export class Message {
             this.server.name = message.guild.name;
         }
 
-        if (message.channel.type !== 'DM') {
+        if (message.channel.type !== ChannelType.DM) {
             const channel = message.channel as Discord.TextChannel;
             this.channel.name = channel.name;
         }
@@ -60,7 +56,7 @@ export class Message {
     }
 
     public get guild(): Discord.Guild | undefined {
-        if (this.discordMessage.channel.type === 'GUILD_TEXT') {
+        if (this.discordMessage.channel.type === ChannelType.GuildText) {
             const channel = this.discordMessage.channel;
             return channel.guild;
         }
@@ -81,11 +77,16 @@ export class Message {
         return text;
     }
 
-    public async reply(message: string, options: Discord.MessageOptions = {}): Promise<Message> {
+    public async reply(message: string, options: Discord.MessageCreateOptions = {}): Promise<Message> {
         if (message.length > maxMessageLength) {
             throw new Error('MaxMessageLengthReached');
         }
-        const sent = await this.discordMessage.channel.send({content: message || undefined, ...options});
+        const channel = this.discordMessage.channel;
+        // Group DM channels carry no send(); every channel this bot is reachable in does.
+        if (!channel.isSendable()) {
+            throw new Error('ChannelNotSendable');
+        }
+        const sent = await channel.send({content: message || undefined, ...options});
         return new Message(sent);
     }
 

@@ -1,4 +1,3 @@
-import { sortArrayByObjectPropertyLength } from '@ionaru/array-utils';
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import escapeStringRegexp from 'escape-string-regexp';
 import Fuse from 'fuse.js';
@@ -6,6 +5,7 @@ import Fuse from 'fuse.js';
 import { fetchUniverseType } from './api';
 import { items, itemsFuse, regions, regionsFuse, systems } from './cache';
 import { itemFormat, newLine, regionFormat } from './message-formatter';
+import { sortArrayByObjectPropertyLength } from './sort';
 
 interface IShortcuts {
     [shortcut: string]: string;

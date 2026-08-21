@@ -1,0 +1,180 @@
+name: MarketBot CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  NODE_VERSION: "24"
+
+jobs:
+  audit:
+    name: Audit dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm audit --omit=dev
+
+  get_sha:
+    name: Get short SHA for image tags
+    runs-on: ubuntu-latest
+    outputs:
+      sha_short: ${{ steps.get_sha.outputs.sha_short }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: get_sha
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Lint, test and build
+    needs: [audit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      # Chromium comes from the image, never from puppeteer's own download.
+      - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 1
+      # "npm test" runs the linter first, through its pretest hook.
+      - run: npm test
+      - run: npm run build
+      - uses: codecov/codecov-action@v7
+        with:
+          directory: coverage
+
+  build-image:
+    name: Build image
+    needs: [audit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker compose -f deploy/compose.yaml build marketbot
+      - run: docker save -o marketbot-image.tar ghcr.io/ionaru/marketbot:latest
+      - uses: actions/upload-artifact@v7
+        with:
+          name: marketbot-image
+          path: marketbot-image.tar
+          retention-days: 1
+
+  push-image:
+    name: Push image
+    if: github.event_name == 'push'
+    needs: [get_sha, test, build-image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: marketbot-image
+      - run: docker load -i marketbot-image.tar
+      - run: docker tag ghcr.io/ionaru/marketbot:latest ghcr.io/ionaru/marketbot:${{ needs.get_sha.outputs.sha_short }}
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker push -a ghcr.io/ionaru/marketbot
+
+  deploy:
+    name: Deploy
+    needs: [get_sha, push-image]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    steps:
+      - uses: appleboy/ssh-action@v1.2.5
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          GIT_REVISION: ${{ needs.get_sha.outputs.sha_short }}
+        with:
+          command_timeout: 15m
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          envs: DEPLOY_PATH,GIT_REVISION
+          script: |
+            set -eu
+
+            cd "$DEPLOY_PATH"
+
+            # Match the checkout to the commit whose image was just published, so the
+            # compose file on disk and the running image always come from one commit.
+            git fetch --prune origin
+            git checkout --force "$GIT_REVISION"
+
+            export MARKETBOT_GIT_REVISION="$GIT_REVISION"
+
+            # --env-file is not optional. Compose does not auto-discover a .env at the
+            # checkout root when the compose file lives in deploy/, so without it the
+            # stack silently runs :latest against empty named volumes, with neither the
+            # configuration nor the database the bot is supposed to be using.
+            #
+            # This body must stay a SINGLE command. A shell function used as the left
+            # operand of || runs with errexit disabled, so a multi-command body would
+            # keep going after a failure and return the last command's status, losing
+            # the real exit code.
+            compose() {
+              docker compose \
+                --project-name marketbot \
+                --env-file "$DEPLOY_PATH/.env" \
+                --file "$DEPLOY_PATH/deploy/compose.yaml" \
+                "$@"
+            }
+
+            compose pull
+
+            # "|| rc=$?" stops errexit aborting before the logs are printed.
+            rc=0
+            compose up --detach --pull=never --no-build --remove-orphans \
+              --wait --wait-timeout 120 || rc=$?
+
+            compose logs --tail=100 marketbot
+
+            if [ "$rc" -ne 0 ]; then
+              exit "$rc"
+            fi
+
+            # There is no healthcheck, so --wait only proves the container reached
+            # "running". Watch it for a moment and confirm it is not crash-looping.
+            # RestartCount is cumulative for the life of the container, so compare a
+            # delta rather than expecting zero: a redeploy that reuses an existing
+            # container would otherwise trip over a restart from weeks ago.
+            #
+            # This is what catches a missing or wrong config/marketbot.ini, which the
+            # bot reports by throwing during startup, before it ever reaches Discord.
+            container="$(compose ps --all --quiet marketbot)"
+            before="$(docker inspect --format '{{.RestartCount}}' "$container")"
+            sleep 20
+            after="$(docker inspect --format '{{.RestartCount}}' "$container")"
+            status="$(docker inspect --format '{{.State.Status}}' "$container")"
+            if [ "$status" != "running" ] || [ "$after" -ne "$before" ]; then
+              echo "MarketBot is unhealthy: status=$status restarts=$before->$after" >&2
+              compose logs --tail=200 marketbot
+              exit 1
+            fi
+
+            # Reclaim disk from superseded MarketBot images only. Other stacks share this
+            # Docker daemon, so a global "docker system prune --all" would delete theirs.
+            stale="$(docker image ls --format '{{.Repository}}:{{.Tag}}' \
+              --filter 'reference=ghcr.io/ionaru/marketbot' \
+              | grep -vx "ghcr.io/ionaru/marketbot:${GIT_REVISION}" || true)"
+            if [ -n "$stale" ]; then
+              echo "$stale" | xargs -r docker image rm --force || true
+            fi
