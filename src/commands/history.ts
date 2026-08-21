@@ -47,7 +47,6 @@ export class HistoryCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
@@ -68,7 +67,7 @@ export class HistoryCommand extends SlashCommand {
 
         if (fileName) {
             const file = fs.readFileSync(fileName);
-            await context.send(reply, {file: {file, name: fileName}});
+            await context.send({content: reply, files: [{file, name: fileName}]});
         } else {
             await context.send(reply);
         }

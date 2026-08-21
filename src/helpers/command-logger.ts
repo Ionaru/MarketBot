@@ -73,7 +73,9 @@ export const logSlashCommand = (message: CommandContext, outputItem?: string, ou
     newLogEntry.region_input = message.options.region;
     newLogEntry.region_output = outputRegion;
     newLogEntry.sender_id = message.user.id;
-    newLogEntry.sender_name = `${message.user.username}#${message.user.discriminator}`;
+    // Discord retired discriminators; every migrated account now reports "0",
+    // so appending it only wrote a useless "#0" suffix.
+    newLogEntry.sender_name = message.user.username;
 
     if (configuration.getProperty('elastic.enabled') === true && transaction) {
         finishTransaction(transaction, newLogEntry);

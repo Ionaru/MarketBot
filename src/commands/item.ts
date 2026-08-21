@@ -1,10 +1,10 @@
 import { IMarketGroupData } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
-import { MessageEmbed } from 'discord.js';
 import { Transaction, startTransaction } from 'elastic-apm-node';
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 
 import { configuration } from '..';
+import { MessageEmbed } from '../chat-service/discord/embed';
 import { fetchCategory, fetchGroup, fetchMarketGroup, fetchPriceData, fetchUniverseType } from '../helpers/api';
 import { getCommand, logSlashCommand } from '../helpers/command-logger';
 import { getGuessHint, guessItemInput, IGuessReturn } from '../helpers/guessers';
@@ -28,7 +28,6 @@ export class ItemCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
@@ -47,8 +46,6 @@ export class ItemCommand extends SlashCommand {
 
         const {embed, itemData} = await itemCommandLogic(messageData);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         await context.send({embeds: [embed]});
         logSlashCommand(context, (itemData ? itemData.name : undefined), undefined, transaction);
     }

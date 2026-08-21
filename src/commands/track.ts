@@ -17,7 +17,7 @@ import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helper
 import { client } from '../market-bot';
 import { IParsedMessage } from '../typings.d';
 
-import Timer = NodeJS.Timer;
+import Timeout = NodeJS.Timeout;
 
 @Entity('TrackingEntries')
 export class TrackingEntry extends BaseEntity {
@@ -47,7 +47,7 @@ export class TrackingEntry extends BaseEntity {
     public tracking_type!: 'buy' | 'sell';
 }
 
-let trackingCycle: Timer | undefined;
+let trackingCycle: Timeout | undefined;
 
 interface ITrackCommandLogicReturn {
     reply: string;
@@ -88,7 +88,6 @@ export class TrackCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
@@ -121,7 +120,6 @@ export class ClearTrackingCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
@@ -295,7 +293,7 @@ export const performTrackingCycle = async () => {
         return;
     }
 
-    const entriesDone: Array<{ entry: TrackingEntry; order?: IMarketOrdersDataUnit }> = [];
+    const entriesDone: Array<{ entry: TrackingEntry; order?: IMarketOrdersDataUnit; }> = [];
 
     for (const entry of trackingEntries) {
 

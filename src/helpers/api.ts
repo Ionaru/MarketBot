@@ -1,7 +1,6 @@
 import { URLSearchParams } from 'url';
 
 import Bugsnag from '@bugsnag/js';
-import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import {
     EVE,
     IMarketGroupData,
@@ -21,6 +20,8 @@ import { debug } from '../debug';
 import { axiosInstance, esiCache, esiService } from '../index';
 import { ICitadelData, IFuzzworkMarketData } from '../typings.d';
 
+import { sortArrayByObjectProperty } from './sort';
+
 const apiDebug = debug.extend('api');
 
 const captureRequestError = (url: string, errorResponse: any) => {
@@ -32,7 +33,7 @@ const captureRequestError = (url: string, errorResponse: any) => {
 };
 
 export const fetchPriceData = async (
-    item: IUniverseNamesDataUnit, system = '30000142', plex = false
+    item: IUniverseNamesDataUnit, system = '30000142', plex = false,
 ): Promise<IFuzzworkMarketData | undefined> => {
 
     const host = 'https://market.fuzzwork.co.uk/';

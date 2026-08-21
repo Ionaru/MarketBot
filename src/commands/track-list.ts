@@ -1,9 +1,9 @@
 import { formatNumber } from '@ionaru/format-number';
-import { MessageEmbed } from 'discord.js';
 import { Transaction, startTransaction } from 'elastic-apm-node';
 import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
 
 import { configuration } from '..';
+import { MessageEmbed } from '../chat-service/discord/embed';
 import { items } from '../helpers/cache';
 import { logSlashCommand } from '../helpers/command-logger';
 import { makeBold, makeCode, newLine } from '../helpers/message-formatter';
@@ -19,7 +19,6 @@ export class TrackListCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
@@ -29,8 +28,6 @@ export class TrackListCommand extends SlashCommand {
 
         const embed = await trackListCommandLogic(context);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         await context.send({ embeds: [embed] });
         logSlashCommand(context, undefined, undefined, transaction);
     }

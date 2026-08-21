@@ -1,9 +1,9 @@
 import { formatNumber } from '@ionaru/format-number';
-import { MessageEmbed } from 'discord.js';
 import { Transaction, startTransaction } from 'elastic-apm-node';
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 
 import { configuration } from '..';
+import { MessageEmbed } from '../chat-service/discord/embed';
 import { fetchPriceData } from '../helpers/api';
 import { systems } from '../helpers/cache';
 import { getCommand, logSlashCommand } from '../helpers/command-logger';
@@ -41,7 +41,6 @@ export class PriceCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
@@ -60,8 +59,6 @@ export class PriceCommand extends SlashCommand {
 
         const {embed, itemData, systemName} = await priceCommandLogic(messageData);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         await context.send({embeds: [embed]});
         logSlashCommand(context, (itemData ? itemData.name : undefined), (systemName || undefined), transaction);
     }
@@ -127,7 +124,7 @@ const priceCommandLogic = async (messageData: IParsedMessage) => {
 
     embed.setAuthor(itemData.name, `https://data.saturnserver.org/eve/Icons/UI/WindowIcons/wallet.png`);
     embed.setDescription(
-        `Price information` + (itemData.id === 44992 ? ' for the Global PLEX Market' : ` for ${regionFormat(systemName)}`)
+        `Price information` + (itemData.id === 44992 ? ' for the Global PLEX Market' : ` for ${regionFormat(systemName)}`),
     );
     embed.setThumbnail(`https://image.eveonline.com/Type/${itemData.id}_64.png`);
 

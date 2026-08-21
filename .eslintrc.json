@@ -10,6 +10,86 @@
         "@ionaru"
     ],
     "rules": {
-        "import/extensions": "off"
+        "import/extensions": "off",
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": "classProperty",
+                "format": [
+                    "camelCase"
+                ],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "objectLiteralProperty",
+                "format": null
+            },
+            {
+                "selector": "typeProperty",
+                "format": null
+            },
+            {
+                "selector": "default",
+                "format": [
+                    "camelCase"
+                ]
+            },
+            {
+                "selector": "variable",
+                "format": [
+                    "camelCase"
+                ]
+            },
+            {
+                "selector": "parameter",
+                "format": [
+                    "camelCase"
+                ],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "typeLike",
+                "format": [
+                    "PascalCase"
+                ]
+            },
+            {
+                "selector": "enumMember",
+                "format": [
+                    "UPPER_CASE"
+                ]
+            },
+            {
+                "selector": [
+                    "variable",
+                    "parameter"
+                ],
+                "modifiers": [
+                    "destructured"
+                ],
+                "format": null
+            },
+            {
+                "selector": "import",
+                "format": null
+            }
+        ],
+        "unicorn/catch-error-name": "off",
+        "unicorn/explicit-length-check": "off",
+        "unicorn/no-await-expression-member": "off",
+        "unicorn/no-null": "off",
+        "unicorn/no-process-exit": "off",
+        "unicorn/no-useless-undefined": "off",
+        "unicorn/numeric-separators-style": "off",
+        "unicorn/prefer-at": "off",
+        "unicorn/prefer-event-target": "off",
+        "unicorn/prefer-logical-operator-over-ternary": "off",
+        "unicorn/prefer-node-protocol": "off",
+        "unicorn/prefer-number-properties": "off",
+        "unicorn/prefer-spread": "off",
+        "unicorn/prefer-string-replace-all": "off",
+        "unicorn/prefer-type-error": "off",
+        "unicorn/prevent-abbreviations": "off",
+        "import/no-named-as-default-member": "off"
     }
 }

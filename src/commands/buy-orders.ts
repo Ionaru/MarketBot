@@ -1,4 +1,3 @@
-import { sortArrayByObjectProperty } from '@ionaru/array-utils';
 import { IUniverseNamesData, IUniverseNamesDataUnit } from '@ionaru/eve-utils';
 import { formatNumber } from '@ionaru/format-number';
 import { startTransaction, Transaction } from 'elastic-apm-node';
@@ -12,6 +11,7 @@ import { getCommand, logSlashCommand } from '../helpers/command-logger';
 import { pluralize } from '../helpers/formatters';
 import { getGuessHint, getSelectedRegion, guessItemInput, IGuessReturn } from '../helpers/guessers';
 import { itemFormat, makeBold, makeCode, newLine, regionFormat } from '../helpers/message-formatter';
+import { sortArrayByObjectProperty } from '../helpers/sort';
 import { IParsedMessage } from '../typings.d';
 
 interface IBuyOrdersCommandLogicReturn {
@@ -49,7 +49,6 @@ export class BuyOrdersCommand extends SlashCommand {
     }
 
     public async run(context: CommandContext): Promise<void> {
-        // eslint-disable-next-line no-null/no-null
         let transaction: Transaction | null = null;
         if (configuration.getProperty('elastic.enabled') === true) {
             transaction = startTransaction();
