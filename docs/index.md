@@ -45,27 +45,17 @@ What information does it save?
 Please open an [issue](https://github.com/Ionaru/MarketBot/issues/new) if you have any feature ideas for this bot
 or are missing any functionality.
 
-Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: `Ionaru#3801`.
+Alternatively you can contact me in EVE Online: `Ionaru Otsada`, or on Discord: `@ionaru`.
 
 ## Self-hosting
-It is possible to self-host this bot, it requires NodeJS 8 or greater.
+It is possible to self-host this bot. It requires Docker with the Compose v2 plugin, and images are
+published to `ghcr.io/ionaru/marketbot`.
 
-#### Step one: Creating a bot user
-1. Go to [https://discordapp.com/developers/applications/me](https://discordapp.com/developers/applications/me).
-2. Create a new App, give it a name and picture. The "redirect URL" is not needed. Click "Create App".
-3. Click on "Create a Bot User" and confirm.
-4. Click the link next to "Token" to reveal your Discord Bot Token, you will need it later.
-5. Invite the bot to your server by placing the bot's Client ID in this link: `https://discordapp.com/oauth2/authorize?client_id=PLACE_CLIENT_ID_HERE&scope=bot%20applications.commands`
-6. Paste the link in your web browser and follow the steps on the Discord website.
+The instructions used to live here and had drifted out of date. They are now kept in one place, in
+the repository's
+[README](https://github.com/Ionaru/MarketBot#self-hosting), alongside the Compose file they describe.
 
-#### Step two: Installing the bot
-1. Install [NodeJS](https://nodejs.org/en/download/current/).
-2. Go to the [Releases page](https://github.com/Ionaru/MarketBot/releases), download and extract the latest release.
-3. Install dependencies with `npm install`.
-4. Go to the config folder, create a copy of `marketbot.template.ini` and name the copy `marketbot.ini`. Set the Discord Bot Token to the one you created.
-5. Go back to the main folder and run `npm start`.
-
-Contact me in EVE Online: `Ionaru Otsada` or on Discord: `Ionaru#3801` if you need any assistance.
+Contact me in EVE Online: `Ionaru Otsada` or on Discord: `@ionaru` if you need any assistance.
 
 ## To-Do & Ideas
 - [x] Support for searches in Jita, Amarr & other trade hubs

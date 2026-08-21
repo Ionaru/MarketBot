@@ -21,7 +21,7 @@ import { LogEntry } from './helpers/command-logger';
 
 import { configuration, esiCache } from './index';
 
-export const creator = 'Ionaru#3801';
+export const creator = '@ionaru';
 export const botName = 'MarketBot';
 
 export let client: Client | undefined;

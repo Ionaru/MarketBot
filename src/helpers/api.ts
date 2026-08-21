@@ -47,7 +47,7 @@ export const fetchPriceData = async (
 
     const result = await axiosInstance.post<IFuzzworkMarketData>(url, undefined, {
         headers: {
-            'User-Agent': `MarketBot/${ version } Ionaru#3801`,
+            'User-Agent': `MarketBot/${ version } @ionaru`,
         },
     })
         .catch((errorResponse) => captureRequestError(url, errorResponse));
