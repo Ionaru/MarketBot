@@ -111,7 +111,7 @@ before it connects to Discord, which takes a few minutes. Later starts reuse the
 | `MARKETBOT_CONFIG_VOLUME` | No | Directory holding `marketbot.ini`. Defaults to a Docker named volume. |
 | `MARKETBOT_DATA_VOLUME` | No | Where MarketBot keeps its database and caches. Defaults to a Docker named volume. |
 | `MARKETBOT_GIT_REVISION` | No | Image tag to run. Defaults to `latest`. |
-| `DEBUG` | No | Set to `marketbot*` or `*` for extra logging output. |
+| `DEBUG` | No | Set to `market-bot*` or `*` for extra logging output. Note the hyphen. |
 | `DISABLE_TRACKING_CYCLE` | No | Set to `true` to stop the periodic price-tracking checks. |
 
 Everything else, including the Discord credentials, lives in `config/marketbot.ini`.
