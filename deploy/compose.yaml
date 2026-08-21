@@ -1,0 +1,22 @@
+services:
+  marketbot:
+    image: ghcr.io/ionaru/marketbot:${MARKETBOT_GIT_REVISION:-latest}
+    build:
+      context: ../
+      dockerfile: deploy/Dockerfile
+    environment:
+      - DEBUG
+      - DISABLE_TRACKING_CYCLE
+    volumes:
+      # Two volumes: the bot reads its secrets from an ini file rather than the
+      # environment, so the config directory is mounted alongside the data one.
+      - ${MARKETBOT_CONFIG_VOLUME:-config}:/app/config
+      - ${MARKETBOT_DATA_VOLUME:-data}:/app/data
+    restart: unless-stopped
+    # Every /history renders a graph in Chromium, which forks renderer processes.
+    # Without an init process to reap them they pile up as zombies under PID 1.
+    init: true
+
+volumes:
+  config:
+  data:

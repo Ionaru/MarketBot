@@ -1,23 +1,13 @@
-# IDE files
-.idea/
-.vscode/
-*.iml
+node_modules
+dist
+coverage
+.git
+.github
+.idea
+data
+logs
+*.log
+.env
 
-# Node/Npm files
-npm-debug.log*
-node_modules/
-
-# Build files & test artifacts
-coverage/
-dist/
-
-# Local application files
+# Never bake a developer's real configuration into an image.
 config/marketbot.ini
-data/typeIDs.yaml
-data/*.png
-data/*.json
-data/*.txt
-logs/
-
-# System files
-*.db

@@ -1,0 +1,30 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # These release together and break together, so update them as one PR.
+      # Note that @ionaru/eslint-config peer-pins eslint to "7.17.0 - 8", so the
+      # ESLint 9 and 10 PRs in this group cannot be merged until that changes.
+      eslint:
+        patterns:
+          - "@ionaru/eslint-config"
+          - "@typescript-eslint/*"
+          - "eslint"
+          - "eslint-plugin-*"
+      types:
+        patterns:
+          - "@types/*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /deploy
+    schedule:
+      interval: weekly
