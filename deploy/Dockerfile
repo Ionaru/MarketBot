@@ -1,5 +1,5 @@
 # ---- Build stage: compile TypeScript to dist/ ----
-FROM node:24-trixie-slim AS build
+FROM node:25-trixie-slim AS build
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY src ./src
 RUN npm run build
 
 # ---- Runtime stage: production image ----
-FROM node:24-trixie-slim AS runtime
+FROM node:25-trixie-slim AS runtime
 
 ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_DOWNLOAD=1
