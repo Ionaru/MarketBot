@@ -40,7 +40,7 @@
         "@ionaru/eve-utils": "^8.0.0",
         "@ionaru/format-number": "^5.0.0",
         "agentkeepalive": "^4.6.0",
-        "axios": "^1.19.0",
+        "axios": "^1.20.0",
         "countdown": "^2.6.0",
         "d3": "^7.9.0",
         "d3-node": "^4.0.2",
